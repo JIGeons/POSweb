@@ -1,0 +1,33 @@
+spring.application.name: POS
+
+# Database 연동 설정
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/posweb
+    username: root
+    password: 1234
+  thymeleaf:
+    cache: false
+
+  # Spring data jpa 설정
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    properties:
+      hibernate:
+        # 콘솔에 출력되는 JPA 실행 쿼리를 가독성있게 표현한다.
+        format_sql: true
+        # 하이버네이트가 실행하는 모든 SQL문을 콘솔로 출력해 준다.
+        show_sql: true
+        # 조회쿼리 작성 시, 지연 로딩으로 발생해야 하는 쿼리를 IN절로 한번에 모아보내는 기능.
+        # 한번에 500개의 객체를 모아서 보낸다.
+        default_batch_fetch_size: 500
+
+    database-platform: org.hibernate.dialect.MySQL57Dialect
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
