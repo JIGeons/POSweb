@@ -16,7 +16,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     // 회원가입 service
-    @Transactional(readOnly = false)
+    @Transactional
     public Long join(Member member) {
         validateDuplicateMember(member);
         memberRepository.save(member);
@@ -44,7 +44,7 @@ public class MemberService {
     }
 
     // 회원 정보 수정
-    @Transactional(readOnly = false)
+    @Transactional
     public void update(Member updateMember) {
         Member member = findOne(updateMember.getMemberId());
         member.setName(updateMember.getName());
