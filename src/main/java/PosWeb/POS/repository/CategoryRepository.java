@@ -2,6 +2,7 @@ package PosWeb.POS.repository;
 
 import PosWeb.POS.domain.Category;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -24,9 +25,13 @@ public class CategoryRepository {
     }
 
     public Category findByCategory(String category) {
-        return em.createQuery("select c from Category c where c.category = :category", Category.class)
-                .setParameter("category", category)
-                .getSingleResult();
+        try {
+            return em.createQuery("select c from Category c where c.category = :category", Category.class)
+                    .setParameter("category", category)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            return null;    // 쿼리가 없는 경우 null 반환
+        }
     }
 
     public List<Category> findAll() {

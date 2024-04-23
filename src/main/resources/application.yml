@@ -13,7 +13,7 @@ spring:
   # Spring data jpa 설정
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
 
     properties:
       hibernate:
@@ -25,7 +25,7 @@ spring:
         # 한번에 500개의 객체를 모아서 보낸다.
         default_batch_fetch_size: 500
 
-    database-platform: org.hibernate.dialect.MySQL57Dialect
+    database-platform: org.hibernate.dialect.MySQLDialect
 
 logging:
   level:

@@ -27,28 +27,29 @@ public class InitDb {
         private final EntityManager em;
 
         public void dbInit() {
-            Member admin = createMember();
+            Member admin = createAdmin();   // 관리자 아이디 생성
             em.persist(admin);
 
-            Category bisket = createCategory(1, "bisket");
-            Category beverage = createCategory(2, "beverage");
-            Category iceCream = createCategory(3, "iceCream");
+            // 기본 카테고리 3개 설정(과자, 음료, 아이스크림)
+            Category bisket = createCategory("bisket");
+            Category beverage = createCategory("beverage");
+            Category iceCream = createCategory("iceCream");
             em.persist(bisket);
             em.persist(beverage);
             em.persist(iceCream);
         }
 
-        private static Member createMember() {
+        private static Member createAdmin() {
             Member admin = new Member();
-            admin.setMemberId("admin");
+            admin.setStringId("admin");
             admin.setName("admin");
-            admin.setPw("1234");
+            admin.setPw("1234");    // 초기 비밀번호
+            admin.setAdmin(true);   // 관리자 여부 true 설정
             return admin;
         }
 
-        private static Category createCategory(int number, String content) {
+        private static Category createCategory(String content) {
             Category category = new Category();
-            category.setNumber(number);
             category.setCategory(content);
             return category;
         }

@@ -2,6 +2,7 @@ package PosWeb.POS.repository;
 
 import PosWeb.POS.domain.Member;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -18,10 +19,18 @@ public class MemberRepository {
     }
 
     // 단건 조회(하나만 조회)
-    public Member findByMemberId(String memberId) {
-        return em.createQuery("select m from Member m where m.memberId = :memberId", Member.class)
-                .setParameter("memberId", memberId)
-                .getSingleResult();
+    public Member findByMemberId(String stringId) {
+        try {
+            return em.createQuery("select m from Member m where m.stringId = :stringId", Member.class)
+                    .setParameter("stringId", stringId)
+                    .getSingleResult();
+        } catch (NoResultException ex) {    // 쿼리가 없을 경우  null을 반환한다.
+            return null;
+        }
+    }
+
+    public Member findOne(Long id) {
+        return em.find(Member.class, id);
     }
 
     // 모든 사용자 조회

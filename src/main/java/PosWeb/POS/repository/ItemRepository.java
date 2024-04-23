@@ -2,6 +2,7 @@ package PosWeb.POS.repository;
 
 import PosWeb.POS.domain.Item;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -27,9 +28,13 @@ public class ItemRepository {
         return em.find(Item.class, id);
     }
     public Item findByName(String name) {
-        return em.createQuery("select i from Item i where i.name = :name", Item.class)
-                .setParameter("name", name)
-                .getSingleResult();
+        try {
+            return em.createQuery("select i from Item i where i.name = :name", Item.class)
+                    .setParameter("name", name)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            return null;    // 쿼리가 없는 경우 null 반환
+        }
     }
 
     public List<Item> findAll() {

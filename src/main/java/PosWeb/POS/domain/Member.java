@@ -19,7 +19,7 @@ public class Member {
     private Long id;
 
     @Column(unique = true)
-    private String memberId;
+    private String stringId;
 
     private String name;
     private String pw;
