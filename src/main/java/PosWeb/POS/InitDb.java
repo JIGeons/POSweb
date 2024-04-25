@@ -39,12 +39,26 @@ public class InitDb {
             em.persist(iceCream);
         }
 
+        public void dbTestInit2() {
+            Member Choi = createMember("Choi", "최지성", "981211");
+            Member Kim = createMember("Kim", "김지성", "121212");
+            Member Park = createMember("Park", "박지성", "34343434");
+        }
+
         private static Member createAdmin() {
             Member admin = new Member();
             admin.setStringId("admin");
             admin.setName("admin");
             admin.setPw("1234");    // 초기 비밀번호
             admin.setAdmin(true);   // 관리자 여부 true 설정
+            return admin;
+        }
+
+        private static Member createMember(String id, String name, String pw) {
+            Member admin = new Member();
+            admin.setStringId(id);
+            admin.setName(name);
+            admin.setPw(pw);    // 초기 비밀번호
             return admin;
         }
 

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title> Main page</title>
+    <style>
+        hr {
+            border: none;
+            border-top:8px solid #483D8B;
+        }
+        .container {
+            display: flex;
+            align-items: center; /* 수직 가운데 정렬 */
+            justify-content: center; /* 수평 가운데 정렬 */
+            height: 80vh; /* 수직 전체 화면 높이 */
+        }
+        .button {
+            background-color: red;
+            border: none;
+            color: white;
+            height: 150px;
+            width: 150px;
+            text-align: center;
+            font-size: 30px;
+            cursor: pointer;
+            border-radius: 10%;
+            margin: 4px 4px;
+        }
+    </style>
+</head>
+<body style="background-color:#1E90FF;">
+<div style="text-align: right;">
+    <h1>easy POS</h1>
+    <hr>
+</div>
+<div class="container">
+    <div class="text-center">
+        <button type="button" class="button"  onclick="location.href='login'">로그인</button>
+        <button type="button" class="button" onclick="location.href='memberJoin'" style="background-color:gray;">회원가입</button>
+    </div>
+</div>
+</body>
+</html>
