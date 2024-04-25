@@ -17,6 +17,7 @@ public class InitDb {
     @PostConstruct  // 의존성 주입이 이루어진 후 초기화를 수행하는 메서드
     public void init() {
         initService.dbInit();
+        initService.dbTestInit2();
     }
 
     @Component
@@ -43,6 +44,9 @@ public class InitDb {
             Member Choi = createMember("Choi", "최지성", "981211");
             Member Kim = createMember("Kim", "김지성", "121212");
             Member Park = createMember("Park", "박지성", "34343434");
+            em.persist(Choi);
+            em.persist(Kim);
+            em.persist(Park);
         }
 
         private static Member createAdmin() {

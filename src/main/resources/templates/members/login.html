@@ -91,7 +91,7 @@
 			</div>
 			<div class="member">
 				<a th:each="member : ${members}">
-					<button class="memberBtn" type="button" th:id="${member.id}" onclick="userChoose( '${member.memberId}', '${member.name}')">${member.name}</button><hr>
+					<button class="memberBtn" type="button" th:id="${member.id}" th:text="${member.name}" th:onclick="userChoose( [[${member.stringId}]] , [[${member.name}]])"></button><hr>
 				</a>
 			</div>
 		</div>
