@@ -28,7 +28,7 @@ public class MemberService {
         Member findMember = memberRepository.findByMemberId(member.getStringId());
 
         // findMember가 null이 아닐 경우 이미 존재하는 아이디이므로 exception 발생
-        // memberId는 unique속성
+        // stringId는 unique속성
         if (findMember != null) {
             throw new IllegalStateException("이미 존재하는 아이디 입니다.");
         }

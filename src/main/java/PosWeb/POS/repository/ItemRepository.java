@@ -1,5 +1,6 @@
 package PosWeb.POS.repository;
 
+import PosWeb.POS.domain.Category;
 import PosWeb.POS.domain.Item;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -35,6 +36,14 @@ public class ItemRepository {
         } catch (NoResultException ex) {
             return null;    // 쿼리가 없는 경우 null 반환
         }
+    }
+
+    public List<Item> findByCategory(Category category) {
+        return em.createQuery(
+                "select i from Item i " +
+                        " where i.category = :category", Item.class)
+                .setParameter("category", category)
+                .getResultList();
     }
 
     public List<Item> findAll() {

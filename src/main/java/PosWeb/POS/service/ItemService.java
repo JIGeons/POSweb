@@ -19,8 +19,10 @@ public class ItemService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public void saveItem(Item item) {
-        itemRepository.save(item);
+    public void saveItem(Item item, String category) {
+        Category ctg = findCategory(category);  // 카테고리가 데이터베이스에 있는지 검사 없으면 새로운 카테고리 생성
+        item.setCategory(ctg);  // 상품에 Category set
+        itemRepository.save(item);  // 저장
     }
 
     @Transactional
