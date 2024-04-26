@@ -1,4 +1,4 @@
-package PosWeb.POS.domain.dto;
+package PosWeb.POS.domain.dto.Member;
 
 import PosWeb.POS.domain.Address;
 import jakarta.persistence.Embedded;

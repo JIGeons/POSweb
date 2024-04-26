@@ -78,7 +78,7 @@
 			<div class="loginDiv">
 				<form action="/login" method="post" style="margin-top: 50px;">
 						<h3>아이디 :</h3>
-						<input type="text" name="memberId" id="memberId">
+						<input type="text" name="stringId" id="stringId">
 						<h3>이름 :</h3>
 						<input type="text" name="name" id="name" autoComplete="on">
 						<h3>비밀번호 :</h3>
@@ -91,7 +91,7 @@
 			</div>
 			<div class="member">
 				<a th:each="member : ${members}">
-					<button class="memberBtn" type="button" th:id="${member.id}" th:text="${member.name}" th:onclick="userChoose( [[${member.stringId}]] , [[${member.name}]])"></button><hr>
+					<button class="memberBtn" type="button" th:id="${member.stringId}" th:text="${member.name}" th:onclick="userChoose( [[${member.stringId}]] , [[${member.name}]])"></button><hr>
 				</a>
 			</div>
 		</div>
