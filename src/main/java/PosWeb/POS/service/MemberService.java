@@ -1,6 +1,7 @@
 package PosWeb.POS.service;
 
 import PosWeb.POS.domain.Member;
+import PosWeb.POS.domain.dto.Member.LoginMemberDto;
 import PosWeb.POS.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,21 @@ public class MemberService {
         if (findMember != null) {
             throw new IllegalStateException("이미 존재하는 아이디 입니다.");
         }
+    }
+
+    public Member login(LoginMemberDto loginMemberDto) {
+        Member loginMember = memberRepository.findByMemberId(loginMemberDto.getStringId());
+
+        // stringId와 일치하는 member가 없으면 null return
+        if(loginMember == null) {
+            return null;
+        } else {
+            if (loginMember.getPw().equals(loginMemberDto.getPw())) {
+                return loginMember;
+            }
+            return null;
+        }
+
     }
 
     // 회원 전체 조회

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -24,14 +25,11 @@ public class CategoryRepository {
         return em.find(Category.class, number);
     }
 
-    public Category findByCategory(String category) {
-        try {
+    public Optional<Category> findByCategory(String category) {
             return em.createQuery("select c from Category c where c.category = :category", Category.class)
                     .setParameter("category", category)
-                    .getSingleResult();
-        } catch (NoResultException ex) {
-            return null;    // 쿼리가 없는 경우 null 반환
-        }
+                    .getResultStream()
+                    .findFirst();
     }
 
 

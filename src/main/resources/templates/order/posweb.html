@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> <meta charset="utf-8">
+  <title>상품 페이지</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+  <style>
+    .text{
+      text-align: center;
+      padding-top: 5px;
+      border: 1px solid black;
+    }
+    .center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+</head>
+<body style="background-color:#1E90FF;">
+<div style="height: 100vh; border : 1px solid black">
+  <div class="container">
+    <div class="header" style="display: flex; border-bottom : 1px solid black; height: 10vh;">
+      <div class="col-6" style="padding-left: 10px;"><h1>POS</h1></div>
+      <button class="col-1" onclick="location.href='storeProduct'">입고</button>
+      <button class="col-1" onclick="location.href='addProduct'">상품 추가</button>
+      <button class="col-1" onclick="location.href='deleteProduct'">상품 삭제</button>
+      <button class="col-1" onclick="location.href='amount'">총 매출</button>
+      <button class="col-1" onclick="location.href='login'">사용자 전환</button>
+      <button class="col-1" onclick="location.href='exit'">마감</button>
+    </div>
+    <div style="display: flex;">
+      <div class="col-5">
+        <div style="align-items: center; background-color: azure; border: 1px solid black;">
+          <div style="height: 45vh;">
+            <div style="display: flex; height: 10%; overflow-y:scroll">
+              <div class="col-1 text">선택</div>
+              <div class="col-4 text">상품명</div>
+              <div class="col-1 text">수량</div>
+              <div class="col-2 text">금액</div>
+              <div class="col-2 text">할인금액</div>
+              <div class="col-2 text">총 금액</div>
+            </div>
+
+            <div id="cart" style="overflow-y: scroll; height:90%;">
+
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; min-height: 30vh;">
+          <div class="col-6" style="background-color: azure; height: 40vh;">
+            <div class="총 수량" style="height: 20%; border: 1px solid black; display:flex">
+              <div class="col-4" style="padding-left:3px;">총 수량</div>
+              <div class="col-8" id="totalCount" style="text-align:right; font-size:40px; padding-right:5px;">0</div>
+            </div>
+            <div class="할인금액" style="height: 20%; border: 1px solid black; display:flex">
+              <div class="col-4" style="padding-left:3px;">할인금액</div>
+              <div class="col-8" id="totalDiscount" style="text-align:right; font-size:40px; padding-right:5px;">0</div>
+            </div>
+            <div class="총 금액" style="height: 20%; border: 1px solid black; display:flex">
+              <div class="col-4" style="padding-left:3px;">총 금액</div>
+              <div class="col-8" id="totalAmount" style="text-align:right; font-size:40px; padding-right:5px;">0</div>
+            </div>
+
+            <div class="버튼" style="display: flex; border: 1px solid black; height: 40%;">
+              <button class="discount" style="width: 50%; height: 100%;" onclick="change()">할인/수량</button>
+              <button class="delete" style="width: 50%; height: 100%;" onclick="divDelete()">삭제</button>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="display: flex; height: 20%;">
+              <input class="col-2" type="text" id="type" style="background-color: azure;" value="수량" readonly/>
+              <input class="col-6" type="text" id="numberArea" style="text-align: end;" value=""/>
+              <button class="col-2" style="font-size: 10px;" type="button" value="←" onclick="deleteNum()">←</button>
+              <button class="col-2" style="font-size: 10px;" type="button" value="확인" onclick="apply()">확인</button>
+            </div>
+            <script>
+              for(var i=0; i<9; i++) {
+                document.write("<button class='col-4' value='");
+                document.write(i+1);
+                document.write("' onclick='numberSet(");
+                document.write(i+1);
+                document.write(")' style='height:20%'>");
+                document.write(i+1);
+                document.write("</button>");
+              }
+            </script>
+            <br>
+            <div style="display: flex; height: 20%;">
+              <button class="col-4" onclick="minus()">-</button>
+              <button class="col-4" onclick="numberSet(0)">0</button>
+              <button class="col-4" onclick="plus()">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-7" style="border: 1px solid black;">
+        <div style="display: flex; text-align: center; justify-content: center; height: 10vh;">
+          <div class="col-12 center" style="border: 1px solid black; background-color: #00FFFF;"><h2>상품</h2></div>
+        </div>
+        <div class="메뉴" style="height: 60vh; display: flex; flex-wrap:wrap; overflow-y:scroll">
+          <a th:each="item : ${items}">
+            <button class="col-3" th:value="${item.name}" style="background-color: #CEF6F5; padding-top:20px;"
+                    th:onclick="Cart([[${item.id}]],[[${item.name}]],[[${item.price}]],[[${item.stock}]] )">
+              ${item.name}<br>${item.price}원<br><br>재고: ${item.stock}개
+            </button>
+          </a>
+        </div>
+        <div class="col-12" style="height: 15vh; display: flex;">
+          <button class="col-12" style="height: 100%;" onclick="Cash()">결제하기</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  function deleteNum() {
+    var number = document.getElementById("numberArea").value.toString();
+    var length = number.length;
+    console.log(number);
+    console.log(length);
+    if(length != 0){
+      number /= 10;
+      var num = number % 1;
+      number -= num;
+      if(number == 0) number = '';
+      document.getElementById("numberArea").value = number;
+    }
+  }
+
+  function numberSet(i) {
+    console.log(i);
+    var length = document.getElementById("numberArea").value.length;
+    var number = document.getElementById("numberArea").value;
+    console.log(length);
+    if(length == '0'){
+      number += i;
+    } else {
+      number += i;
+      console.log(number);
+    }
+    document.getElementById("numberArea").value = number;
+  }
+
+  function minus() {
+    var number = document.getElementById("numberArea").value;
+
+    if(number > 1){
+      number -= 1;
+    }
+    else if(number == 1) {
+      number = '';
+    }
+    document.getElementById("numberArea").value = number;
+  }
+
+  function plus() {
+    var number = parseInt(document.getElementById("numberArea").value);
+    number -= 1;
+    document.getElementById("numberArea").value = number;
+  }
+
+  function apply() {
+    var number = parseInt(document.getElementById("numberArea").value);
+    var totalCounts = document.getElementById("totalCount").textContent;
+    var totalDiscounts = document.getElementById("totalDiscount").textContent;
+    var totalAmounts = document.getElementById("totalAmount").textContent;
+
+    var totalCount = parseInt(totalCounts);
+    var totalDiscount = parseInt(totalDiscounts);
+    var totalAmount = parseInt(totalAmounts);
+
+    if(!isNaN(number)){
+      var cart = document.getElementById("cart");
+      var selectedDivs = Array.from(cart.children).filter(function(div) {
+        var checkbox = div.querySelector(".col-1");
+        return checkbox.checked;
+      });
+
+      selectedDivs.forEach(function (div) {
+        var quantityInput = div.querySelector(".quantity");
+        var discountInput = div.querySelector(".discount");
+        var amountInput = div.querySelector(".amount");
+
+        var quantity = parseInt(quantityInput.value);
+        var discount = parseInt(discountInput.value);
+        var amount = parseInt(amountInput.value);
+        var productPrice = parseInt(div.querySelector(".price").value);
+        var sum;
+
+        if (document.getElementById("type").value=="수량"){
+          if(number <= quantity){
+            totalCount -= (quantity - number);
+          } else totalCount += (number-quantity);
+
+          quantity = number;
+          sum = quantity * productPrice - discount;
+
+          quantityInput.value = number;
+          amountInput.value = sum;
+        } else {
+          if(number <= discount){
+            totalDiscount -= (discount - number);
+          }else totalDiscount += (number - discount);
+          discount = number;
+          discountInput.value = discount
+          sum = quantity * productPrice - discount;
+          amountInput.value = sum;
+        }
+        if(amount <= sum) totalAmount += (sum- amount);
+        else totalAmount -= (amount - sum);
+      });
+
+      document.getElementById("totalCount").textContent = totalCount;
+      document.getElementById("totalDiscount").textContent = totalDiscount;
+      document.getElementById("totalAmount").textContent = totalAmount;
+      document.getElementById("numberArea").value="";
+    }
+  }
+
+  function change() {
+    var type = document.getElementById("type").value;
+    if(type == "할인"){
+      document.getElementById("type").value = "수량";
+    }
+    else{
+      document.getElementById("type").value = "할인";
+    }
+  }
+
+  function divDelete() {
+    var cart = document.getElementById("cart");
+    var selectedDivs = Array.from(cart.children).filter(function(div) {
+      var checkbox = div.querySelector(".col-1");
+      return checkbox.checked;
+    });
+
+    var totalCount = parseInt(document.getElementById("totalCount").textContent);
+    var totalDiscount = parseInt(document.getElementById("totalDiscount").textContent);
+    var totalAmount = parseInt(document.getElementById("totalAmount").textContent);
+
+    selectedDivs.forEach(function(div) {
+      var quantity = parseInt(div.querySelector(".quantity").value);
+      var discount = parseInt(div.querySelector(".discount").value);
+      var amount = parseInt(div.querySelector(".amount").value);
+
+      console.log(quantity);
+      totalCount -= quantity;
+      totalDiscount -= discount;
+      totalAmount -= amount;
+      div.remove();
+    });
+    document.getElementById("totalCount").textContent = totalCount;
+    document.getElementById("totalDiscount").textContent = totalDiscount;
+    document.getElementById("totalAmount").textContent = totalAmount;
+  }
+
+
+  function Cart(code, name, price, stock) {
+    var cart = document.getElementById("cart");
+    var totalCounts = document.getElementById("totalCount").textContent;
+
+    var totalCount = parseInt(totalCounts);
+    var totalSum = parseInt(document.getElementById("totalAmount").textContent);
+
+    // cart div에 같은 상품이 있는지 확인
+    var existingDiv = Array.from(cart.children).find(function (div) {
+      var productCodeInput = div.querySelector(".product-code");
+      return productCodeInput.value === code;
+    });
+
+    if (existingDiv) {
+      // 해당 qauntity input의 value를 1증가
+      var quantityInput = existingDiv.querySelector(".quantity");
+      var quantity = parseInt(quantityInput.value);
+      quantity += 1;
+      quantityInput.value = quantity;
+
+      // qauntity변경에 따른 금액 변경
+      var productPrice = parseInt(existingDiv.querySelector(".price").value);
+      var discount = parseInt(existingDiv.querySelector(".discount").value);
+      var totalAmount = quantity * productPrice - discount;
+      existingDiv.querySelector(".amount").value = totalAmount;
+
+      totalCount += 1;
+      totalSum += productPrice;
+    } else {
+      // cart div에 상품이 없을 시 추가 하기 위한 div 생성
+      var newDiv = document.createElement("div");
+      newDiv.style.display = "flex";
+
+      // 각각 input 생성
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "col-1 center";
+
+      var productCode = document.createElement("input");
+      productCode.type = "hidden";
+      productCode.value = code;
+      productCode.className = "product-code";
+
+      var productName = document.createElement("input");
+      productName.type = "text";
+      productName.value = name;
+      productName.readOnly = true;
+      productName.className = "col-4 center product-name";
+
+      var quantity = document.createElement("input");
+      quantity.type = "text";
+      quantity.value = "1";
+      quantity.readOnly = true;
+      quantity.className = "col-1 center quantity";
+
+      var productPrice = document.createElement("input");
+      productPrice.type = "text";
+      productPrice.value = price;
+      productPrice.readOnly = true;
+      productPrice.style.textAlign = "right";
+      productPrice.className = "col-2 price";
+
+      var discount = document.createElement("input");
+      discount.type = "text";
+      discount.value = "0";
+      discount.style.textAlign = "right";
+      discount.className = "col-2 discount";
+
+      var amount = document.createElement("input");
+      amount.type = "text";
+      amount.value = price;
+      amount.readOnly = true;
+      amount.style.textAlign = "right";
+      amount.className = "col-2 amount";
+
+      //input을 다 만든 후 처음 만든 div에 child로 삽입해 하나로 묶어줌
+      newDiv.appendChild(checkbox);
+      newDiv.appendChild(productCode);
+      newDiv.appendChild(productName);
+      newDiv.appendChild(quantity);
+      newDiv.appendChild(productPrice);
+      newDiv.appendChild(discount);
+      newDiv.appendChild(amount);
+
+      //하나로 만든 div를 cart div에 삽입
+      cart.appendChild(newDiv);
+
+      totalCount += 1;
+      totalSum += parseInt(price);
+    }
+    document.getElementById("totalCount").textContent = totalCount;
+    document.getElementById("totalAmount").textContent = totalSum;
+  }
+
+  function Cash() {
+    // cart div의 내용을 가져와서 변수에 저장
+    var cart = document.getElementById("cart");
+    var cartContents = document.createElement("div");
+
+    Array.from(cart.children).forEach(function(child) {
+      var product = document.createElement("div");
+      product.className = "goods";
+      product.height = "5vh";
+
+      var productCode = document.createElement("div");
+      productCode.type = "hidden";
+      productCode.className = "code";
+      productCode.setAttribute("id",child.querySelector(".product-code").value);
+
+      var productName = document.createElement("div");
+      productName.className = "col-6 name";
+      productName.value = child.querySelector(".product-name").value;
+      productName.textContent = child.querySelector(".product-name").value;
+
+      var productQuantity = document.createElement("div");
+      productQuantity.className = "col-2 quantity";
+      productQuantity.value = child.querySelector(".quantity").value;
+      productQuantity.textContent = child.querySelector(".quantity").value;
+
+      var productAmount = document.createElement("div");
+      productAmount.className = "col-4 amount";
+      productAmount.value = child.querySelector(".amount").value;
+      productAmount.textContent = child.querySelector(".amount").value;
+
+      product.appendChild(productCode);
+      product.appendChild(productName);
+      product.appendChild(productQuantity);
+      product.appendChild(productAmount);
+
+      cartContents.appendChild(product);
+
+    })
+    // cartContents 값을 localStorage에 저장
+    localStorage.setItem("cartContents", cartContents.innerHTML);
+
+    // cashPay 페이지로 이동
+    window.location.href = "cashPay";
+  }
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous">
+</script>
+
+</body>
+</html>

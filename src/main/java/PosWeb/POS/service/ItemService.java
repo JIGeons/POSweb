@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,29 +21,30 @@ public class ItemService {
 
     @Transactional
     public void saveItem(Item item, String category) {
-        Category ctg = findCategory(category);  // 카테고리가 데이터베이스에 있는지 검사 없으면 새로운 카테고리 생성
-        item.setCategory(ctg);  // 상품에 Category set
+        Optional<Category> ctg = findCategory(category);  // 카테고리가 데이터베이스에 있는지 검사 없으면 새로운 카테고리 생성
+        item.setCategory(ctg.get());  // 상품에 Category set
         itemRepository.save(item);  // 저장
     }
 
     @Transactional
     public void updateItem(Long itemId, String name, String category, int price, int stockQuantity) {
         Item findItem = itemRepository.findOne(itemId);
-        Category ctg = findCategory(category);
+        Optional<Category> ctg = findCategory(category);
         findItem.setName(name);
-        findItem.setCategory(ctg);
+        findItem.setCategory(ctg.get());
         findItem.setPrice(price);
         findItem.setStockQuantity(stockQuantity);
     }
 
-    private Category findCategory(String content) {
-        Category category = categoryRepository.findByCategory(content);
+    private Optional<Category> findCategory(String content) {
+        Optional<Category> category = categoryRepository.findByCategory(content);
 
         // 카테고리 목록에 있는 카테고리가 아닐 시
-        if (category == null) {
-            category = new Category();
-            category.setCategory(content);
-            categoryRepository.save(category);  // 새로운 카테고리를 생성하고 저장한다.
+        if (category.isEmpty()) {
+            Category ctg = new Category();
+            ctg.setCategory(content);
+            categoryRepository.save(ctg);  // 새로운 카테고리를 생성하고 저장한다.
+            category = categoryRepository.findByCategory(ctg.getCategory());
         }
 
         return category;
