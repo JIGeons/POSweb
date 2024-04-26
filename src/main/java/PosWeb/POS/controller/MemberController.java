@@ -1,6 +1,7 @@
 package PosWeb.POS.controller;
 
 import PosWeb.POS.domain.Member;
+import PosWeb.POS.domain.dto.Member.JoinMemberDto;
 import PosWeb.POS.domain.dto.Member.LoginMemberDto;
 import PosWeb.POS.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/members/login")
+    @GetMapping("members/login")
     public String login(Model model, HttpSession session) {
         List<Member> members = memberService.findMembers();
 
@@ -38,7 +39,7 @@ public class MemberController {
     }
 
     @PostMapping("members/login")
-    public String loginConfirm(
+    public String login(
             @Valid @ModelAttribute("loginMember") LoginMemberDto loginMember,
             BindingResult bindingResult,
             HttpServletRequest httpServletRequest,
@@ -69,4 +70,12 @@ public class MemberController {
 
         return "redirect:/order/posweb";
     }
+
+    @GetMapping("members/join")
+    public String join(Model model){
+        JoinMemberDto joinMemberForm = new JoinMemberDto();
+        model.addAttribute("joinMemberForm", joinMemberForm);
+        return "members/join";
+    }
+
 }
