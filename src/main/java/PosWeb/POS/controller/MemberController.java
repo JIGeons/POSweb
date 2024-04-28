@@ -1,7 +1,7 @@
 package PosWeb.POS.controller;
 
 import PosWeb.POS.domain.Member;
-import PosWeb.POS.domain.dto.Member.JoinMemberDto;
+import PosWeb.POS.domain.dto.Member.JoinMemberForm;
 import PosWeb.POS.domain.dto.Member.LoginMemberDto;
 import PosWeb.POS.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,9 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Controller
@@ -73,9 +76,57 @@ public class MemberController {
 
     @GetMapping("members/join")
     public String join(Model model){
-        JoinMemberDto joinMemberForm = new JoinMemberDto();
+        JoinMemberForm joinMemberForm = new JoinMemberForm();
         model.addAttribute("joinMemberForm", joinMemberForm);
         return "members/join";
+    }
+
+    @PostMapping("members/join")
+    public String join(@Valid JoinMemberForm joinMemberForm, BindingResult result, Model model) {
+
+        if (result.hasErrors()) {
+            log.info("members Form Error");
+            return "members/join";
+        }
+
+        // 비밀번호 검증
+        if (!joinMemberForm.getPw().equals(joinMemberForm.getConfirmPw())) {
+            log.info("members password not equal");
+            result.addError(new FieldError("joinMemberForm", "confirmPw", " ※ 비밀번호가 일치하지 않습니다."));
+            return "members/join";
+        }
+
+        Member member = createMember(joinMemberForm);
+        memberService.join(member);
+        return "redirect:/";
+    }
+
+    public Member createMember(JoinMemberForm joinMemberForm) {
+
+        Member member = new Member();
+        member.setStringId(joinMemberForm.getStringId());
+        member.setName(joinMemberForm.getName());
+        member.setPw(joinMemberForm.getPw());
+        member.setAddress(joinMemberForm.getAddress());
+        member.setBirth(joinMemberForm.getBirth());
+
+        return member;
+    }
+
+    // 회원 아이디 중복 확인
+    @GetMapping("members/join/checkId/{stringId}")
+    @ResponseBody  // html파일명을 반환하는게 아닌 data 값을 반환하기 때문에 ResponseBody 사용
+    public Map<String, Boolean> checkId(@PathVariable String stringId){
+        // 여러 쓰레드의 동시 처리를 가능하기 위해 concurrentHashMap 사용
+        Map<String, Boolean> response = new ConcurrentHashMap<>();
+        boolean isAvailable;
+        try {
+            isAvailable = memberService.checkId(stringId);
+        } catch (IllegalStateException e) {
+            isAvailable = false;
+        }
+        response.put("available", isAvailable);
+        return response;
     }
 
 }

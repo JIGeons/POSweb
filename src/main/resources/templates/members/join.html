@@ -47,6 +47,12 @@
             margin: auto 0;
             border-radius: 3px;
         }
+        .fieldError {
+            border-color: #bd2130;
+        }
+        .error {
+            color: #dc3545;
+        }
     </style>
 </head>
 <body style="background-color:#1E90FF;">
@@ -55,31 +61,48 @@
     <form action="join" th:object="${joinMemberForm}" method="post" style="margin-top:50px;">
         <div id="info__id">
             <label th:for="stringId">아이디</label>
-            <input type="text" th:field="*{stringId}" id="memberId" placeholder="아이디 입력" />
-            <button type="button" onclick="location.href='members/join/checkId'">중복 확인</button>
+            <span id="stringIdMessage" style="display: none;"></span>
+            <!-- stringId 에러 메세지 -->
+            <span class="error" th:if="${#fields.hasErrors('stringId')}" th:errors="*{stringId}"></span>
+            <span class="error" th:if="${not #fields.hasErrors('stringId') and #fields.hasErrors('checkId')}" th:errors="*{checkId}"></span>
+
+            <input type="text" th:field="*{stringId}" id="stringId" placeholder="아이디 입력"
+                th:class="${#fields.hasErrors('stringId')}? 'form-control fieldError' : 'from-control'"/>
+            <button type="button" id="checkStringIdButton">중복 확인</button>
+            <input type="radio" id="checkStringId" th:field="*{checkId}" th:value="false" hidden="hidden">
         </div>
         <div id="info__name">
             <label th:for="name">이름</label>
-            <input type="text" th:field="*{name}" id="name" placeholder="이름을 입력하세요.">
+            <!-- name 에러 메세지 -->
+            <span class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+            <input type="text" th:field="*{name}" id="name" placeholder="이름을 입력하세요."
+                   th:class="${#fields.hasErrors('name')}? 'form-control fieldError' : 'from-control'"/>
         </div>
         <div id="info__pw">
             <label th:for="pw">비밀번호</label>
-            <input type="password" th:field="*{pw}" id="password" placeholder="비밀번호 입력">
+            <!-- pw 에러 메세지 -->
+            <span class="error" th:if="${#fields.hasErrors('pw')}" th:errors="*{pw}"></span>
+            <input type="password" th:field="*{pw}" id="password" placeholder="비밀번호 입력"
+                   th:class="${#fields.hasErrors('pw')}? 'form-control fieldError' : 'from-control'"/>
+
         </div>
         <div id="info__confimPw">
             <label th:for="confirmPw">비밀번호 확인</label>
-            <input type="password" th:field="*{confirmPw}" id="confirmPassword" placeholder="비밀번호 재입력">
+            <!-- confirmPw 에러 메세지 -->
+            <span class="error" th:if="${#fields.hasErrors('confirmPw')}" th:errors="*{confirmPw}"></span>
+            <input type="password" th:field="*{confirmPw}" id="confirmPassword" placeholder="비밀번호 재입력"
+                   th:class="${#fields.hasErrors('confirmPw')}? 'form-control fieldError' : 'from-control'"/>
         </div>
         <div id="info__zipcode">
-            <label th:for="adress.zipcode">우편번호</label>
+            <label th:for="zipcode">우편번호</label>
             <input type="text" th:field="*{address.zipcode}" id="zipcode" placeholder="우편번호를 입력해주세요." readonly onclick="findAddr()">
         </div>
         <div id="info__streetAdr">
-            <label th:for="adress.streetAdr">도로명 주소</label>
+            <label th:for="streetAdr">도로명 주소</label>
             <input type="text" th:field="*{address.streetAdr}" id="streetAdr" placeholder="도로명 주소를 입력해주세요." readonly>
         </div>
         <div id="info__detailAdr">
-            <label th:for="adress.detailAdr">상세주소</label>
+            <label th:for="detailAdr">상세주소</label>
             <input type="text" th:field="*{address.detailAdr}" id="detailAdr" placeholder="상세주소를 입력해주세요.">
         </div>
         <div id="info__birth">
@@ -129,4 +152,24 @@
     }
 </script>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script th:inline="javascript">
+    $(document).ready(function() {
+        $("#checkStringIdButton").click(function() {
+            var stringId = $('#stringId').val();
+            if (!stringId) {
+                $("#stringIdMessage").text('\※ID를 입력해주세요.').css('color', 'red').show();
+            } else {
+                $.get('join/checkId/' + stringId, function (data) {
+                    if (data.available) {
+                        $("#stringIdMessage").text('\※사용 가능한 아이디입니다.').css('color', 'green').show();
+                        $("#checkStringId").val("true");
+                    } else {
+                        $("#stringIdMessage").text('\※이미 사용중인 아이디입니다.').css('color', 'red').show();
+                    }
+                });
+            }
+        });
+    });
+</script>
 </html>

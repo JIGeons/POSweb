@@ -19,20 +19,20 @@ public class MemberService {
     // 회원가입 service
     @Transactional
     public Long join(Member member) {
-        validateDuplicateMember(member);
         memberRepository.save(member);
         return member.getId();
     }
 
     // ID 중복 검사
-    private void validateDuplicateMember(Member member) {
-        Member findMember = memberRepository.findByMemberId(member.getStringId());
+    public boolean checkId(String stringId) {
+        Member findMember = memberRepository.findByMemberId(stringId);
 
         // findMember가 null이 아닐 경우 이미 존재하는 아이디이므로 exception 발생
         // stringId는 unique속성
         if (findMember != null) {
             throw new IllegalStateException("이미 존재하는 아이디 입니다.");
         }
+        return true;
     }
 
     public Member login(LoginMemberDto loginMemberDto) {
