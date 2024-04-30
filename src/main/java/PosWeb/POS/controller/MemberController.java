@@ -71,7 +71,7 @@ public class MemberController {
         // 세션에 memberId를 삽입
         session.setAttribute("stringId", member.getStringId());
 
-        return "redirect:/order/posweb";
+        return "redirect:/items";
     }
 
     @GetMapping("members/join")

@@ -1,6 +1,7 @@
 package PosWeb.POS;
 
 import PosWeb.POS.domain.Category;
+import PosWeb.POS.domain.Item;
 import PosWeb.POS.domain.Member;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -18,6 +19,7 @@ public class InitDb {
     public void init() {
         initService.dbInit();
         initService.dbTestInit2();
+        initService.dbTestInit3();
     }
 
     @Component
@@ -47,6 +49,37 @@ public class InitDb {
             em.persist(Choi);
             em.persist(Kim);
             em.persist(Park);
+        }
+
+        public void dbTestInit3() {
+            String category = "bisket";
+            Category bisket = em.createQuery("select c from Category c where c.category =: category", Category.class)
+                    .setParameter("category", category)
+                    .getSingleResult();
+
+            Item sw = createItem("새우깡", 2200, 10, bisket);
+            Item ccol = createItem("꿀꽈베기", 1800, 20, bisket);
+            Item ssun = createItem("썬칩", 2500, 50, bisket);
+            Item potato = createItem("감자칩", 1500, 70, bisket);
+            Item pringles = createItem("프링글스", 1700, 100, bisket);
+
+            em.persist(sw);
+            em.persist(ccol);
+            em.persist(ssun);
+            em.persist(potato);
+            em.persist(pringles);
+        }
+
+        private static Item createItem(String name, int price, int stock, Category category) {
+            Item item = new Item();
+
+            item.setName(name);
+            item.setPrice(price);
+            item.setStockQuantity(stock);
+            item.setCompany("롯데");
+            item.setCategory(category);
+
+            return item;
         }
 
         private static Member createAdmin() {

@@ -15,6 +15,11 @@
       justify-content: center;
       align-items: center;
     }
+    ul {
+      display: flex;
+      margin: 0;
+      padding: 0;
+    }
   </style>
   <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
@@ -100,22 +105,76 @@
         <div style="display: flex; text-align: center; justify-content: center; height: 10vh;">
           <div class="col-12 center" style="border: 1px solid black; background-color: #00FFFF;"><h2>상품</h2></div>
         </div>
-        <div class="메뉴" style="height: 60vh; display: flex; flex-wrap:wrap; overflow-y:scroll">
-          <a th:each="item : ${items}">
-            <button class="col-3" th:value="${item.name}" style="background-color: #CEF6F5; padding-top:20px;"
-                    th:onclick="Cart([[${item.id}]],[[${item.name}]],[[${item.price}]],[[${item.stock}]] )">
-              ${item.name}<br>${item.price}원<br><br>재고: ${item.stock}개
-            </button>
-          </a>
+
+        <div id="categories">
+          <ul class="col-12" >
+            <th:block th:each="category : ${categories}">
+              <li class="col-4" style="display: inline">
+                <button class="col-12" th:text="${category.category}" th:value="${category.category}" th:onclick="CategorySelect([[${category.category}]])"></button>
+              </li>
+            </th:block>
+          </ul>
         </div>
+
+        <div id="items" style="height: 60vh; display: flex; flex-wrap:wrap; overflow-y:scroll">
+          <!-- 선택한 카테고리 상품들 표시 (초기 상품 표시는 Bisket 상품 표시)-->
+          <ul class="col-12">
+            <th:block th:each="item : ${categoryItems['bisket']}">
+              <li class="col-3" style="display: inline">
+                <button class="col-12">
+                  <span th:utext="${item['name']}"></span><br>
+                  <span th:utext="${item['price'] + ' 원'}"></span><br>
+                  <span th:utext="${'재고: ' + item['stockQuantity']}"></span><br>
+                </button>
+              </li>
+            </th:block>
+          </ul>
+        </div>
+
         <div class="col-12" style="height: 15vh; display: flex;">
           <button class="col-12" style="height: 100%;" onclick="Cash()">결제하기</button>
         </div>
-
       </div>
     </div>
   </div>
 </div>
+<script th:inline="javascript">
+  function CategorySelect(category) {
+    var categoryItems = [[${categoryItems}]];
+    const items = categoryItems[category];
+
+    console.log(categoryItems);
+    console.log(category);
+    console.log(items);
+
+    /*items div의 정보를 가지고 오기*/
+    const itemsDiv = document.getElementById("items");
+    itemsDiv.innerHTML = " ";  // 이전에 표시된 아이템들을 제거
+
+    if (items.length != 0) {  // 상품이 존재하는 경우
+      const ul = document.createElement("ul");
+      items.forEach(item => {
+        // 상품별 li를 생성해서 ul에 추가
+        const li = document.createElement("li");
+        ul.appendChild(li);
+
+        // 상품별 버튼을 생성 li에 추가
+        const button = document.createElement("button");
+        button.innerText = item.name + "\n" + item.price + " 원\n" + "재고 : " + item.stockQuantity;
+        li.appendChild(button);
+      })
+
+      // 완성된 ul태그를 itemsDiv에 append
+      itemsDiv.appendChild(ul);
+    } else {  // 상품이 존재하지 않는 경우
+      const p = document.createElement("p")
+      p.innerText = '선택한 카테고리의 상품이 존재하지 않습니다.'
+      p.style.color = "red";
+      itemsDiv.appendChild(p);
+    }
+  }
+</script>
+
 <script>
   function deleteNum() {
     var number = document.getElementById("numberArea").value.toString();
