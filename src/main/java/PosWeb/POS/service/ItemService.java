@@ -5,6 +5,9 @@ import PosWeb.POS.domain.Item;
 import PosWeb.POS.repository.CategoryRepository;
 import PosWeb.POS.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,7 @@ public class ItemService {
     @Transactional
     public void saveItem(Item item, String category) {
         Optional<Category> ctg = findCategory(category);  // 카테고리가 데이터베이스에 있는지 검사 없으면 새로운 카테고리 생성
+        ctg.get().addItem();    // 해당 카테고리의 총 상품 개수를 1개 증가
         item.setCategory(ctg.get());  // 상품에 Category set
         itemRepository.save(item);  // 저장
     }
@@ -54,6 +58,12 @@ public class ItemService {
     public List<Item> findCategoryItems(Category category) {
         List<Item> items = new ArrayList<>();
         return items = itemRepository.findByCategory(category);
+    }
+
+    public Page<Item> findByCtgItemsPaged(String category, int page) {
+        Pageable pageable = PageRequest.of(page, 12);
+        Category ctg = findCategory(category).get();
+        return itemRepository.findByCtgItemsPaged(ctg, pageable);
     }
 
     public List<Item> findItems() {

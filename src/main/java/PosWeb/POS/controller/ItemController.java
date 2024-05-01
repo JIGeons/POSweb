@@ -6,9 +6,11 @@ import PosWeb.POS.service.CategoryService;
 import PosWeb.POS.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +26,9 @@ public class ItemController {
     private final CategoryService categoryService;
 
     @GetMapping("items")
-    public String items(Model model) {
+    public String items(@RequestParam(value = "page", defaultValue = "0")int page,
+                        @RequestParam(value = "category", defaultValue = "bisket")String category,
+                        Model model) {
 
         // 카테고리 가지고 오기
         List<Category> categoryList = new ArrayList<>();
@@ -32,13 +36,9 @@ public class ItemController {
         model.addAttribute("categories", categoryList);
 
         // 카테고리 별 상품들을 Map에 담기
-        Map<String, List<Item>> categoryItemMap = new HashMap<>();
-        for (Category category : categoryList) {
-            List<Item> items = itemService.findCategoryItems(category);
-            categoryItemMap.put(category.getCategory(), items);
-        }
+        Page<Item> paging = itemService.findByCtgItemsPaged(category, page);
         // model에 저장
-        model.addAttribute("categoryItems", categoryItemMap);
+        model.addAttribute("categoryItems", paging);
 
         return "items/posweb";
     }

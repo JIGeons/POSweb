@@ -35,7 +35,7 @@
       <button class="col-1" onclick="location.href='login'">사용자 전환</button>
       <button class="col-1" onclick="location.href='exit'">마감</button>
     </div>
-    <div style="display: flex;">
+    <div style="display: flex; height: 90vh">
       <div class="col-5">
         <div style="align-items: center; background-color: azure; border: 1px solid black;">
           <div style="height: 45vh;">
@@ -101,7 +101,7 @@
         </div>
       </div>
 
-      <div class="col-7" style="border: 1px solid black;">
+      <div class="col-7">
         <div style="display: flex; text-align: center; justify-content: center; height: 10vh;">
           <div class="col-12 center" style="border: 1px solid black; background-color: #00FFFF;"><h2>상품</h2></div>
         </div>
@@ -109,26 +109,34 @@
         <div id="categories">
           <ul class="col-12" >
             <th:block th:each="category : ${categories}">
-              <li class="col-4" style="display: inline">
+              <li class="col-4" style="display: inline;">
                 <button class="col-12" th:text="${category.category}" th:value="${category.category}" th:onclick="CategorySelect([[${category.category}]])"></button>
               </li>
             </th:block>
           </ul>
         </div>
 
-        <div id="items" style="height: 60vh; display: flex; flex-wrap:wrap; overflow-y:scroll">
-          <!-- 선택한 카테고리 상품들 표시 (초기 상품 표시는 Bisket 상품 표시)-->
-          <ul class="col-12">
-            <th:block th:each="item : ${categoryItems['bisket']}">
-              <li class="col-3" style="display: inline">
-                <button class="col-12">
-                  <span th:utext="${item['name']}"></span><br>
-                  <span th:utext="${item['price'] + ' 원'}"></span><br>
-                  <span th:utext="${'재고: ' + item['stockQuantity']}"></span><br>
+        <!-- 아이템 목록 표시 -->
+        <div id="items" style="height: 48vh; display: flex; flex-wrap: wrap;">
+            <th:block th:each="item, iter : ${categoryItems}">
+              <li class="col-3" style="display: inline;  height: 16vh">
+                <button class="col-12" style="height: 16vh">
+                  <span th:utext="${item.name}"></span><br>
+                  <span th:utext="${item.price + ' 원'}"></span><br>
+                  <span th:utext="${'재고: ' + item.stockQuantity}"></span><br>
                 </button>
               </li>
-            </th:block>
-          </ul>
+          </th:block>
+          <!-- 빈 버튼 추가하여 총 12개의 버튼이 표시되도록 함 -->
+          <th:block th:each="i : ${#numbers.sequence(1, 12 - categoryItems.content.size())}">
+            <li class="col-3" style="display: inline; height: 16vh">
+              <button class="col-12" style="height: 16vh"></button>
+            </li>
+          </th:block>
+        </div>
+
+        <div id="navigator" style="height: 8vh; border: 1px solid black">
+
         </div>
 
         <div class="col-12" style="height: 15vh; display: flex;">
