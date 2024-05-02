@@ -137,14 +137,16 @@
         </div>
 
         <div class="col-12" id="navigator" style="display: flex; height: 8vh; border: 1px solid black">
-          <li class="col-2" style="display: inline">
-            <button class="col-12" style="height: 8vh"> < </button>
+          <li class="col-2" style="display: inline" th:classappend="${!categoryItems.hasPrevious()} ? 'disabled'">
+            <button class="col-12" style="height: 8vh" th:onclick="|location.href=@{'/items(page=${categoryItems.number - 1},category=${category.category})'}|"> < </button>
           </li>
           <li class="col-8" style="display:inline">
-            <button class="col-12" style="height: 8vh"> ~~~ </button>
+            <button class="col-12" style="height: 8vh; font-size: 20px;">
+              <span th:text="${categoryItems.number + 1}"></span> / <span th:text="${categoryItems.totalPages}"></span>
+            </button>
           </li>
-          <li class="col-2" style="display: inline">
-            <button class="col-12" style="height: 8vh"> > </button>
+          <li class="col-2" style="display: inline" th:classappend="${!categoryItems.hasNext()} ? 'disabled'">
+            <button class="col-12" style="height: 8vh" th:onclick="|location.href=@{'/items(page=${categoryItems.number + 1},category=${category.category})'}|"> > </button>
           </li>
         </div>
 

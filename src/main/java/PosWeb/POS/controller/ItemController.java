@@ -53,13 +53,13 @@ public class ItemController {
     @GetMapping("items/store")
     public String storeItem(Model model){
         model.addAttribute("categories", categoryService.getAllCategories());   // category의 select 태그에 사용
-        model.addAttribute("addItemForm", new StoreItemForm());                   // store를 위한 빈 AddItemForm객체 사용
+        model.addAttribute("storeItemForm", new StoreItemForm());                   // store를 위한 빈 AddItemForm객체 사용
         return "items/storeItem";
     }
 
     @PostMapping("items/store")
     public String storeItem(@ModelAttribute("categories") Category category,
-                          @Valid @ModelAttribute("addItemForm") StoreItemForm storeItemForm,
+                          @Valid @ModelAttribute("storeItemForm") StoreItemForm storeItemForm,
                           BindingResult bindingResult) {
 
         // addItemForm에 문제가 있을 시
@@ -87,6 +87,7 @@ public class ItemController {
                           @RequestParam(value = "category", defaultValue = "biskuit")String category,
                           Model model) {
         model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("category", category);
 
         // 해당 category의 상품을 10개씩 페이징 처리
         Page<Item> paging = itemService.findByCtgItemsPaged(category, page, 10);
