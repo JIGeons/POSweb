@@ -2,6 +2,7 @@ package PosWeb.POS.service;
 
 import PosWeb.POS.domain.Category;
 import PosWeb.POS.domain.Item;
+import PosWeb.POS.domain.dto.Item.AddItemForm;
 import PosWeb.POS.repository.CategoryRepository;
 import PosWeb.POS.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,24 @@ public class ItemService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public void saveItem(Item item, String category) {
-        Optional<Category> ctg = findCategory(category);  // 카테고리가 데이터베이스에 있는지 검사 없으면 새로운 카테고리 생성
+    public String saveItem(AddItemForm addItemForm) {
+        // 상품 중복성 검사
+        if (itemRepository.findByName(addItemForm.getName()) != null) {
+            return "Fail";
+        }
+
+        Item newItem = new Item();
+        Optional<Category> ctg = findCategory(addItemForm.getCategory());  // 카테고리가 데이터베이스에 있는지 검사 없으면 새로운 카테고리 생성
         ctg.get().addItem();    // 해당 카테고리의 총 상품 개수를 1개 증가
-        item.setCategory(ctg.get());  // 상품에 Category set
-        itemRepository.save(item);  // 저장
+
+        // 상품 생성
+        newItem.setName(addItemForm.getName());
+        newItem.setPrice(addItemForm.getPrice());
+        newItem.setCategory(ctg.get());  // 상품에 Category set
+        newItem.setCompany(addItemForm.getCompany());
+
+        itemRepository.save(newItem);  // 저장
+        return "Success";
     }
 
     @Transactional

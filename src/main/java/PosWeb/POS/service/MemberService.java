@@ -68,6 +68,6 @@ public class MemberService {
         member.setBirth(updateMember.getBirth());
         member.setAddress(updateMember.getAddress());
         member.setHourlyRate(updateMember.getHourlyRate());
-        member.setWeekOrMonth(updateMember.isWeekOrMonth());
+        member.setWeekOrMonth(updateMember.getWeekOrMonth());
     }
 }

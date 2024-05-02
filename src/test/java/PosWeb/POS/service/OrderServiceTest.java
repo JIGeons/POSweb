@@ -1,6 +1,7 @@
 package PosWeb.POS.service;
 
 import PosWeb.POS.domain.*;
+import PosWeb.POS.domain.dto.Item.AddItemForm;
 import PosWeb.POS.exception.NotEnoughStockException;
 import PosWeb.POS.exception.TooLessOrMuchDiscountException;
 import PosWeb.POS.repository.CategoryRepository;
@@ -103,11 +104,19 @@ public class OrderServiceTest {
     }
 
     private Item createItem(String name, int price, int quantity, String category) {
-        Item bisket = new Item();
+        AddItemForm bisket = new AddItemForm();
         bisket.setName(name);
         bisket.setPrice(price);
-        bisket.setStockQuantity(quantity);
-        itemService.saveItem(bisket, category);
-        return bisket;
+        bisket.setCategory("biskuit");
+        bisket.setCompany("롯데제과");
+        itemService.saveItem(bisket);
+
+        Category ctg = categoryRepository.findOne(1);   // biskuit.category_num == 1
+        Item item = new Item();
+        item.setName(name);
+        item.setPrice(price);
+        item.setCategory(ctg);
+        item.setCompany("롯데제과");
+        return item;
     }
 }

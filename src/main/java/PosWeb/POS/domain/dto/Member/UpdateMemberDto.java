@@ -17,6 +17,6 @@ public class UpdateMemberDto {
     private LocalDate Birth;
     private boolean admin;
     private int hourlyRate;
-    private Boolean weekOrMonth;
+    private boolean weekOrMonth;
     private Address address;
 }
