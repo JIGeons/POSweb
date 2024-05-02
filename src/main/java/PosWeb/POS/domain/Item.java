@@ -2,7 +2,10 @@ package PosWeb.POS.domain;
 
 import PosWeb.POS.exception.NotEnoughStockException;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
+import org.hibernate.validator.constraints.Range;
 
 @Entity
 @Getter @Setter
@@ -15,6 +18,7 @@ public class Item {
 
     private String name;
     private int price;
+    @PositiveOrZero(message = " * 재고량은 0과 같거나 많아야 합니다.")
     private int stockQuantity;
     private String company;
 

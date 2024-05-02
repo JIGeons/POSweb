@@ -11,15 +11,15 @@ import org.hibernate.validator.constraints.Range;
 @Setter
 @NoArgsConstructor
 public class AddItemForm {
-    @NotEmpty(message = " ※ 상품 이름은 필수로 입력해야합니다.")
+    private Long id;
+
+    @NotEmpty(message = " ※ 상품 이름을 입력해주세요.")
     private String name;
 
-    @NotNull(message = " ※ 상품 가격은 필수로 입력해야합니다.")
-    @Range(min = 100, max = 1000000, message = " ※ 상품 가격은 100원 ~ 1,000,000원 사이로 입력해주세요.")
-    private Integer price;
+    @NotNull(message = " ※ 입고할 상품의 갯수를 입력해주세요.")
+    @Range(min = 1, max = 1000, message = " ※ 입고 할 갯수를 1 ~ 1000개 사이로 입력해주세요.")
+    private Integer stockQuantity;
 
-    @NotEmpty(message = " ※ 카테고리는 필수로 선택해야합니다.")
+    @NotEmpty(message = " ※ 카테고리를 입력해주세요.")
     private String category;
-    @NotEmpty(message = " ※ 제조회사는 필수로 입력해야합니다.")
-    private String company;
 }
