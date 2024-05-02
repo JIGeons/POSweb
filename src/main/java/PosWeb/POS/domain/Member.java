@@ -26,11 +26,11 @@ public class Member {
     private LocalDate Birth;
     private boolean admin;
 
-    @ColumnDefault("9860")
-    private int hourlyRate;         // 최저임금을 default값으로
+    @Column(columnDefinition = "integer default 9860")
+    private int hourlyRate = 9860;         // 최저임금을 default값으로
 
-    @ColumnDefault("true")
-    private Boolean weekOrMonth;    // flase: 주급 or true: 월급 / default = true
+    @Column(columnDefinition = "boolean default true")
+    private boolean weekOrMonth = true;    // flase: 주급 or true: 월급 / default = true
 
     @Embedded
     private Address address;

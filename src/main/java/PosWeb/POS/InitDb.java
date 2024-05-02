@@ -17,9 +17,9 @@ public class InitDb {
 
     @PostConstruct  // 의존성 주입이 이루어진 후 초기화를 수행하는 메서드
     public void init() {
-        initService.dbInit();
-        initService.dbTestInit2();
-        initService.dbTestInit3();
+        //initService.dbInit();
+        //initService.dbTestInit2();
+        //initService.dbTestInit3();
     }
 
     @Component
