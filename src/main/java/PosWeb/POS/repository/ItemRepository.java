@@ -63,7 +63,6 @@ public class ItemRepository {
                 .setMaxResults(pageable.getPageSize())    // 페이지 크기 설정
                 .getResultList();
 
-        System.out.println("total : " + category.getTotal());
         return new PageImpl<>(items, pageable, category.getTotal());
     }
 }

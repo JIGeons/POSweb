@@ -99,4 +99,5 @@ public class ItemService {
     public Item findOne(String name) {
         return itemRepository.findByName(name);
     }
+    public Item findById(int id) { return itemRepository.findOne((long) id);}
 }

@@ -2,10 +2,14 @@ package PosWeb.POS.controller;
 
 import PosWeb.POS.domain.Category;
 import PosWeb.POS.domain.Item;
+import PosWeb.POS.domain.dto.Item.CartItemForm;
 import PosWeb.POS.domain.dto.Item.StoreItemForm;
 import PosWeb.POS.domain.dto.Item.AddItemForm;
 import PosWeb.POS.service.CategoryService;
 import PosWeb.POS.service.ItemService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,13 +18,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
@@ -33,6 +37,7 @@ public class ItemController {
     @GetMapping("items")
     public String items(@RequestParam(value = "page", defaultValue = "0")int page,
                         @RequestParam(value = "category", defaultValue = "biskuit")String category,
+                        HttpSession session,
                         Model model) {
 
         // 카테고리 가지고 오기
@@ -46,7 +51,57 @@ public class ItemController {
         // model에 저장
         model.addAttribute("categoryItems", paging);
 
+        // 선택한 상품을 담을 CateItemForm을 List로 생성 후 session에 추가
+        Map<Integer, CartItemForm> cart = new ConcurrentHashMap<>();
+
+        // session에 "cart"가 존재 하지 않을 시 cart리스트 저장
+        if (session.getAttribute("cart") == null) {
+            int totalCount = 0;
+            int totalAmount = 0;
+            int totalDiscount = 0;
+            session.setAttribute("cart", cart);
+            session.setAttribute("totalCount", totalCount);
+            session.setAttribute("totalAmount", totalAmount);
+            session.setAttribute("totalDiscount", totalDiscount);
+            log.info("cart 세션 생성");
+        }
+
         return "items/posweb";
+    }
+
+    @PostMapping("items")
+    public String items(@RequestBody Map<String, Object> data, HttpSession session) {
+
+        System.out.println(data);
+        // 클라이언트에서 전송된 JSON 데이터를 받아온다.
+        int id = (int) data.get("id");
+        int orderPrice = (int) data.get("orderPrice");
+        int quantity = (int) data.get("quantity");
+        int discount= (int) data.get("discount");
+        int totalCount = (int) data.get("totalCount");
+        int totalAmount = (int) data.get("totalAmount");
+        int totalDiscount = (int) session.getAttribute("totalDiscount");
+        int page = (int) data.get("page");
+        String category = (String) data.get("category");
+
+        CartItemForm cartItem = new CartItemForm(itemService.findById(id), orderPrice, quantity, discount);
+
+        // 해당 상품에 cart 세션에 저장이 되어 있는지 확인
+        Map<Integer, CartItemForm> cart = (ConcurrentHashMap) session.getAttribute("cart");
+
+        if (cart.get(id) == null) {
+            cart.put(id, cartItem);
+        } else {
+            cart.replace(id, cartItem);
+        }
+
+        // 받아온 카트 정보를 세션에 저장한다.
+        session.setAttribute("cart", cart);
+        session.setAttribute("totalCount", totalCount);
+        session.setAttribute("totalAmount", totalAmount);
+        session.setAttribute("totalDiscount", totalDiscount + discount);
+
+        return "redirect:/items?page=" + page + "&category=" + category;
     }
 
     // 상품 추가("items/store")

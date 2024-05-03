@@ -49,6 +49,17 @@
             </div>
 
             <div id="cart" style="overflow-y: scroll; height:90%;">
+              <th:block th:each="cartItem : ${session.cart}">
+                <div style="display: flex;">
+                  <input type="checkbox" class="col-1 center">
+                  <input type="hidden" class="item-id" th:value="${cartItem.value.item.id}" readOnly>
+                  <input type="text" class="col-4 center item-name" th:value="${cartItem.value.item.name}" readOnly>
+                  <input type="text" class="col-1 center quantity" th:value="${cartItem.value.quantity}" style="text-align: center" readOnly>
+                  <input type="text" class="col-2 price" th:value="${cartItem.value.item.price}" style="text-align: right" readOnly>
+                  <input type="text" class="col-2 discount" th:value="${cartItem.value.discount}" style="text-align: right" readOnly>
+                  <input type="text" class="col-2 amount" th:value="${cartItem.value.orderPrice}" style="text-align: right" readOnly>
+                </div>
+              </th:block>
 
             </div>
           </div>
@@ -57,15 +68,15 @@
           <div class="col-6" style="background-color: azure; height: 40vh;">
             <div class="총 수량" style="height: 20%; border: 1px solid black; display:flex">
               <div class="col-4" style="padding-left:3px;">총 수량</div>
-              <div class="col-8" id="totalCount" style="text-align:right; font-size:40px; padding-right:5px;">0</div>
+              <div class="col-8" id="totalCount" th:value="${session.totalCount}" th:text="${session.totalCount}" style="text-align:right; font-size:40px; padding-right:5px;"></div>
             </div>
             <div class="할인금액" style="height: 20%; border: 1px solid black; display:flex">
               <div class="col-4" style="padding-left:3px;">할인금액</div>
-              <div class="col-8" id="totalDiscount" style="text-align:right; font-size:40px; padding-right:5px;">0</div>
+              <div class="col-8" id="totalDiscount" th:value="${session.totalDiscount}" th:text="${session.totalDiscount}" style="text-align:right; font-size:40px; padding-right:5px;"></div>
             </div>
             <div class="총 금액" style="height: 20%; border: 1px solid black; display:flex">
               <div class="col-4" style="padding-left:3px;">총 금액</div>
-              <div class="col-8" id="totalAmount" style="text-align:right; font-size:40px; padding-right:5px;">0</div>
+              <div class="col-8" id="totalAmount" th:value="${session.totalCount}" th:text="${session.totalAmount}" style="text-align:right; font-size:40px; padding-right:5px;"></div>
             </div>
 
             <div class="버튼" style="display: flex; border: 1px solid black; height: 40%;">
@@ -121,7 +132,7 @@
         <div id="items" style="height: 48vh; display: flex; flex-wrap: wrap;">
             <th:block th:each="item, iter : ${categoryItems}">
               <li class="col-3" style="display: inline;  height: 16vh">
-                <button class="col-12" style="height: 16vh">
+                <button class="col-12" style="height: 16vh" th:onclick="Cart([[${item.id}]], [[${item.name}]], [[${item.price}]], [[${item.stockQuantity}]], [[${item.category.category}]])">
                   <span th:utext="${item.name}"></span><br>
                   <span th:utext="${item.price + ' 원'}"></span><br>
                   <span th:utext="${'재고: ' + item.stockQuantity}"></span><br>
@@ -158,38 +169,128 @@
   </div>
 </div>
 <script th:inline="javascript">
-  function CategorySelect(category) {
-    var categoryItems = [[${categoryItems}]];
-    const items = categoryItems[category];
+  function saveSession(id, quantity, discount, totalAmount, totalCount, totalSum, category) {
+    var cartItems = /*[[${categoryItems}]]*/ [];
+    var page= parseInt(cartItems["number"]);
 
-    console.log(categoryItems);
-    console.log(category);
-    console.log(items);
+    jsonData = {
+      id: id,
+      quantity: quantity,
+      discount: discount,
+      orderPrice: totalAmount,
+      totalCount: totalCount,
+      totalAmount: totalSum,
+      page: page,
+      category: category
+    }
+    // Ajax를 사용하여 서버에 데이터 전송
+    $.ajax({
+      type: 'POST',
+      url: '/items',
+      contentType: 'application/json',
+      data: JSON.stringify(jsonData)
+    })
+  }
 
-    /*items div의 정보를 가지고 오기*/
-    const itemsDiv = document.getElementById("items");
-    itemsDiv.innerHTML = " ";  // 이전에 표시된 아이템들을 제거
+  // 상품 버튼 클릭 시 cartDiv에 추가
+  function Cart(id, name, price, stock, category) {
+    if (stock != 0) {
+      var cart = document.getElementById("cart");
+      var totalCounts = document.getElementById("totalCount").textContent;
 
-    if (items.length != 0) {  // 상품이 존재하는 경우
-      const ul = document.createElement("ul");
-      items.forEach(item => {
-        // 상품별 li를 생성해서 ul에 추가
-        const li = document.createElement("li");
-        ul.appendChild(li);
+      var totalCount = parseInt(totalCounts);
+      var totalSum = parseInt(document.getElementById("totalAmount").textContent);
 
-        // 상품별 버튼을 생성 li에 추가
-        const button = document.createElement("button");
-        button.innerText = item.name + "\n" + item.price + " 원\n" + "재고 : " + item.stockQuantity;
-        li.appendChild(button);
-      })
+      // cart div에 같은 상품이 있는지 확인
+      var existingDiv = Array.from(cart.children).find(function (div) {
+        var itemIdInput = div.querySelector(".item-id");
+        return itemIdInput.value == id;
+      });
 
-      // 완성된 ul태그를 itemsDiv에 append
-      itemsDiv.appendChild(ul);
-    } else {  // 상품이 존재하지 않는 경우
-      const p = document.createElement("p")
-      p.innerText = '선택한 카테고리의 상품이 존재하지 않습니다.'
-      p.style.color = "red";
-      itemsDiv.appendChild(p);
+      if (existingDiv) {
+        // 해당 qauntity input의 value를 1증가
+        var quantityInput = existingDiv.querySelector(".quantity");
+        var quantity = parseInt(quantityInput.value);
+        quantity += 1;
+        quantityInput.value = quantity;
+
+        // qauntity변경에 따른 금액 변경
+        var itemPrice = parseInt(existingDiv.querySelector(".price").value);
+        var discount = parseInt(existingDiv.querySelector(".discount").value);
+        var totalAmount = quantity * itemPrice - discount;
+        existingDiv.querySelector(".amount").value = totalAmount;
+
+        totalCount += 1;
+        totalSum += itemPrice;
+
+        saveSession(id, quantity, discount, totalAmount, totalCount, totalSum, category);
+      } else {
+        // cart div에 상품이 없을 시 추가 하기 위한 div 생성
+        var newDiv = document.createElement("div");
+        newDiv.style.display = "flex";
+
+        // 각각 input 생성
+        var checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "col-1 center";
+
+        var itemId = document.createElement("input");
+        itemId.type = "hidden";
+        itemId.value = id;
+        itemId.className = "item-id";
+
+        var itemName = document.createElement("input");
+        itemName.type = "text";
+        itemName.value = name;
+        itemName.readOnly = true;
+        itemName.className = "col-4 center item-name";
+
+        var quantity = document.createElement("input");
+        quantity.type = "text";
+        quantity.value = "1";
+        quantity.readOnly = true;
+        quantity.style.textAlign = "center";
+        quantity.className = "col-1 center quantity";
+
+        var itemPrice = document.createElement("input");
+        itemPrice.type = "text";
+        itemPrice.value = price;
+        itemPrice.readOnly = true;
+        itemPrice.style.textAlign = "right";
+        itemPrice.className = "col-2 price";
+
+        var discount = document.createElement("input");
+        discount.type = "text";
+        discount.value = "0";
+        discount.style.textAlign = "right";
+        discount.className = "col-2 discount";
+
+        var amount = document.createElement("input");
+        amount.type = "text";
+        amount.value = price;
+        amount.readOnly = true;
+        amount.style.textAlign = "right";
+        amount.className = "col-2 amount";
+
+        //input을 다 만든 후 처음 만든 div에 child로 삽입해 하나로 묶어줌
+        newDiv.appendChild(checkbox);
+        newDiv.appendChild(itemId);
+        newDiv.appendChild(itemName);
+        newDiv.appendChild(quantity);
+        newDiv.appendChild(itemPrice);
+        newDiv.appendChild(discount);
+        newDiv.appendChild(amount);
+
+        //하나로 만든 div를 cart div에 삽입
+        cart.appendChild(newDiv);
+
+        totalCount += 1;
+        totalSum += parseInt(price);
+
+        saveSession(id, 1, 0, price, totalCount, totalSum, category);
+      }
+      document.getElementById("totalCount").textContent = totalCount;
+      document.getElementById("totalAmount").textContent = totalSum;
     }
   }
 </script>
@@ -266,7 +367,7 @@
         var quantity = parseInt(quantityInput.value);
         var discount = parseInt(discountInput.value);
         var amount = parseInt(amountInput.value);
-        var productPrice = parseInt(div.querySelector(".price").value);
+        var itemPrice = parseInt(div.querySelector(".price").value);
         var sum;
 
         if (document.getElementById("type").value=="수량"){
@@ -275,7 +376,7 @@
           } else totalCount += (number-quantity);
 
           quantity = number;
-          sum = quantity * productPrice - discount;
+          sum = quantity * itemPrice - discount;
 
           quantityInput.value = number;
           amountInput.value = sum;
@@ -285,7 +386,7 @@
           }else totalDiscount += (number - discount);
           discount = number;
           discountInput.value = discount
-          sum = quantity * productPrice - discount;
+          sum = quantity * itemPrice - discount;
           amountInput.value = sum;
         }
         if(amount <= sum) totalAmount += (sum- amount);
@@ -336,137 +437,42 @@
     document.getElementById("totalAmount").textContent = totalAmount;
   }
 
-
-  function Cart(code, name, price, stock) {
-    var cart = document.getElementById("cart");
-    var totalCounts = document.getElementById("totalCount").textContent;
-
-    var totalCount = parseInt(totalCounts);
-    var totalSum = parseInt(document.getElementById("totalAmount").textContent);
-
-    // cart div에 같은 상품이 있는지 확인
-    var existingDiv = Array.from(cart.children).find(function (div) {
-      var productCodeInput = div.querySelector(".product-code");
-      return productCodeInput.value === code;
-    });
-
-    if (existingDiv) {
-      // 해당 qauntity input의 value를 1증가
-      var quantityInput = existingDiv.querySelector(".quantity");
-      var quantity = parseInt(quantityInput.value);
-      quantity += 1;
-      quantityInput.value = quantity;
-
-      // qauntity변경에 따른 금액 변경
-      var productPrice = parseInt(existingDiv.querySelector(".price").value);
-      var discount = parseInt(existingDiv.querySelector(".discount").value);
-      var totalAmount = quantity * productPrice - discount;
-      existingDiv.querySelector(".amount").value = totalAmount;
-
-      totalCount += 1;
-      totalSum += productPrice;
-    } else {
-      // cart div에 상품이 없을 시 추가 하기 위한 div 생성
-      var newDiv = document.createElement("div");
-      newDiv.style.display = "flex";
-
-      // 각각 input 생성
-      var checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.className = "col-1 center";
-
-      var productCode = document.createElement("input");
-      productCode.type = "hidden";
-      productCode.value = code;
-      productCode.className = "product-code";
-
-      var productName = document.createElement("input");
-      productName.type = "text";
-      productName.value = name;
-      productName.readOnly = true;
-      productName.className = "col-4 center product-name";
-
-      var quantity = document.createElement("input");
-      quantity.type = "text";
-      quantity.value = "1";
-      quantity.readOnly = true;
-      quantity.className = "col-1 center quantity";
-
-      var productPrice = document.createElement("input");
-      productPrice.type = "text";
-      productPrice.value = price;
-      productPrice.readOnly = true;
-      productPrice.style.textAlign = "right";
-      productPrice.className = "col-2 price";
-
-      var discount = document.createElement("input");
-      discount.type = "text";
-      discount.value = "0";
-      discount.style.textAlign = "right";
-      discount.className = "col-2 discount";
-
-      var amount = document.createElement("input");
-      amount.type = "text";
-      amount.value = price;
-      amount.readOnly = true;
-      amount.style.textAlign = "right";
-      amount.className = "col-2 amount";
-
-      //input을 다 만든 후 처음 만든 div에 child로 삽입해 하나로 묶어줌
-      newDiv.appendChild(checkbox);
-      newDiv.appendChild(productCode);
-      newDiv.appendChild(productName);
-      newDiv.appendChild(quantity);
-      newDiv.appendChild(productPrice);
-      newDiv.appendChild(discount);
-      newDiv.appendChild(amount);
-
-      //하나로 만든 div를 cart div에 삽입
-      cart.appendChild(newDiv);
-
-      totalCount += 1;
-      totalSum += parseInt(price);
-    }
-    document.getElementById("totalCount").textContent = totalCount;
-    document.getElementById("totalAmount").textContent = totalSum;
-  }
-
   function Cash() {
     // cart div의 내용을 가져와서 변수에 저장
     var cart = document.getElementById("cart");
     var cartContents = document.createElement("div");
 
     Array.from(cart.children).forEach(function(child) {
-      var product = document.createElement("div");
-      product.className = "goods";
-      product.height = "5vh";
+      var item = document.createElement("div");
+      item.className = "goods";
+      item.height = "5vh";
 
-      var productCode = document.createElement("div");
-      productCode.type = "hidden";
-      productCode.className = "code";
-      productCode.setAttribute("id",child.querySelector(".product-code").value);
+      var itemId = document.createElement("div");
+      itemId.type = "hidden";
+      itemId.className = "code";
+      itemId.setAttribute("id",child.querySelector(".item-id").value);
 
-      var productName = document.createElement("div");
-      productName.className = "col-6 name";
-      productName.value = child.querySelector(".product-name").value;
-      productName.textContent = child.querySelector(".product-name").value;
+      var itemName = document.createElement("div");
+      itemName.className = "col-6 name";
+      itemName.value = child.querySelector(".item-name").value;
+      itemName.textContent = child.querySelector(".item-name").value;
 
-      var productQuantity = document.createElement("div");
-      productQuantity.className = "col-2 quantity";
-      productQuantity.value = child.querySelector(".quantity").value;
-      productQuantity.textContent = child.querySelector(".quantity").value;
+      var itemQuantity = document.createElement("div");
+      itemQuantity.className = "col-2 quantity";
+      itemQuantity.value = child.querySelector(".quantity").value;
+      itemQuantity.textContent = child.querySelector(".quantity").value;
 
-      var productAmount = document.createElement("div");
-      productAmount.className = "col-4 amount";
-      productAmount.value = child.querySelector(".amount").value;
-      productAmount.textContent = child.querySelector(".amount").value;
+      var itemAmount = document.createElement("div");
+      itemAmount.className = "col-4 amount";
+      itemAmount.value = child.querySelector(".amount").value;
+      itemAmount.textContent = child.querySelector(".amount").value;
 
-      product.appendChild(productCode);
-      product.appendChild(productName);
-      product.appendChild(productQuantity);
-      product.appendChild(productAmount);
+      item.appendChild(itemId);
+      item.appendChild(itemName);
+      item.appendChild(itemQuantity);
+      item.appendChild(itemAmount);
 
-      cartContents.appendChild(product);
+      cartContents.appendChild(item);
 
     })
     // cartContents 값을 localStorage에 저장
