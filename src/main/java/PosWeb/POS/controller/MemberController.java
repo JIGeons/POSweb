@@ -53,6 +53,10 @@ public class MemberController {
         System.out.println("loginMember.pw = " + loginMember.getPw());
         Member member = memberService.login(loginMember);
 
+        // valid 검사에서 오류가 있는 경우
+        if (bindingResult.hasErrors()) {
+            return "members/login";
+        }
 
         // 로그인 실패 (아이디나 비밀번호가 틀린 경우)
         if (member == null) {
@@ -82,9 +86,10 @@ public class MemberController {
     }
 
     @PostMapping("members/join")
-    public String join(@Valid JoinMemberForm joinMemberForm, BindingResult result, Model model) {
+    public String join(@Valid JoinMemberForm joinMemberForm, BindingResult bindingResult) {
 
-        if (result.hasErrors()) {
+        // JoinMemberForm에 오류가 있을 경우
+        if (bindingResult.hasErrors()) {
             log.info("members Form Error");
             return "members/join";
         }
@@ -92,10 +97,11 @@ public class MemberController {
         // 비밀번호 검증
         if (!joinMemberForm.getPw().equals(joinMemberForm.getConfirmPw())) {
             log.info("members password not equal");
-            result.addError(new FieldError("joinMemberForm", "confirmPw", " ※ 비밀번호가 일치하지 않습니다."));
+            bindingResult.addError(new FieldError("joinMemberForm", "confirmPw", " ※ 비밀번호가 일치하지 않습니다."));
             return "members/join";
         }
 
+        // 회원 생성
         Member member = createMember(joinMemberForm);
         memberService.join(member);
         return "redirect:/";
