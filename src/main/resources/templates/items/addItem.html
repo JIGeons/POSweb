@@ -73,7 +73,7 @@
 <div style="height: 100vh;">
     <div class="container">
         <div class="header center">
-            <div style="padding-left: 10px; font-size: 30px; ">
+            <div class="col-11" style="padding-left: 10px; font-size: 30px; ">
                 <h1><strong>상품 입고</strong></h1>
             </div>
         </div>
@@ -99,19 +99,20 @@
                             <div class="col-4"></div>
                         </button>
                     </th:block>
-                </div>
-                <div class="col-12" id="navigator" style="display: flex; height: 8vh; border: 1px solid black">
-                    <li class="col-2" style="display: inline" th:classappend="${!items.hasPrevious()} ? 'disabled'">
-                        <button class="col-12" style="height: 8vh" th:onclick="|location.href=@{'/items/add(page=${categoryItems.number - 1},category=${selectItem.category})'}|"> < </button>
-                    </li>
-                    <li class="col-8" style="display:inline">
-                        <button class="col-12" style="height: 8vh; font-size: 20px;">
-                            <span th:text="${items.number + 1}"></span> / <span th:text="${items.totalPages}"></span>
-                        </button>
-                    </li>
-                    <li class="col-2" style="display: inline" th:classappend="${!items.hasNext()} ? 'disabled'">
-                        <button class="col-12" style="height: 8vh" th:onclick="|location.href=@{'/items/add(page=${categoryItems.number + 1},category=${selectItem.category})'}|"> > </button>
-                    </li>
+                    <!-- 네비게이션바 -->
+                    <div class="col-12" id="navigator" style="display: flex; height: 11vh">
+                        <li class="col-3" style="display: inline" th:classappend="${!items.hasPrevious()} ? 'disabled'">
+                            <strong><button class="col-12" style="height: 11vh" th:onclick="|location.href=@{'/items/add(page=${categoryItems.number - 1},category=${selectItem.category})'}|"> < </button></strong>
+                        </li>
+                        <li class="col-6" style="display:inline">
+                            <button class="col-12" style="height: 11vh; font-size: 20px;">
+                                <span th:text="${items.number + 1}"></span> / <span th:text="${items.totalPages}"></span>
+                            </button>
+                        </li>
+                        <li class="col-3" style="display: inline" th:classappend="${!items.hasNext()} ? 'disabled'">
+                            <strong><button class="col-12" style="height: 11vh" th:onclick="|location.href=@{'/items/add(page=${categoryItems.number + 1},category=${selectItem.category})'}|"> > </button></strong>
+                        </li>
+                    </div>
                 </div>
             </div>
 
@@ -136,7 +137,10 @@
                             <div style="height: 40px;"></div>
                             <input type="text" id="item_id" th:field="*{id}" hidden="hidden">
                         </div>
-                        <button class="button" type="submit">입고처리</button>
+                        <div class="center" style="display: flex">
+                            <button class="button" type="submit">입고처리</button>
+                            <button class="button" type="button" style="background-color: #4caf50" onclick="location.href='/items'">홈으로</button>
+                        </div>
                     </form>
                 </div>
             </div>

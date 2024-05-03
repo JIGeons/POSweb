@@ -57,16 +57,6 @@
             padding: 5px 10px;
             margin: 5px 5px;
         }
-        .member {
-            display: inline-block;
-            max-width: 500px;
-            width: 50%;
-            height: 70vh;
-            background-color: white;
-            padding: 5px 10px;
-            border-radius: 10px;
-            margin: 5px 5px;
-        }
         .error {
             color: #dc3545;
         }
@@ -78,7 +68,7 @@
 </div>
 <div class="container">
     <div class="loginDiv">
-        <form th:object="${storeItemForm}" action="store" method="post" style="margin-top:50px;">
+        <form th:object="${storeItemForm}" action="store" method="post">
             <p>
                 <strong><label th:for="${storeItemForm.name}">상품이름:</label></strong>
                 <span class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
@@ -102,14 +92,14 @@
                 <input type="text" id="customCategoryInput" name="customCategory" style="display: none; margin-top: 3px;" placeholder="카테고리를 직접 입력해주세요.">
             </p>
             <p>
-                <label th:for="${storeItemForm.company}">제조회사
-                    <span class="error" th:if="${#fields.hasErrors('company')}" th:errors="*{company}"></span>
-                    <br>
-                    <input type="text" th:field="${storeItemForm.company}">
-                </label>
+                <strong><label th:for="${storeItemForm.company}">제조회사</label></strong>
+                <span class="error" th:if="${#fields.hasErrors('company')}" th:errors="*{company}"></span>
+                <br>
+                <input type="text" th:field="${storeItemForm.company}">
             </p>
             <strong><span class="error" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></span> </strong>
-            <input type="submit" value="상품 추가하기">
+            <input type="submit" style="background-color: red" value="상품 추가하기">
+            <input type="button" style="background-color: #4caf50; margin-top: 10px" onclick="location.href='/items'" value="홈으로">
         </form>
     </div>
 </div>

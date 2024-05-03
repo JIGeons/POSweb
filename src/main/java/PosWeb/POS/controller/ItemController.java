@@ -70,7 +70,8 @@ public class ItemController {
     }
 
     @PostMapping("items")
-    public String items(@RequestBody Map<String, Object> data, HttpSession session) {
+    public String items(@RequestBody Map<String, Object> data, HttpServletRequest servletRequest) {
+        HttpSession session = servletRequest.getSession();
 
         System.out.println(data);
         // 클라이언트에서 전송된 JSON 데이터를 받아온다.
