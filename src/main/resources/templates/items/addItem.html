@@ -92,7 +92,7 @@
                             <div class="col-4" th:field="${item.stockQuantity}" th:text="${item.stockQuantity}"></div>
                         </button>
                     </th:block>
-                    <th:block th:each="i : ${#numbers.sequence(1, 10 - items.content.size())}">
+                    <th:block th:if="${items.content.size()} < 10" th:each="i : ${#numbers.sequence(1, 10 - items.content.size())}">
                         <button class="center">
                             <div class="col-2" style="border-right:1px solid black" th:text="${i + items.content.size()}"></div>
                             <div class="col-6" style="border-right:1px solid black"></div>
@@ -102,7 +102,7 @@
                     <!-- 네비게이션바 -->
                     <div class="col-12" id="navigator" style="display: flex; height: 11vh">
                         <li class="col-3" style="display: inline" th:classappend="${!items.hasPrevious()} ? 'disabled'">
-                            <strong><button class="col-12" style="height: 11vh" th:onclick="|location.href=@{'/items/add(page=${categoryItems.number - 1},category=${selectItem.category})'}|"> < </button></strong>
+                            <strong><button class="col-12" style="height: 11vh" th:onclick="|location.href='@{/items/add(page=${items.number - 1},category=${selectItem.category})}' |"> < </button></strong>
                         </li>
                         <li class="col-6" style="display:inline">
                             <button class="col-12" style="height: 11vh; font-size: 20px;">
@@ -110,7 +110,7 @@
                             </button>
                         </li>
                         <li class="col-3" style="display: inline" th:classappend="${!items.hasNext()} ? 'disabled'">
-                            <strong><button class="col-12" style="height: 11vh" th:onclick="|location.href=@{'/items/add(page=${categoryItems.number + 1},category=${selectItem.category})'}|"> > </button></strong>
+                            <strong><button class="col-12" style="height: 11vh" th:onclick="|location.href='@{/items/add(page=${items.number + 1},category=${selectItem.category})}' |"> > </button></strong>
                         </li>
                     </div>
                 </div>
