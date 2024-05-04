@@ -53,6 +53,7 @@
                 <div style="display: flex;">
                   <input type="checkbox" class="col-1 center">
                   <input type="hidden" class="item-id" th:value="${cartItem.value.item.id}" readOnly>
+                  <input type="hidden" class="item-stock" th:value="${cartItem.value.item.stockQuantity}" readOnly>
                   <input type="text" class="col-4 center item-name" th:value="${cartItem.value.item.name}" readOnly>
                   <input type="text" class="col-1 center quantity" th:value="${cartItem.value.quantity}" style="text-align: center" readOnly>
                   <input type="text" class="col-2 price" th:value="${cartItem.value.item.price}" style="text-align: right" readOnly>
@@ -169,7 +170,7 @@
   </div>
 </div>
 <script th:inline="javascript">
-  function saveSession(id, quantity, discount, totalAmount, totalCount, totalSum, category) {
+  function saveSession(id, quantity, discount, orderPrice, totalCount, totalAmount, category) {
     var cartItems = /*[[${categoryItems}]]*/ [];
     var page = parseInt(cartItems["number"]);
 
@@ -177,9 +178,9 @@
       id: id,
       quantity: quantity,
       discount: discount,
-      orderPrice: totalAmount,
+      orderPrice: orderPrice,
       totalCount: totalCount,
-      totalAmount: totalSum,
+      totalAmount: totalAmount,
       page: page,
       category: category
     }
@@ -272,6 +273,11 @@
         amount.style.textAlign = "right";
         amount.className = "col-2 amount";
 
+        var stockQuantity = document.createElement("input");
+        stockQuantity.type = "hidden";
+        stockQuantity.value = stock;
+        stockQuantity.className = "item-stock";
+
         //input을 다 만든 후 처음 만든 div에 child로 삽입해 하나로 묶어줌
         newDiv.appendChild(checkbox);
         newDiv.appendChild(itemId);
@@ -280,6 +286,7 @@
         newDiv.appendChild(itemPrice);
         newDiv.appendChild(discount);
         newDiv.appendChild(amount);
+        newDiv.appendChild(stockQuantity)
 
         //하나로 만든 div를 cart div에 삽입
         cart.appendChild(newDiv);
@@ -338,7 +345,10 @@
 
   function plus() {
     var number = parseInt(document.getElementById("numberArea").value);
-    number -= 1;
+    if (isNaN(number))
+      number = 1;
+    else
+      number += 1;
     document.getElementById("numberArea").value = number;
   }
 
@@ -352,12 +362,17 @@
     var totalDiscount = parseInt(totalDiscounts);
     var totalAmount = parseInt(totalAmounts);
 
+    var cartItems = [];
+
     if(!isNaN(number)){
       var cart = document.getElementById("cart");
       var selectedDivs = Array.from(cart.children).filter(function(div) {
         var checkbox = div.querySelector(".col-1");
         return checkbox.checked;
       });
+
+      // 상품을 선택하지 않으면 return
+      if (selectedDivs.length == 0) return ;
 
       selectedDivs.forEach(function (div) {
         var quantityInput = div.querySelector(".quantity");
@@ -370,7 +385,19 @@
         var itemPrice = parseInt(div.querySelector(".price").value);
         var sum;
 
+        var name = div.querySelector(".item-name").value;
+        var stockQuantity = parseInt(div.querySelector(".item-stock").value);
+
+        var item = {};
+
+        // 수량을 선택했을 경우
         if (document.getElementById("type").value=="수량"){
+          // 선택한 수량보다 재고가 적을 때 alert창을 띄운다.
+          if (stockQuantity < number) {
+            alert(name + "의 재고는 " + stockQuantity +"개 입니다.\n 선택 수량 : " + number + "개");
+            return;
+          }
+
           if(number <= quantity){
             totalCount -= (quantity - number);
           } else totalCount += (number-quantity);
@@ -380,18 +407,33 @@
 
           quantityInput.value = number;
           amountInput.value = sum;
-        } else {
-          if(number <= discount){
+        } else {  // 할인을 선택했을 경우
+          if (amount < number) {
+            alert("상품의 할인 가격은 상품 총 금액을 초과 할 수 없습니다.\n 상품 총 금액 : " + amount + ", 할인 가격 : " + number);
+            return;
+          }
+          if(number <= discount)
             totalDiscount -= (discount - number);
-          }else totalDiscount += (number - discount);
+          else
+            totalDiscount += (number - discount);
+
           discount = number;
           discountInput.value = discount
           sum = quantity * itemPrice - discount;
           amountInput.value = sum;
         }
+
         if(amount <= sum) totalAmount += (sum- amount);
         else totalAmount -= (amount - sum);
+
+        item.id = parseInt(div.querySelector(".item-id").value);
+        item.quantity = quantity;
+        item.orderPrice = sum;
+        item.discount = discount;
+        cartItems.push(item);
       });
+
+      ApplySession(cartItems, totalCount, totalAmount, totalDiscount);
 
       document.getElementById("totalCount").textContent = totalCount;
       document.getElementById("totalDiscount").textContent = totalDiscount;
@@ -502,6 +544,21 @@
     $.ajax({
       type: 'POST',
       url: '/items/cartDelete',
+      contentType: 'application/json',
+      data: JSON.stringify(jsonData)
+    });
+  }
+
+  function ApplySession(cartItems, totalCount, totalAmount, totalDiscount) {
+    jsonData = {
+      cartItems: cartItems,
+      totalCount: totalCount,
+      totalAmount: totalAmount,
+      totalDiscount: totalDiscount
+    }
+    $.ajax({
+      type: 'POST',
+      url: '/items/cartApply',
       contentType: 'application/json',
       data: JSON.stringify(jsonData)
     });

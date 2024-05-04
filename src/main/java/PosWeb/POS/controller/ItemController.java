@@ -109,7 +109,7 @@ public class ItemController {
     @PostMapping("items/cartDelete")
     public String cartDelete(@RequestBody Map<String, Object> data, HttpServletRequest servletRequest) {
         // 클라이언트에서 전송된 Json data를 받아온다.
-        List<Map<String, Integer>> cartItems = (List<Map<String,java.lang.Integer>>) data.get("cartItems");
+        List<Map<String, Integer>> cartItems = (List<Map<String, Integer>>) data.get("cartItems");
         int totalCount = (int) data.get("totalCount");
         int totalAmount = (int) data.get("totalAmount");
         int totalDiscount = (int) data.get("totalDiscount");
@@ -121,6 +121,41 @@ public class ItemController {
         // 삭제 리스트의 담긴 상품을 session에서 삭제
         for (Map<String, Integer> item : cartItems) {
             cart.remove((int) item.get("id"));
+        }
+
+        // 삭제한 cart Map을 세션에 다시 저장
+        session.setAttribute("cart", cart);
+        session.setAttribute("totalCount", totalCount);
+        session.setAttribute("totalAmount", totalAmount);
+        session.setAttribute("totalDiscount", totalDiscount);
+
+        return "redirect:/items";
+    }
+
+    // 세션 cart item정보 수정
+    @PostMapping("items/cartApply")
+    public String cartApply(@RequestBody Map<String, Object> data, HttpServletRequest servletRequest) {
+        // 클라이언트에서 전송된 Json data를 받아온다.
+        List<Map<String, Object>> cartItems = (List<Map<String, Object>>) data.get("cartItems");
+        int totalCount = (int) data.get("totalCount");
+        int totalAmount = (int) data.get("totalAmount");
+        int totalDiscount = (int) data.get("totalDiscount");
+
+        // 세션에 cart 데이터를 받아온다.
+        HttpSession session = servletRequest.getSession();
+        Map<Integer, CartItemForm> cart = (ConcurrentHashMap) session.getAttribute("cart");
+
+        System.out.println(cart);
+        System.out.println("cart = " + cart.get(1));
+
+        // 수정 리스트의 담긴 상품을 session에서 수정
+        for (Map<String, Object> item : cartItems) {
+            System.out.println((int) item.get("id"));
+            CartItemForm cartListItem = cart.get((int) item.get("id"));
+            System.out.println(cartListItem);
+            cartListItem.setOrderPrice((int) item.get("orderPrice"));
+            cartListItem.setQuantity((int) item.get("quantity"));
+            cartListItem.setDiscount((int) item.get("discount"));
         }
 
         // 삭제한 cart Map을 세션에 다시 저장
