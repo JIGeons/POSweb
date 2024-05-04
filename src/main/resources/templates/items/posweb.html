@@ -171,7 +171,7 @@
 <script th:inline="javascript">
   function saveSession(id, quantity, discount, totalAmount, totalCount, totalSum, category) {
     var cartItems = /*[[${categoryItems}]]*/ [];
-    var page= parseInt(cartItems["number"]);
+    var page = parseInt(cartItems["number"]);
 
     jsonData = {
       id: id,
@@ -421,7 +421,13 @@
     var totalDiscount = parseInt(document.getElementById("totalDiscount").textContent);
     var totalAmount = parseInt(document.getElementById("totalAmount").textContent);
 
+    var cartItems = [];
+
     selectedDivs.forEach(function(div) {
+      var item = {};
+      item.id = parseInt(div.querySelector(".item-id").value);
+      cartItems.push(item);
+
       var quantity = parseInt(div.querySelector(".quantity").value);
       var discount = parseInt(div.querySelector(".discount").value);
       var amount = parseInt(div.querySelector(".amount").value);
@@ -432,6 +438,9 @@
       totalAmount -= amount;
       div.remove();
     });
+
+    DeleteCartSession(cartItems, totalCount, totalAmount, totalDiscount);
+
     document.getElementById("totalCount").textContent = totalCount;
     document.getElementById("totalDiscount").textContent = totalDiscount;
     document.getElementById("totalAmount").textContent = totalAmount;
@@ -480,6 +489,22 @@
 
     // cashPay 페이지로 이동
     window.location.href = "cashPay";
+  }
+
+  function DeleteCartSession(cartItems, totalCount, totalAmount, totalDiscount) {
+
+    jsonData = {
+      cartItems: cartItems,
+      totalCount: totalCount,
+      totalAmount: totalAmount,
+      totalDiscount: totalDiscount
+    }
+    $.ajax({
+      type: 'POST',
+      url: '/items/cartDelete',
+      contentType: 'application/json',
+      data: JSON.stringify(jsonData)
+    });
   }
 
 </script>
