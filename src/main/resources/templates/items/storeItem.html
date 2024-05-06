@@ -61,6 +61,12 @@
             color: #dc3545;
         }
     </style>
+    <script>
+        window.onload = function() {
+            var selectElement = document.getElementsByName("category")[0];    // select 요소 가져오기
+            checkCustomInput(selectElement);    // 함수 호출하여 초기 설정 적용
+        }
+    </script>
 </head>
 <body style="background-color:#1E90FF;">
 <div class="header">
@@ -87,9 +93,10 @@
                 <br>
                 <select name="category" th:field="${storeItemForm.category}" onchange="checkCustomInput(this)">
                     <option th:each="category : ${categories}" th:value="${category.category}" th:text="${category.category}"></option>
-                    <option value="custom">직접입력</option>
+                    <option id="custom" value="custom">직접입력</option>
                 </select>
-                <input type="text" id="customCategoryInput" name="customCategory" style="display: none; margin-top: 3px;" placeholder="카테고리를 직접 입력해주세요.">
+                <input type="text" id="customCategoryInput" onchange="CustomCategory()"
+                       name="customCategory" style="display: none; margin-top: 3px;" placeholder="카테고리를 직접 입력해주세요.">
             </p>
             <p>
                 <strong><label th:for="${storeItemForm.company}">제조회사</label></strong>
@@ -110,8 +117,13 @@
         if (selectElement.value == "custom") {
             customInput.style.display = "block";
         } else {
+
             customInput.style.display = "none";
         }
+    }
+
+    function CustomCategory() {
+        document.getElementById("custom").value = document.getElementById("customCategoryInput").value;
     }
 </script>
 </html>

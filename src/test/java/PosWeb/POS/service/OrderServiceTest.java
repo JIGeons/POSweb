@@ -111,7 +111,8 @@ public class OrderServiceTest {
         bisket.setCompany("롯데제과");
         itemService.saveItem(bisket);
 
-        Category ctg = categoryRepository.findOne(1);   // biskuit.category_num == 1
+
+        Category ctg = categoryRepository.findOne(Integer.toUnsignedLong(1));   // biskuit.category_num == 1
         Item item = new Item();
         item.setName(name);
         item.setPrice(price);

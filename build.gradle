@@ -19,6 +19,11 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven { url 'https://jitpack.io' }
+	/* iamport 문서들은 다 maven 기반으로 의존성을 추가하도록 되있지만
+		기능 하나 추가하려고 프로젝트를 maven으로 바꿀 수 없으니 repositories에
+		jitpack.io를 추가하면 gradle에서도 iamport 라이브러리를 추가할 수 있다.
+	 */
 }
 
 dependencies {
@@ -26,6 +31,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// 결제 API iamport를 사용하기 위한 의존성 추가
+	implementation 'com.github.iamport:iamport-rest-client-java:0.1.6'
 
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'

@@ -31,6 +31,7 @@ public class ItemRepository {
     public Item findOne(Long id) {
         return em.find(Item.class, id);
     }
+
     public Item findByName(String name) {
         try {
             return em.createQuery("select i from Item i where i.name = :name", Item.class)

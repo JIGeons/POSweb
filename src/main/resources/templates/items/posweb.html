@@ -126,6 +126,18 @@
                         th:onclick="|location.href='@{items(category=${category.category})}' |"></button>
               </li>
             </th:block>
+
+            <th:block th:if="${categories.size() == 0}">
+              <li class="col-4" style="display: inline;">
+                <button class="col-12"> </button>
+              </li>
+              <li class="col-4" style="display: inline;">
+                <button class="col-12"> </button>
+              </li>
+              <li class="col-4" style="display: inline;">
+                <button class="col-12"> </button>
+              </li>
+            </th:block>
           </ul>
         </div>
 
@@ -151,7 +163,10 @@
         <div class="col-12" id="navigator" style="display: flex; height: 8vh; border: 1px solid black">
           <li class="col-2" style="display: inline" th:classappend="${!categoryItems.hasPrevious()} ? 'disabled'">
             <button class="col-12" style="height: 8vh"
+                    th:if="${not #lists.isEmpty(categoryItems.content)}"
                     th:onclick="|location.href='@{/items(page=${categoryItems.number - 1}, category=${categoryItems.content.getFirst().category.category})}' |"> < </button>
+            <!-- categoryItems가 빈 리스트 일 때 출력 -->
+            <button class="col-12" style="height: 8vh" th:if="${#lists.isEmpty(categoryItems.content)}"> < </button>
           </li>
           <li class="col-8" style="display:inline">
             <button class="col-12" style="height: 8vh; font-size: 20px;">
@@ -160,12 +175,15 @@
           </li>
           <li class="col-2" style="display: inline" th:classappend="${!categoryItems.hasNext()} ? 'disabled'">
             <button class="col-12" style="height: 8vh"
+                    th:if="${not #lists.isEmpty(categoryItems.content)}"
                     th:onclick="|location.href='@{/items(page=${categoryItems.number + 1}, category=${categoryItems.content.getFirst().category.category})}' |"> > </button>
+            <!-- categoryItems가 빈 리스트 일 때 출력 -->
+            <button class="col-12" style="height: 8vh" th:if="${#lists.isEmpty(categoryItems.content)}"> > </button>
           </li>
         </div>
 
         <div class="col-12" style="height: 16vh; display: flex;">
-          <button class="col-12" style="height: 100%;" onclick="Cash()">결제하기</button>
+          <button class="col-12" style="height: 100%;" onclick="location.href='/order'">결제하기</button>
         </div>
       </div>
     </div>
@@ -197,6 +215,7 @@
 
   // 상품 버튼 클릭 시 cartDiv에 추가
   function Cart(id, name, price, stock, category) {
+
     if (stock != 0) {
       var cart = document.getElementById("cart");
       var totalCounts = document.getElementById("totalCount").textContent;
@@ -488,51 +507,6 @@
     document.getElementById("totalCount").textContent = totalCount;
     document.getElementById("totalDiscount").textContent = totalDiscount;
     document.getElementById("totalAmount").textContent = totalAmount;
-  }
-
-  function Cash() {
-    // cart div의 내용을 가져와서 변수에 저장
-    var cart = document.getElementById("cart");
-    var cartContents = document.createElement("div");
-
-    Array.from(cart.children).forEach(function(child) {
-      var item = document.createElement("div");
-      item.className = "goods";
-      item.height = "5vh";
-
-      var itemId = document.createElement("div");
-      itemId.type = "hidden";
-      itemId.className = "code";
-      itemId.setAttribute("id",child.querySelector(".item-id").value);
-
-      var itemName = document.createElement("div");
-      itemName.className = "col-6 name";
-      itemName.value = child.querySelector(".item-name").value;
-      itemName.textContent = child.querySelector(".item-name").value;
-
-      var itemQuantity = document.createElement("div");
-      itemQuantity.className = "col-2 quantity";
-      itemQuantity.value = child.querySelector(".quantity").value;
-      itemQuantity.textContent = child.querySelector(".quantity").value;
-
-      var itemAmount = document.createElement("div");
-      itemAmount.className = "col-4 amount";
-      itemAmount.value = child.querySelector(".amount").value;
-      itemAmount.textContent = child.querySelector(".amount").value;
-
-      item.appendChild(itemId);
-      item.appendChild(itemName);
-      item.appendChild(itemQuantity);
-      item.appendChild(itemAmount);
-
-      cartContents.appendChild(item);
-
-    })
-    // cartContents 값을 localStorage에 저장
-    localStorage.setItem("cartContents", cartContents.innerHTML);
-
-    // cashPay 페이지로 이동
-    window.location.href = "cashPay";
   }
 
   function DeleteCartSession(cartItems, totalCount, totalAmount, totalDiscount) {

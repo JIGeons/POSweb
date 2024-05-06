@@ -16,12 +16,13 @@ public class CategoryRepository {
     private final EntityManager em;
 
     public void save(Category category) {
-        if (category.getCategory() == null) {
+        if (category.getNumber() == null) {
             em.persist(category);
+            System.out.println("저장된거임?");
         }
     }
 
-    public Category findOne(int number) {
+    public Category findOne(Long number) {
         return em.find(Category.class, number);
     }
 

@@ -31,3 +31,10 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+
+#iamport
+imp:
+  code: imp76572510
+  api:
+    key: 1737835810138741
+    secretkey: XgOJw8EwkkFP6J83UaQKmBBE6HKueQmldOwQtw5XK2uBVFsXwh9SlxkJavZ129eccUJWbCvlfNSFzFA2

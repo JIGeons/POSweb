@@ -1,16 +1,18 @@
 package PosWeb.POS.service;
 
-import PosWeb.POS.domain.Item;
-import PosWeb.POS.domain.Order;
-import PosWeb.POS.domain.OrderApprove;
-import PosWeb.POS.domain.OrderItem;
+import PosWeb.POS.domain.*;
+import PosWeb.POS.domain.dto.Item.CartItemForm;
 import PosWeb.POS.repository.ItemRepository;
+import PosWeb.POS.repository.OrderItemRepository;
 import PosWeb.POS.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -18,22 +20,30 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final ItemRepository itemRepository;
 
     /**
      * 주문
      */
+    // 주문 전 orderEntity 생성
     @Transactional
-    public Long order(Long itemId, OrderApprove orderApprove, int count, int discount) {
+    public Long preOrder(List<CartItemForm> cartItems) {
 
-        // 엔티티 조회
-        Item item = itemRepository.findOne(itemId);
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (CartItemForm item : cartItems){
+            // 엔티티 조회
+            Item findItem = itemRepository.findOne(item.getItem().getId());
 
-        // 주문상품 생성
-        OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), count, discount);
+            // 주문상품 생성
+            OrderItem orderItem = OrderItem.createOrderItem(findItem, item.getOrderPrice(), item.getQuantity(), item.getDiscount());
+
+            // 생성된 OrderItem을 리스트에 추가
+            orderItems.add(orderItem);
+        }
 
         // 주문 생성
-        Order order = Order.createOrder(orderApprove, orderItem);
+        Order order = Order.createOrder(orderItems);
 
         // 주문 저장
         orderRepository.save(order);
@@ -41,6 +51,33 @@ public class OrderService {
         return order.getId();
     }
 
+    // 결제 완료
+    @Transactional
+    public void successOrder(Long orderId, OrderApprove approve) {
+
+        // 주문 엔티티 조회
+        Order order = orderRepository.findOne(orderId);
+
+        // 결제 완료 시간, 결제 방식 set
+        order.setOrderDate(LocalDateTime.now());
+        order.setApprove(approve);
+
+        // 주문 저장
+        orderRepository.save(order);
+    }
+
+    // 주문 부결로 인한 결제 삭제
+    @Transactional
+    public void failOrder(Order order) {
+        order.cancel();
+        List<OrderItem> orderItems = order.getOrderItems();
+        for(OrderItem orderItem : orderItems) {
+            orderItemRepository.deleteOrderItem(orderItem);
+        }
+        orderRepository.delete(order);
+    }
+
+    // 주문 후 Order 저장
     /**
      * 주문 취소
      */
@@ -57,5 +94,9 @@ public class OrderService {
      */
     public List<Order> findOrders() {
         return orderRepository.findAllOrders();
+    }
+
+    public Order findOrder(Long id) {
+        return orderRepository.findOne(id);
     }
 }

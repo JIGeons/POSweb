@@ -43,6 +43,7 @@ public class ItemController {
         // 카테고리 가지고 오기
         List<Category> categoryList = new ArrayList<>();
         categoryList = categoryService.getAllCategories();
+        System.out.println("categoryList : " + categoryList);
         model.addAttribute("categories", categoryList);
 
         // 카테고리 별 상품들을 Map에 담기(12개씩 페이징)
@@ -70,10 +71,10 @@ public class ItemController {
     }
 
     @PostMapping("items")
+    @ResponseBody
     public String items(@RequestBody Map<String, Object> data, HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
 
-        System.out.println(data);
         // 클라이언트에서 전송된 JSON 데이터를 받아온다.
         int id = (int) data.get("id");
         int orderPrice = (int) data.get("orderPrice");
@@ -82,8 +83,6 @@ public class ItemController {
         int totalCount = (int) data.get("totalCount");
         int totalAmount = (int) data.get("totalAmount");
         int totalDiscount = (int) session.getAttribute("totalDiscount");
-        int page = (int) data.get("page");
-        String category = (String) data.get("category");
 
         CartItemForm cartItem = new CartItemForm(itemService.findById(id), orderPrice, quantity, discount);
 
@@ -102,11 +101,12 @@ public class ItemController {
         session.setAttribute("totalAmount", totalAmount);
         session.setAttribute("totalDiscount", totalDiscount + discount);
 
-        return "redirect:/items?page=" + page + "&category=" + category;
+        return "success";
     }
 
     // cart 세션 상품 삭제
     @PostMapping("items/cartDelete")
+    @ResponseBody
     public String cartDelete(@RequestBody Map<String, Object> data, HttpServletRequest servletRequest) {
         // 클라이언트에서 전송된 Json data를 받아온다.
         List<Map<String, Integer>> cartItems = (List<Map<String, Integer>>) data.get("cartItems");
@@ -129,11 +129,12 @@ public class ItemController {
         session.setAttribute("totalAmount", totalAmount);
         session.setAttribute("totalDiscount", totalDiscount);
 
-        return "redirect:/items";
+        return "success";
     }
 
     // 세션 cart item정보 수정
     @PostMapping("items/cartApply")
+    @ResponseBody
     public String cartApply(@RequestBody Map<String, Object> data, HttpServletRequest servletRequest) {
         // 클라이언트에서 전송된 Json data를 받아온다.
         List<Map<String, Object>> cartItems = (List<Map<String, Object>>) data.get("cartItems");
@@ -164,7 +165,7 @@ public class ItemController {
         session.setAttribute("totalAmount", totalAmount);
         session.setAttribute("totalDiscount", totalDiscount);
 
-        return "redirect:/items";
+        return "success";
     }
 
     // 상품 추가("items/store")
@@ -180,7 +181,9 @@ public class ItemController {
                           @Valid @ModelAttribute("storeItemForm") StoreItemForm storeItemForm,
                           BindingResult bindingResult) {
 
-        // addItemForm에 문제가 있을 시
+        System.out.println(storeItemForm.getCategory());
+
+        // storeItemForm에 문제가 있을 시
         if (bindingResult.hasErrors()) {
             return "items/storeItem";
         }
@@ -221,6 +224,7 @@ public class ItemController {
         return "items/addItem";
     }
 
+    // 상품 입고
     @PostMapping("items/add")
     public String addItem(@ModelAttribute("categories") Category category,
                           @Valid @ModelAttribute("selectItem") AddItemForm addItemForm,

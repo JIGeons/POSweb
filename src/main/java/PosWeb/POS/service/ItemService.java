@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +34,10 @@ public class ItemService {
         }
 
         Item newItem = new Item();
-        Optional<Category> ctg = findCategory(storeItemForm.getCategory());  // 카테고리가 데이터베이스에 있는지 검사 없으면 새로운 카테고리 생성
-        ctg.get().addItem();    // 해당 카테고리의 총 상품 개수를 1개 증가
+        // 카테고리가 데이터베이스에 있는지 검사 없으면 새로운 카테고리 생성
+        Optional<Category> ctg = findCategory(storeItemForm.getCategory());
+        // 해당 카테고리의 총 상품 개수를 1개 증가
+        ctg.get().addItem();
 
         // 상품 생성
         newItem.setName(storeItemForm.getName());
@@ -61,17 +64,18 @@ public class ItemService {
     @Transactional
     public void addItem(AddItemForm AddItemForm) {
         Item findItem = itemRepository.findOne(AddItemForm.getId());
-        System.out.println("여기까지 출력 됨?---1");
         findItem.setStockQuantity(AddItemForm.getStockQuantity());
-        System.out.println("여기서 문제가 생기는거 같은뎅....");
-        System.out.println(findItem.getStockQuantity());
     }
 
+    // 카테고리 검사 만약 카테고리가 없으면 생성
     private Optional<Category> findCategory(String content) {
         Optional<Category> category = categoryRepository.findByCategory(content);
 
+        System.out.println(category);
+
         // 카테고리 목록에 있는 카테고리가 아닐 시
         if (category.isEmpty()) {
+            System.out.println("실행 되나?");
             Category ctg = new Category();
             ctg.setCategory(content);
             categoryRepository.save(ctg);  // 새로운 카테고리를 생성하고 저장한다.
@@ -88,8 +92,14 @@ public class ItemService {
 
     public Page<Item> findByCtgItemsPaged(String category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Category ctg = findCategory(category).get();
-        return itemRepository.findByCtgItemsPaged(ctg, pageable);
+        Optional<Category> optionalCategory = findCategory(category);
+        // 카테고리가 있는지 없는지 검사
+        if (optionalCategory.isPresent()) { // 카테고리가 있는경우
+            Category ctg = optionalCategory.get();
+            return itemRepository.findByCtgItemsPaged(ctg, pageable);
+        } else {    // 카테고리가 없는 경우 빈페이지 반환
+            return Page.empty();
+        }
     }
 
     public List<Item> findItems() {
@@ -98,6 +108,10 @@ public class ItemService {
 
     public Item findOne(String name) {
         return itemRepository.findByName(name);
+    }
+
+    public Item findOne(Long id) {
+        return itemRepository.findOne(id);
     }
     public Item findById(int id) { return itemRepository.findOne((long) id);}
 }

@@ -29,9 +29,6 @@ public class OrderItem {
 
     //== 생성 메서드 ==//
     public static OrderItem createOrderItem(Item item, int orderPrice, int count, int discount) {
-        if (discount < 0 || discount > 100) {
-            throw new TooLessOrMuchDiscountException("할인률은 0 ~ 100 사이이어야 합니다.");
-        }
         OrderItem orderItem = new OrderItem();
         orderItem.setItem(item);
         orderItem.setOrderPrice(orderPrice);
@@ -52,11 +49,11 @@ public class OrderItem {
      * 주문 상품 전체 가격 조회
      */
     public int getTotalPrice() {
-        int amount = getOrderPrice() * getCount();
+        int amount = getOrderPrice();
 
+        // 할인 금액이 있으면 총 금액에서 할인 금액을 뺀다.
         if (getDiscount() != 0) {
-            double discountPrice = getOrderPrice() * getCount() * getDiscount() / 100;
-            amount -= (int) discountPrice;
+            amount -= getDiscount();
         }
 
         return amount;

@@ -36,8 +36,11 @@ public class Order {
         orderItem.setOrder(this);
     }
 
+    /**
+     * 주문 생성 메소드
+     */
     //== 생성 메소드 ==//
-    public static Order createOrder(OrderApprove approve, OrderItem... orderItems) {
+    public static Order createOrder(List<OrderItem> orderItems) {
         Order order = new Order();
 
         int amount = 0; // 주문 상품들의 총 갯수
@@ -48,9 +51,7 @@ public class Order {
         }
 
         order.setStatus(OrderStatus.ORDER);
-        order.setApprove(approve);
         order.setAmount(amount);
-        order.setOrderDate(LocalDateTime.now());
 
         return order;
     }
