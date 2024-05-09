@@ -120,42 +120,51 @@
 
         <div id="categories" style="display: flex">
           <div class="col-1">
-            <button class="col-12"> < </button>
+            <button class="col-12"
+                    th:if="${not #lists.isEmpty(categories.content)}"
+                    th:onclick="|location.href='@{/items(ctgPage=${categories.number-1}, page=${categoryItems.number}, category=${categoryItems.content.getFirst().category.category})}' |"
+                    th:attr="disabled=${!categories.hasNext} ? 'disabled' : null"> < </button>
+            <!-- categoryItems가 빈 리스트 일 때 출력 -->
+            <button class="col-12" th:if="${#lists.isEmpty(categories.content)}"> < </button>
           </div>
           <div class="col-10">
             <ul class="col-12" >
+              <!-- 카테고리 3개 출력 -->
               <th:block th:each="category, iter : ${categories}">
                 <li class="col-4" style="display: inline;">
                   <button class="col-12" th:text="${category.category}" th:value="${category.category}"
-                          th:onclick="|location.href='@{items(category=${category.category})}' |"></button>
+                          th:onclick="|location.href='@{items(ctgPage=${categories.number}, category=${category.category})}' |"></button>
                 </li>
               </th:block>
 
               <!-- 카테고리가 3개보다 적을 때 빈 버튼 출력 -->
-              <th:block th:if="${categories.size() < 3 && (3 - iter) < 3}">
-                <th:block th:each="i : ${#numbers.sequence(1, 3 - categories.size())}">
-                  <li class="col-4" style="display: inline;">
-                    <button class="col-12"> </button>
-                  </li>
-                </th:block>
+              <th:block th:each="i : ${#numbers.sequence(1, 3 - categories.content.size())}">
+                <li class="col-4" style="display: inline;">
+                  <button class="col-12" style="height: 100%"> </button>
+                </li>
               </th:block>
             </ul>
           </div>
           <div class="col-1">
-            <button class="col-12"> > </button>
+            <button class="col-12"
+                    th:if="${not #lists.isEmpty(categories.content)}"
+                    th:onclick="|location.href='@{/items(ctgPage=${categories.number+1}, page=${categoryItems.number}, category=${categoryItems.content.getFirst().category.category})}' |"
+                    th:attr="disabled=${!categories.isLast()} ? 'disabled' : null"> > </button>
+            <!-- categories가 빈 리스트 일 때 출력 -->
+            <button class="col-12" th:if="${#lists.isEmpty(categories.content)}" th:text="${categories.hasNext()}"> > </button>
           </div>
         </div>
 
         <!-- 아이템 목록 표시 -->
         <div id="items" style="height: 48vh; display: flex; flex-wrap: wrap;">
-            <th:block th:each="item, iter : ${categoryItems}">
-              <li class="col-3" style="display: inline;  height: 16vh">
-                <button class="col-12" style="height: 16vh" th:onclick="Cart([[${item.id}]], [[${item.name}]], [[${item.price}]], [[${item.stockQuantity}]], [[${item.category.category}]])">
-                  <span th:utext="${item.name}"></span><br>
-                  <span th:utext="${item.price + ' 원'}"></span><br>
-                  <span th:utext="${'재고: ' + item.stockQuantity}"></span><br>
-                </button>
-              </li>
+          <th:block th:each="item, iter : ${categoryItems}">
+            <li class="col-3" style="display: inline;  height: 16vh">
+              <button class="col-12" style="height: 16vh" th:onclick="Cart([[${item.id}]], [[${item.name}]], [[${item.price}]], [[${item.stockQuantity}]], [[${item.category.category}]])">
+                <span th:utext="${item.name}"></span><br>
+                <span th:utext="${item.price + ' 원'}"></span><br>
+                <span th:utext="${'재고: ' + item.stockQuantity}"></span><br>
+              </button>
+            </li>
           </th:block>
           <!-- 빈 버튼 추가하여 총 12개의 버튼이 표시되도록 함 -->
           <th:block th:each="i : ${#numbers.sequence(1, 12 - categoryItems.content.size())}">
@@ -166,10 +175,11 @@
         </div>
 
         <div class="col-12" id="navigator" style="display: flex; height: 8vh; border: 1px solid black">
-          <li class="col-2" style="display: inline" th:classappend="${!categoryItems.hasPrevious()} ? 'disabled'">
+          <li class="col-2" style="display: inline">
             <button class="col-12" style="height: 8vh"
                     th:if="${not #lists.isEmpty(categoryItems.content)}"
-                    th:onclick="|location.href='@{/items(page=${categoryItems.number - 1}, category=${categoryItems.content.getFirst().category.category})}' |"> < </button>
+                    th:onclick="|location.href='@{/items(ctgPage=${categories.number}, page=${categoryItems.number - 1}, category=${categoryItems.content.getFirst().category.category})}' |"
+                    th:attr="${!categoryItems.hasPrevious()} ? 'disabled' : null"> < </button>
             <!-- categoryItems가 빈 리스트 일 때 출력 -->
             <button class="col-12" style="height: 8vh" th:if="${#lists.isEmpty(categoryItems.content)}"> < </button>
           </li>
@@ -181,7 +191,8 @@
           <li class="col-2" style="display: inline" th:classappend="${!categoryItems.hasNext()} ? 'disabled'">
             <button class="col-12" style="height: 8vh"
                     th:if="${not #lists.isEmpty(categoryItems.content)}"
-                    th:onclick="|location.href='@{/items(page=${categoryItems.number + 1}, category=${categoryItems.content.getFirst().category.category})}' |"> > </button>
+                    th:onclick="|location.href='@{/items(ctgPage=${categories.number}, page=${categoryItems.number + 1}, category=${categoryItems.content.getFirst().category.category})}' |"
+                    th:attr="${!categoryItems.hasNext()} ? 'disabled' : null"> > </button>
             <!-- categoryItems가 빈 리스트 일 때 출력 -->
             <button class="col-12" style="height: 8vh" th:if="${#lists.isEmpty(categoryItems.content)}"> > </button>
           </li>

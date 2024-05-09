@@ -1,9 +1,13 @@
 package PosWeb.POS.repository;
 
 import PosWeb.POS.domain.Category;
+import PosWeb.POS.domain.Item;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -37,5 +41,17 @@ public class CategoryRepository {
     public List<Category> findAll() {
         return em.createQuery("select c from Category c", Category.class)
                 .getResultList();
+    }
+
+    // 카테고리 페이징
+    public Page<Category> findByCtgItemsPaged(Pageable pageable) {
+        // 아이템 조회 쿼리 작성
+        List<Category> categories = em.createQuery(
+                        "select c from Category c", Category.class)
+                .setFirstResult((int) pageable.getOffset())  // 페이지 번호에 따라 결과를 시작하는 위치 설정
+                .setMaxResults(pageable.getPageSize())    // 페이지 크기 설정
+                .getResultList();
+
+        return new PageImpl<>(categories, pageable, categories.size());
     }
 }

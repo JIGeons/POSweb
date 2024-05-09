@@ -55,6 +55,7 @@ public class ItemRepository {
                 .getResultList();
     }
 
+    // 아이템 페이징 처리
     public Page<Item> findByCtgItemsPaged(Category category, Pageable pageable) {
         // 아이템 조회 쿼리 작성
         List<Item> items = em.createQuery(

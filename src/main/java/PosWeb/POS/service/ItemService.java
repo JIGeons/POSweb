@@ -71,11 +71,8 @@ public class ItemService {
     private Optional<Category> findCategory(String content) {
         Optional<Category> category = categoryRepository.findByCategory(content);
 
-        System.out.println(category);
-
         // 카테고리 목록에 있는 카테고리가 아닐 시
         if (category.isEmpty()) {
-            System.out.println("실행 되나?");
             Category ctg = new Category();
             ctg.setCategory(content);
             categoryRepository.save(ctg);  // 새로운 카테고리를 생성하고 저장한다.

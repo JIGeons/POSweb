@@ -35,15 +35,14 @@ public class ItemController {
     private final CategoryService categoryService;
 
     @GetMapping("items")
-    public String items(@RequestParam(value = "page", defaultValue = "0")int page,
+    public String items(@RequestParam(value = "ctgPage", defaultValue = "0")int ctgPage,
+                        @RequestParam(value = "page", defaultValue = "0")int page,
                         @RequestParam(value = "category", defaultValue = "biskuit")String category,
                         HttpSession session,
                         Model model) {
 
         // 카테고리 가지고 오기
-        List<Category> categoryList = new ArrayList<>();
-        categoryList = categoryService.getAllCategories();
-        System.out.println("categoryList : " + categoryList);
+        Page<Category> categoryList = categoryService.findByCtgPaged(ctgPage, 3);
         model.addAttribute("categories", categoryList);
 
         // 카테고리 별 상품들을 Map에 담기(12개씩 페이징)

@@ -1,6 +1,7 @@
 package PosWeb.POS.service;
 
 import PosWeb.POS.domain.*;
+import PosWeb.POS.domain.dto.Item.CartItemForm;
 import PosWeb.POS.domain.dto.Item.StoreItemForm;
 import PosWeb.POS.exception.NotEnoughStockException;
 import PosWeb.POS.exception.TooLessOrMuchDiscountException;
@@ -14,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -37,12 +41,17 @@ public class OrderServiceTest {
     public void 상품주문() throws Exception {
         // given
         Item bisket = createItem("과자", 1200, 100, "bisket");
+        List<CartItemForm> cartItems = new ArrayList<>();
 
         int orderCount = 11;     // 주문수량
-        int discount = 0;       // 할인률
+        int discount = 0;        // 할인금액
+
+        CartItemForm cartItem = createCartItem(bisket, bisket.getPrice() * orderCount, orderCount, discount);
+        cartItems.add(cartItem);
 
         // when
-        Long orderId = orderService.order(bisket.getId(), OrderApprove.CARD, orderCount, discount);
+        Long orderId = orderService.preOrder(cartItems);
+        orderService.successOrder(orderId, OrderApprove.CASH);
 
         // then
         Order getOrder = orderRepository.findOne(orderId);
@@ -119,5 +128,13 @@ public class OrderServiceTest {
         item.setCategory(ctg);
         item.setCompany("롯데제과");
         return item;
+    }
+
+    private CartItemForm createCartItem(Item item, int price, int quantity, int discount) {
+        CartItemForm cartItem = new CartItemForm();
+        cartItem.setItem(item);
+        cartItem.setOrderPrice(price);
+        cartItem.setQuantity(quantity);
+        cartItem.setDiscount(discount);
     }
 }
