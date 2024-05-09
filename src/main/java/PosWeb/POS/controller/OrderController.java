@@ -71,7 +71,10 @@ public class OrderController {
         session.removeAttribute("totalDiscount");
 
         if (orderResult.equals("SUCCESS")) { // 결제 성공
-            orderService.successOrder(orderId, OrderApprove.CASH);
+            if (orderApprove.equals("CASH"))    // 현금 결제 성공
+                orderService.successOrder(orderId, OrderApprove.CASH);
+            else                                // 카드 결제 성공
+                orderService.successOrder(orderId, OrderApprove.CARD);
         } else { // 결제 실패
             Order order = orderService.findOrder(orderId);
             orderService.failOrder(order);

@@ -118,27 +118,32 @@
           <div class="col-12 center" style="border: 1px solid black; background-color: #00FFFF;"><h2>상품</h2></div>
         </div>
 
-        <div id="categories">
-          <ul class="col-12" >
-            <th:block th:each="category : ${categories}">
-              <li class="col-4" style="display: inline;">
-                <button class="col-12" th:text="${category.category}" th:value="${category.category}"
-                        th:onclick="|location.href='@{items(category=${category.category})}' |"></button>
-              </li>
-            </th:block>
+        <div id="categories" style="display: flex">
+          <div class="col-1">
+            <button class="col-12"> < </button>
+          </div>
+          <div class="col-10">
+            <ul class="col-12" >
+              <th:block th:each="category, iter : ${categories}">
+                <li class="col-4" style="display: inline;">
+                  <button class="col-12" th:text="${category.category}" th:value="${category.category}"
+                          th:onclick="|location.href='@{items(category=${category.category})}' |"></button>
+                </li>
+              </th:block>
 
-            <th:block th:if="${categories.size() == 0}">
-              <li class="col-4" style="display: inline;">
-                <button class="col-12"> </button>
-              </li>
-              <li class="col-4" style="display: inline;">
-                <button class="col-12"> </button>
-              </li>
-              <li class="col-4" style="display: inline;">
-                <button class="col-12"> </button>
-              </li>
-            </th:block>
-          </ul>
+              <!-- 카테고리가 3개보다 적을 때 빈 버튼 출력 -->
+              <th:block th:if="${categories.size() < 3 && (3 - iter) < 3}">
+                <th:block th:each="i : ${#numbers.sequence(1, 3 - categories.size())}">
+                  <li class="col-4" style="display: inline;">
+                    <button class="col-12"> </button>
+                  </li>
+                </th:block>
+              </th:block>
+            </ul>
+          </div>
+          <div class="col-1">
+            <button class="col-12"> > </button>
+          </div>
         </div>
 
         <!-- 아이템 목록 표시 -->

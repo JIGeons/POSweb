@@ -167,13 +167,15 @@
     function Pay(method, totalAmount) {
         const order_id = document.getElementById("orderId").value;
         var cartItems = /*[[${session.cart}]]*/ [];
-        console.log(cartItems);
         var cartItem = cartItems.at(0)['item']['name'];
         var cartSize = cartItems.length;
+        var order_name = "주문명 : "
 
-        console.log("아이템 : " + cartItem + ", 크기 : " + cartSize);
-
-        var order_name = "주문명 : " + cartItem + " 외 " + cartSize + "개";
+        if (cartSize > 1) {
+            order_name += cartItem + " 외 " + cartSize + "개";
+        } else {
+            order_name += cartItem;
+        }
 
         if (method == 'cash') {
             // 주문 성공, 결제 방법 현금으로 설정
@@ -192,7 +194,7 @@
 
             IMP.init('imp76572510');   // 가맹점 식별코드로 iamport 초기화
             IMP.request_pay({   // 결제 요청
-                pg : 'inicis_v2',   // PG사 설정
+                pg : 'html5_inicis',   // PG사 설정
                 pay_method : 'card',    // 결제 방법
                 merchant_uid: order_id, // 주문 번호
                 name : order_name,      // 결제 상품 이름
@@ -226,37 +228,6 @@
                     alert(msg);
                 }
             });
-        }
-    }
-
-    function confirmPayment(isConfirmed) {
-        if (isConfirmed) {
-            // 예 버튼을 눌렀을 때의 처리
-            var menu= document.getElementById("menu");
-            var length = menu.children.length;
-
-            var productData = [];
-
-            var codeElements = document.querySelectorAll(".code");
-            var quantityElements = document.querySelectorAll(".quantity");
-            var amountElements = document.querySelectorAll(".amount");
-
-            for (var i = 0; i < codeElements.length; i++) {
-                var data = {
-                    productCode : codeElements[i].id,
-                    productQuantity : parseInt(quantityElements[i].textContent),
-                    productAmount : parseInt(amountElements[i].textContent),
-                };
-                console.log(data);
-                productData.push(data);
-            }
-
-            console.log(productData);
-
-            window.location.href = "/paymentComplete"; // 결제완료 페이지로 이동
-        } else {
-            // 아니오 버튼을 눌렀을 때의 처리
-            window.location.href = "/productPage"; // productPage로 이동
         }
     }
 </script>
