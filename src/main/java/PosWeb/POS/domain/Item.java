@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.Range;
 
 @Entity
 @Getter @Setter
+@NoArgsConstructor
 public class Item {
 
     @Id
@@ -25,6 +26,15 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_num")
     private Category category;
+
+    public Item (Item item) {
+        id = item.getId();
+        name = item.getName();
+        price = item.getPrice();
+        stockQuantity = item.getStockQuantity();
+        company = item.getCompany();
+        category = new Category(item.getCategory());
+    }
 
     //== 비즈니스 로직 ==//
     /**

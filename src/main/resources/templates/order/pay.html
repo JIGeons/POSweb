@@ -117,9 +117,9 @@
                 <div class="col-12 menu" id="menu" style="overflow-y: scroll; scrollbar-width: none;">
                     <th:block th:each="cartItem : ${session.cart}">
                         <div class="goods">
-                            <div class="col-6 center" th:text="${cartItem.value.item.name}"></div>
-                            <div class="col-2 center" th:text="${cartItem.value.quantity}" style="border-right: 1px solid darkgray; border-left: 1px solid darkgray;"></div>
-                            <div class="col-4 center" th:text="${cartItem.value.orderPrice - cartItem.value.discount}" ></div>
+                            <div class="col-6 center" th:text="${cartItem.item.name}"></div>
+                            <div class="col-2 center" th:text="${cartItem.quantity}" style="border-right: 1px solid darkgray; border-left: 1px solid darkgray;"></div>
+                            <div class="col-4 center" th:text="${cartItem.orderPrice - cartItem.discount}" ></div>
                         </div>
                     </th:block>
                 </div>
@@ -165,6 +165,16 @@
 <script th:inline="javascript">
     // 결제 방식
     function Pay(method, totalAmount) {
+        const order_id = document.getElementById("orderId").value;
+        var cartItems = /*[[${session.cart}]]*/ [];
+        console.log(cartItems);
+        var cartItem = cartItems.at(0)['item']['name'];
+        var cartSize = cartItems.length;
+
+        console.log("아이템 : " + cartItem + ", 크기 : " + cartSize);
+
+        var order_name = "주문명 : " + cartItem + " 외 " + cartSize + "개";
+
         if (method == 'cash') {
             // 주문 성공, 결제 방법 현금으로 설정
             document.querySelector('.order_result').value = "SUCCESS";
@@ -172,18 +182,17 @@
 
             // 현금 주문으로 submit
             document.getElementById("order").submit();
-        } else {
-            const order_id = document.getElementById("orderId").value;
-            var cartItems = /*[[${session.cartItems}]]*/ [];
-            console.log(cartItems);
-            var cartItem = cartItems.at(0).content['item']['name'];
-            var cartSize = cartItems['number'];
 
-            var order_name = "주문명 : " + cartItem + " 외 " + cartSize + "개";
+            let msg = '현금 결제가 완료되었습니다.';
+            msg += '주문명 : ' + order_name;
+            msg += '결제 금액 : ' + totalAmount;
+            alert(msg);
+
+        } else {
 
             IMP.init('imp76572510');   // 가맹점 식별코드로 iamport 초기화
             IMP.request_pay({   // 결제 요청
-                pg : 'html5_inicis',   // PG사 설정
+                pg : 'inicis_v2',   // PG사 설정
                 pay_method : 'card',    // 결제 방법
                 merchant_uid: order_id, // 주문 번호
                 name : order_name,      // 결제 상품 이름
@@ -203,7 +212,7 @@
                     document.querySelector('.order_result').value = "SUCCESS";
                     document.querySelector(".pay_method").value = "CARD";
 
-                    // 현금 주문으로 submit
+                    // 카드 주문 submit
                     document.getElementById("order").submit();
 
                     let msg = '결제가 완료되었습니다.';

@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -98,5 +99,23 @@ public class OrderService {
 
     public Order findOrder(Long id) {
         return orderRepository.findOne(id);
+    }
+
+    // 주문 상품을 CartItemForm으로 저장
+    public List<CartItemForm> getCartItem(Long id) {
+
+        // 주문 조회
+        List<Order> order = orderRepository.findAllWithItems(id);
+
+        // cartItemForm으로 저장
+        if (!order.isEmpty()) {
+            List<CartItemForm> result = order.getFirst().getOrderItems()
+                    .stream()
+                    .map(oi -> new CartItemForm(oi))
+                    .collect(Collectors.toList());
+            return result;
+        }
+
+        return null;
     }
 }

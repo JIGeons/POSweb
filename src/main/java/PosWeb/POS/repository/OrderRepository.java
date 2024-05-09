@@ -38,4 +38,15 @@ public class OrderRepository {
         return em.createQuery("select o from Order o", Order.class)
                 .getResultList();
     }
+
+    public List<Order> findAllWithItems(Long id) {
+        return em.createQuery(  // fetch join으로 주문의 아이템을 불러온다.
+                "select o from Order o "
+                + " join fetch o.orderItems oi"
+                + " join fetch oi.item i"
+                + " join fetch i.category c"
+                + " where o.id =: id", Order.class)
+                .setParameter("id", id)
+                .getResultList();
+    }
 }

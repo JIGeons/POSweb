@@ -6,6 +6,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter @Setter
+@NoArgsConstructor
 public class Category {
 
     @Id
@@ -29,5 +30,11 @@ public class Category {
      */
     public void removeItem() {
         this.total -= 1;
+    }
+
+    public Category(Category ctg) {
+        number = ctg.getNumber();
+        category = ctg.getCategory();
+        total = ctg.getTotal();
     }
 }

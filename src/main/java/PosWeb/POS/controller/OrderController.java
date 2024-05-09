@@ -40,14 +40,15 @@ public class OrderController {
         // 세션에 저장된 cart 객체 불러오기
         Map<Integer, CartItemForm> cart = (ConcurrentHashMap) session.getAttribute("cart");
 
-        // Map형식의 cartItems를 List형식으로 변환
-        List<CartItemForm> cartItems = cart.values().stream().toList();
-
         // 주문 저장
-        Long orderId = orderService.preOrder(cartItems);
+        Long orderId = orderService.preOrder(cart.values().stream().toList());
+
+        // 주문을 조회 하고 item들을 CartItemForm리스트로 저장
+        List<CartItemForm> cartItems = orderService.getCartItem(orderId);
 
         // model에 저장
         model.addAttribute("orderId", orderId);
+        session.setAttribute("cart", cartItems);
 
         return "order/pay";
     }
