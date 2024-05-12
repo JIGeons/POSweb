@@ -270,4 +270,16 @@ public class ItemController {
 
         return "items/deleteItem";
     }
+
+    // 상품 비활성화
+    @PostMapping("items/delete")
+    public String itemDelete(@RequestParam("deleteList") List<String> deleteList) {
+
+        // 리스트에 있는 상품들을 비활성화 처리
+        for (String item : deleteList) {
+            itemService.deleteItem(item);
+        }
+
+        return "redirect:/items";
+    }
 }
