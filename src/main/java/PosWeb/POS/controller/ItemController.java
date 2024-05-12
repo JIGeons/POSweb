@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.experimental.categories.Categories;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Controller;
@@ -242,5 +243,31 @@ public class ItemController {
         // 상품 입고 (item.stockQuantity update)
         itemService.addItem(addItemForm);
         return "redirect:/items";
+    }
+
+    @GetMapping("items/delete")
+    public String itemDelete(@RequestParam(value = "category", defaultValue = "null")String category, Model model) {
+        List<Category> categories = categoryService.getAllCategories();
+        Category ctg = new Category();
+        if (category.equals("null")) {
+            ctg = categories.getFirst();   // 초기 카테고리는 카테고리 목록에서 첫번째 카테고리로 한다.
+        } else {
+            for (Category findCtg : categories) {
+                if (findCtg.getCategory().equals(category))
+                    ctg = findCtg;
+            }
+        }
+
+        List<Item> itemList = itemService.findCategoryItems(ctg);   // 해당 카테고리에 관련된 상품을 불러온다.
+        List<StoreItemForm> itemsForm = new ArrayList<>();      // 찾아온 상품에 필요한 정보만 담을 리스트를 생성한다.
+
+        for (Item item : itemList) {  // 필요한 정보만 리스트에 add
+            itemsForm.add(new StoreItemForm(item));
+        }
+
+        model.addAttribute("categories", categories);
+        model.addAttribute("items", itemsForm);
+
+        return "items/deleteItem";
     }
 }

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DialectOverride;
 import org.hibernate.validator.constraints.Range;
 
 @Entity
@@ -23,9 +25,13 @@ public class Item {
     private int stockQuantity;
     private String company;
 
+    @Column(columnDefinition = "boolean default false")
+    private boolean disable=false;    // 상품 비활성화 변수    true일 경우 비활성화
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_num")
     private Category category;
+
 
     public Item (Item item) {
         id = item.getId();

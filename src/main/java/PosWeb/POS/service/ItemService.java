@@ -28,8 +28,15 @@ public class ItemService {
 
     @Transactional
     public String saveItem(StoreItemForm storeItemForm) {
+        Item findItem = itemRepository.findByName(storeItemForm.getName());
         // 상품 중복성 검사
-        if (itemRepository.findByName(storeItemForm.getName()) != null) {
+        if (findItem != null) {
+            // 상품 상태가 비활성인지 확인
+            if (findItem.isDisable()) { // 비활성 상태인 경우
+                findItem.setDisable(!findItem.isDisable()); // 상품을 활성화 시킨다.
+                findItem.getCategory().addItem();   // 카테고리의 총 갯수를 증가시킨다.
+                return "Success";
+            }
             return "Fail";
         }
 
@@ -44,6 +51,7 @@ public class ItemService {
         newItem.setPrice(storeItemForm.getPrice());
         newItem.setCategory(ctg.get());  // 상품에 Category set
         newItem.setCompany(storeItemForm.getCompany());
+        newItem.setDisable(false);
 
         itemRepository.save(newItem);  // 저장
         return "Success";
@@ -58,6 +66,15 @@ public class ItemService {
         findItem.setCategory(ctg.get());
         findItem.setPrice(price);
         findItem.setStockQuantity(stockQuantity);
+    }
+
+    // 상품 삭제(상품 비활성화)
+    @Transactional
+    public void deleteItem(String itemName) {
+        Item findItem = itemRepository.findByName(itemName);
+        findItem.setDisable(true);              // 상품 비활성화 버튼 true로 set
+        findItem.setStockQuantity(0);           // 상품 재고를 0으로 설정
+        findItem.getCategory().removeItem();    // 카테고리 상품 총 갯수를 하나 줄인다.
     }
 
     // 상품 입고

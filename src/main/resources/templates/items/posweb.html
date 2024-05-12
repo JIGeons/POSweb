@@ -123,8 +123,8 @@
             <button class="col-12"
                     th:if="${not #lists.isEmpty(categories.content)}"
                     th:onclick="|location.href='@{/items(ctgPage=${categories.number-1}, page=${categoryItems.number}, category=${categoryItems.content.getFirst().category.category})}' |"
-                    th:attr="disabled=${!categories.hasNext} ? 'disabled' : null"> < </button>
-            <!-- categoryItems가 빈 리스트 일 때 출력 -->
+                    th:attr="disabled=${!categories.hasNext()} ? 'disabled' : null"> < </button>
+            <!-- categories가 빈 리스트 일 때 출력 -->
             <button class="col-12" th:if="${#lists.isEmpty(categories.content)}"> < </button>
           </div>
           <div class="col-10">
@@ -138,7 +138,9 @@
               </th:block>
 
               <!-- 카테고리가 3개보다 적을 때 빈 버튼 출력 -->
-              <th:block th:each="i : ${#numbers.sequence(1, 3 - categories.content.size())}">
+              <th:block
+                      th:if="${categories.content.size() < 3}"
+                      th:each="i : ${#numbers.sequence(1, 3 - categories.content.size())}">
                 <li class="col-4" style="display: inline;">
                   <button class="col-12" style="height: 100%"> </button>
                 </li>
@@ -179,7 +181,7 @@
             <button class="col-12" style="height: 8vh"
                     th:if="${not #lists.isEmpty(categoryItems.content)}"
                     th:onclick="|location.href='@{/items(ctgPage=${categories.number}, page=${categoryItems.number - 1}, category=${categoryItems.content.getFirst().category.category})}' |"
-                    th:attr="${!categoryItems.hasPrevious()} ? 'disabled' : null"> < </button>
+                    th:attr="disabled=${!categoryItems.hasPrevious()} ? 'disabled' : null"> < </button>
             <!-- categoryItems가 빈 리스트 일 때 출력 -->
             <button class="col-12" style="height: 8vh" th:if="${#lists.isEmpty(categoryItems.content)}"> < </button>
           </li>
@@ -188,11 +190,11 @@
               <span th:text="${categoryItems.number + 1}"></span> / <span th:text="${categoryItems.totalPages}"></span>
             </button>
           </li>
-          <li class="col-2" style="display: inline" th:classappend="${!categoryItems.hasNext()} ? 'disabled'">
+          <li class="col-2" style="display: inline">
             <button class="col-12" style="height: 8vh"
                     th:if="${not #lists.isEmpty(categoryItems.content)}"
                     th:onclick="|location.href='@{/items(ctgPage=${categories.number}, page=${categoryItems.number + 1}, category=${categoryItems.content.getFirst().category.category})}' |"
-                    th:attr="${!categoryItems.hasNext()} ? 'disabled' : null"> > </button>
+                    th:attr="disabled=${!categoryItems.hasNext()} ? 'disabled' : null"> > </button>
             <!-- categoryItems가 빈 리스트 일 때 출력 -->
             <button class="col-12" style="height: 8vh" th:if="${#lists.isEmpty(categoryItems.content)}"> > </button>
           </li>

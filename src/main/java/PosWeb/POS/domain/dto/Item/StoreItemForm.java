@@ -1,5 +1,6 @@
 package PosWeb.POS.domain.dto.Item;
 
+import PosWeb.POS.domain.Item;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -22,4 +23,11 @@ public class StoreItemForm {
     private String category;
     @NotEmpty(message = " ※ 제조회사는 필수로 입력해야합니다.")
     private String company;
+
+    public StoreItemForm(Item item) {
+        name = item.getName();
+        price = item.getPrice();
+        category = item.getCategory().getCategory();
+        company = item.getCompany();
+    }
 }

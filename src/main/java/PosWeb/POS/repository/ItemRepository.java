@@ -45,7 +45,7 @@ public class ItemRepository {
     public List<Item> findByCategory(Category category) {
         return em.createQuery(
                 "select i from Item i " +
-                        " where i.category = :category", Item.class)
+                        " where i.category = :category and i.disable = false", Item.class)
                 .setParameter("category", category)
                 .getResultList();
     }
@@ -59,7 +59,7 @@ public class ItemRepository {
     public Page<Item> findByCtgItemsPaged(Category category, Pageable pageable) {
         // 아이템 조회 쿼리 작성
         List<Item> items = em.createQuery(
-                "select i from Item i where i.category =: category", Item.class)
+                "select i from Item i where i.category =: category and i.disable = false", Item.class)  // 카테고리 상품 중 활성화가 되어 있는 상품만 조회
                 .setParameter("category", category)
                 .setFirstResult((int) pageable.getOffset())  // 페이지 번호에 따라 결과를 시작하는 위치 설정
                 .setMaxResults(pageable.getPageSize())    // 페이지 크기 설정

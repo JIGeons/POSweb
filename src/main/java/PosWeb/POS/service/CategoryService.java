@@ -27,6 +27,11 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
+    // 카테고리 단건 조회
+    public Category findOne(String category) {
+        return categoryRepository.findByCategory(category).get();
+    }
+
     // 카테고리 페이징 처리
     public Page<Category> findByCtgPaged(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
