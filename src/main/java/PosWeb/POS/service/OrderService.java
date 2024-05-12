@@ -97,6 +97,10 @@ public class OrderService {
         return orderRepository.findAllOrders();
     }
 
+    public List<Order> findOrdersByMonth(int year, int month) {
+        return orderRepository.findOrdersByMonth(year, month);
+    }
+
     public Order findOrder(Long id) {
         return orderRepository.findOne(id);
     }

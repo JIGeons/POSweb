@@ -49,4 +49,14 @@ public class OrderRepository {
                 .setParameter("id", id)
                 .getResultList();
     }
+
+    // 날짜로 주문 검색
+    public List<Order> findOrdersByMonth(int year, int month) {
+        return em.createQuery(
+                "select o from Order o"
+                + " where year(o.orderDate) =: year and month(o.orderDate) =: month", Order.class)
+                .setParameter("year", year)
+                .setParameter("month", month)
+                .getResultList();
+    }
 }
