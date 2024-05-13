@@ -2,9 +2,12 @@ package PosWeb.POS.repository;
 
 import PosWeb.POS.domain.Order;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -39,6 +42,46 @@ public class OrderRepository {
                 .getResultList();
     }
 
+    // fetch join으로 모든 주문 검색
+    public List<Order> findAllOrdersWithFetch(LocalDate startDate, LocalDate endDate, String name) {
+        // 기본 jqpl 작성
+        String jpql = "select o from Order o join fetch o.orderItems oi join fetch oi.item i";
+
+        // 모든 파라미터가 null이 아닐 시 where절 추가
+        if (startDate != null || endDate != null || name != null) {
+            int count = 0;  // count가 1 이상이면 and 추가
+            jpql += " where";
+            if (startDate != null) {
+                jpql += " o.orderDate >= :startDate";
+                count++;
+            }
+            if (endDate != null) {
+                if (count > 0 ) jpql += " and ";
+                jpql += " o.orderDate >= :endDate";
+            }
+            if (name != null) {
+                if (count > 0 ) jpql += " and ";
+                jpql += " i.name = :name";
+            }
+        }
+
+        Query query = em.createQuery(jpql, Order.class);
+
+        // setParameter
+        if (startDate != null) {
+            query = query.setParameter("startDate", startDate);
+        }
+        if (endDate != null) {
+            query = query.setParameter("endDate", endDate);
+        }
+        if (name != null) {
+            query = query.setParameter("name", name);
+        }
+
+        // 데이터를 조회한다.
+        return query.getResultList();
+    }
+    // item 번호로 주문 검색
     public List<Order> findAllWithItems(Long id) {
         return em.createQuery(  // fetch join으로 주문의 아이템을 불러온다.
                 "select o from Order o "

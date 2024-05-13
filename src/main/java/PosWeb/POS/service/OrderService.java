@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +96,10 @@ public class OrderService {
      */
     public List<Order> findOrders() {
         return orderRepository.findAllOrders();
+    }
+
+    public List<Order> findOrdersWithFetch(LocalDate startDate, LocalDate endDate, String itemName) {
+        return orderRepository.findAllOrdersWithFetch(startDate, endDate, itemName);
     }
 
     public List<Order> findOrdersByMonth(int year, int month) {

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,8 +61,6 @@ public class OrderController {
                            HttpServletRequest servletRequest){
         // 세션 데이터 불러오기.
         HttpSession session = servletRequest.getSession();
-
-        System.out.println("result : " + orderResult + ", approve : " + orderApprove);
 
         // 세션에 cart 객체 삭제
         session.removeAttribute("cart");
@@ -126,5 +125,37 @@ public class OrderController {
         model.addAttribute("month", month);
 
         return "order/amount";
+    }
+
+    // 주문 조회
+    @GetMapping("order/check")
+    public String orderCheck(@RequestParam(value = "startDate", defaultValue = "") LocalDate startDate,
+                             @RequestParam(value = "endDate", defaultValue="") LocalDate endDate,
+                             @RequestParam(value = "itemName", defaultValue = "") String itemName,
+                             Model model) {
+
+        // 주문 리스트 생성
+        List<Order> orderList = new ArrayList<>();
+
+        // 검색 실패 시 클라이언트에게 검색 실패를 알릴 변수
+        boolean searchResult = true;
+
+        // 상품 이름에 대해 존재 유무 검사
+        if (itemName != null) {
+            if (itemService.findOne(itemName) == null) {
+                // 상품이 존재 하지 않는다면 itemName을 null로 설정
+                itemName = null;
+                // 검색 결과를 false로 설정
+                searchResult = false;
+            }
+        }
+
+        // 지연 로딩을 해결하기 위해 fetch 조인으로 모든 주문 내역 조회
+        orderList = orderService.findOrdersWithFetch(startDate, endDate, itemName);
+
+        model.addAttribute("orderList", orderList);
+        model.addAttribute("searchResult", searchResult);
+
+        return "order/check";
     }
 }

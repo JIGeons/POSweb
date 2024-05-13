@@ -146,9 +146,6 @@ public class ItemController {
         HttpSession session = servletRequest.getSession();
         Map<Integer, CartItemForm> cart = (ConcurrentHashMap) session.getAttribute("cart");
 
-        System.out.println(cart);
-        System.out.println("cart = " + cart.get(1));
-
         // 수정 리스트의 담긴 상품을 session에서 수정
         for (Map<String, Object> item : cartItems) {
             System.out.println((int) item.get("id"));
@@ -180,8 +177,6 @@ public class ItemController {
     public String storeItem(@ModelAttribute("categories") Category category,
                           @Valid @ModelAttribute("storeItemForm") StoreItemForm storeItemForm,
                           BindingResult bindingResult) {
-
-        System.out.println(storeItemForm.getCategory());
 
         // storeItemForm에 문제가 있을 시
         if (bindingResult.hasErrors()) {
@@ -236,7 +231,6 @@ public class ItemController {
             // 해당 category의 상품을 10개씩 페이징 처리
             Page<Item> paging = itemService.findByCtgItemsPaged(addItemForm.getCategory(), 0, 10);
             model.addAttribute("items", paging);
-            System.out.println("에러 발생!!!!!!!!");
             return "items/addItem";
         }
 
