@@ -57,22 +57,29 @@ public class OrderRepository {
             }
             if (endDate != null) {
                 if (count > 0 ) jpql += " and ";
-                jpql += " o.orderDate >= :endDate";
+                jpql += " o.orderDate <= :endDate";
             }
             if (name != null) {
                 if (count > 0 ) jpql += " and ";
-                jpql += " i.name = :name";
+                // exists 절을 사용하여 현재 주문에서 특정 아이템을 포함하는 주문을 찾는 서브쿼리 추가
+                jpql += " exists (select 1 from OrderItem oi2 join oi2.item i2 where oi2.order = o and i2.name = :name)";
             }
         }
 
+        // 날짜 기준으로 내림차순 정렬
+        jpql += " order by o.orderDate desc";
+
+        // 완선된 쿼리문을 entity manager를 사용하여 쿼리 생성
         Query query = em.createQuery(jpql, Order.class);
 
         // setParameter
         if (startDate != null) {
-            query = query.setParameter("startDate", startDate);
+            // LocalDate를 LocalDateTime으로 형 변환 (startOfDay로 00 : 00 으로 시간 세팅)
+            query = query.setParameter("startDate", startDate.atStartOfDay());
         }
         if (endDate != null) {
-            query = query.setParameter("endDate", endDate);
+            // LocalDate를 LocalDateTime으로 형 변환 (시간을 23시 59분 59초로 세팅)
+            query = query.setParameter("endDate", endDate.atTime(23,59,59));
         }
         if (name != null) {
             query = query.setParameter("name", name);
@@ -81,6 +88,7 @@ public class OrderRepository {
         // 데이터를 조회한다.
         return query.getResultList();
     }
+
     // item 번호로 주문 검색
     public List<Order> findAllWithItems(Long id) {
         return em.createQuery(  // fetch join으로 주문의 아이템을 불러온다.

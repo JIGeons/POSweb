@@ -23,9 +23,9 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    private int orderPrice;     // 주문 가격
+    private int orderPrice;     // 주문 가격 (할인 금액을 제외한 실제 결제 금액)
     private int count;          // 주문 수량
-    private int discount;       // 할인률
+    private int discount;       // 할인금액
 
     //== 생성 메서드 ==//
     public static OrderItem createOrderItem(Item item, int orderPrice, int count, int discount) {
@@ -42,20 +42,5 @@ public class OrderItem {
     //== 비즈니스 로직==//
     public void cancel() {
         getItem().addStock(count);
-    }
-
-    //== 조회 로직==//
-    /**
-     * 주문 상품 전체 가격 조회
-     */
-    public int getTotalPrice() {
-        int amount = getOrderPrice();
-
-        // 할인 금액이 있으면 총 금액에서 할인 금액을 뺀다.
-        if (getDiscount() != 0) {
-            amount -= getDiscount();
-        }
-
-        return amount;
     }
 }

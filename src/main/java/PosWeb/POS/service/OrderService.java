@@ -2,13 +2,21 @@ package PosWeb.POS.service;
 
 import PosWeb.POS.domain.*;
 import PosWeb.POS.domain.dto.Item.CartItemForm;
+import PosWeb.POS.domain.dto.Order.OrderDto;
 import PosWeb.POS.repository.ItemRepository;
 import PosWeb.POS.repository.OrderItemRepository;
 import PosWeb.POS.repository.OrderRepository;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,6 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class OrderService {
@@ -98,8 +107,19 @@ public class OrderService {
         return orderRepository.findAllOrders();
     }
 
-    public List<Order> findOrdersWithFetch(LocalDate startDate, LocalDate endDate, String itemName) {
-        return orderRepository.findAllOrdersWithFetch(startDate, endDate, itemName);
+    public List<OrderDto> findOrdersWithFetch(LocalDate startDate, LocalDate endDate, String itemName) {
+        List<Order> orders = orderRepository.findAllOrdersWithFetch(startDate, endDate, itemName);
+
+        // orderDto로 형식 변환
+        if (!orders.isEmpty()) {
+            List<OrderDto> result = orders.stream()
+                    .map(order -> new OrderDto(order))
+                    .collect(Collectors.toList());
+            return result;
+        }
+
+        // order 주문이 없는 것이므로 null 반환
+        return null;
     }
 
     public List<Order> findOrdersByMonth(int year, int month) {
@@ -126,5 +146,80 @@ public class OrderService {
         }
 
         return null;
+    }
+
+    // 환불 시 필요한 iamport의 token을 받아온다.
+    public String getIamportToken(String apiKey, String secretKey) throws IOException {
+        URL url = new URL("https://api.iamport.kr/users/getToken");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        // 요청 방식을 POST로 설정
+        conn.setRequestMethod("POST");
+
+        // 요청의 Content-Type과 Accept 헤더 설정
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Accept", "application/json");
+
+        // 해당 연결을 출력 스트림(요청)으로 사용
+        conn.setDoOutput(true);
+
+        // JSON 객체가 해당 API가 필요로 하는 데이터 추가.
+        JsonObject json = new JsonObject();
+        json.addProperty("imp_key", apiKey);
+        json.addProperty("imp_secret", secretKey);
+
+        // 출력 스트림으로 해당 conn에 요청
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+        // json 객체를 문자열 형태로 HTTP 요청 본문에 추가
+        bw.write(json.toString());
+        bw.flush();
+        bw.close();
+
+        // 입력 스트림으로 conn 요청에 대한 응답 반환
+        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        Gson gson = new Gson(); // 응답 데이터를 자바 객체로 변환
+        String response = gson.fromJson(br.readLine(), Map.class).get("response").toString();
+        String accessToken = gson.fromJson(response, Map.class).get("access_token").toString();
+        br.close();
+
+        conn.disconnect();
+
+        log.info("IamPort 엑세스 토큰 발금 성공 : {}", accessToken);
+        return accessToken;
+    }
+
+    public void orderRefundWidthToken(String access_token, String merchant_uid)  throws IOException {
+        URL url = new URL("https://api.iamport.kr/payments/cancel");
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+        // 요청 방식을 POST로 설정
+        conn.setRequestMethod("POST");
+
+        // 요청의 Content-Type, Accept, Authorization 헤더 설정
+        conn.setRequestProperty("Content-type", "application/json");
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setRequestProperty("Authorization", access_token);
+
+        // 해당 연결을 출력 스트림(요청)으로 사용
+        conn.setDoOutput(true);
+
+        // JSON 객체에 해당 API가 필요로하는 데이터 추가.
+        JsonObject json = new JsonObject();
+        json.addProperty("merchant_uid", merchant_uid);
+        // String reason = "단순 변심";
+        // json.addProperty("reason", reason);
+
+        // 출력 스트림으로 해당 conn에 요청
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+        bw.write(json.toString());
+        bw.flush();
+        bw.close();
+
+        // 입력 스트림으로 conn 요청에 대한 응답 반환
+        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        br.close();
+        conn.disconnect();
+
+        log.info("결제 취소 완료 : 주문 번호 {}", merchant_uid);
     }
 }

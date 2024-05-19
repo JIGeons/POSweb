@@ -47,7 +47,7 @@ public class Order {
 
         for (OrderItem orderItem : orderItems) {
             order.addOrderItem(orderItem);
-            amount += orderItem.getTotalPrice();
+            amount += orderItem.getOrderPrice();
         }
 
         order.setStatus(OrderStatus.ORDER);

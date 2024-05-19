@@ -119,7 +119,7 @@
                         <div class="goods">
                             <div class="col-6 center" th:text="${cartItem.item.name}"></div>
                             <div class="col-2 center" th:text="${cartItem.quantity}" style="border-right: 1px solid darkgray; border-left: 1px solid darkgray;"></div>
-                            <div class="col-4 center" th:text="${cartItem.orderPrice - cartItem.discount}" ></div>
+                            <div class="col-4 center" th:text="${cartItem.orderPrice}" ></div>
                         </div>
                     </th:block>
                 </div>
