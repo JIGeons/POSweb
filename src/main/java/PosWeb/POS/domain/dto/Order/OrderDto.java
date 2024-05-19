@@ -28,7 +28,11 @@ public class OrderDto {
             orderName = order.getOrderItems().getFirst().getItem().getName();
         }
         amount = order.getAmount();
-        orderDate = formatDateTime(order.getOrderDate());
+        // 주문 상태가 cancel일 경우 orderDate는 주문 취소된 날짜로 한다.
+        if (order.getStatus().equals(OrderStatus.CANCEL))
+            orderDate = formatDateTime(order.getOrderCancelDate());
+        else
+            orderDate = formatDateTime(order.getOrderDate());
         status = order.getStatus();
         approve = order.getApprove();
         orderItems = order.getOrderItems().stream()

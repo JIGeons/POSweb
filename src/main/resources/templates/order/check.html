@@ -294,8 +294,12 @@
         document.getElementById("orderName").innerText = order['orderName'];
         document.getElementById("orderDate").innerText = order['orderDate'];
         document.getElementById("orderStatus").innerText = order['status'];
-        if (order['status'] == 'CANCEL') {
+        if (order['status'] === "CANCEL") {
             document.getElementById("orderStatus").style.color = "red";
+            document.getElementById("orderDate").innerText += '(취소)';
+        } else {
+            // cancel이 아닌 경우 style다시 black으로 변경
+            document.getElementById("orderStatus").style.color = "black";
         }
 
         // tbody 'orderItemLists' 에 상품 차례대로 삽입

@@ -23,6 +23,7 @@ public class Order {
 
     private int amount;                     // 주문 총 금액
     private LocalDateTime orderDate;        // 주문시간
+    private LocalDateTime orderCancelDate;  // 주문 취소 시간
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;             // 주문 상태
@@ -63,6 +64,7 @@ public class Order {
      */
     public void cancel() {
         this.setStatus(OrderStatus.CANCEL);
+        this.setOrderCancelDate(LocalDateTime.now());
         for (OrderItem orderItem : orderItems) {
             orderItem.cancel();
         }
