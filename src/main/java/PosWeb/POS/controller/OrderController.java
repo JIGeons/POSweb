@@ -6,6 +6,8 @@ import PosWeb.POS.domain.dto.Item.CartItemForm;
 import PosWeb.POS.domain.dto.Order.OrderAmountForm;
 import PosWeb.POS.domain.dto.Order.OrderDto;
 import PosWeb.POS.service.ItemService;
+import PosWeb.POS.service.MemberService;
+import PosWeb.POS.service.MemberTimeService;
 import PosWeb.POS.service.OrderService;
 import com.siot.IamportRestClient.IamportClient;
 import jakarta.annotation.PostConstruct;
@@ -33,8 +35,8 @@ public class OrderController {
 
     private final OrderService orderService;
     private final ItemService itemService;
-    private final ImpProperties impProperties;
-    private IamportClient iamportClient;
+    private final MemberService memberService;
+    private final MemberTimeService memberTimeService;
 
     @Value("${imp.api.key}")
     private String apiKey;
@@ -229,5 +231,22 @@ public class OrderController {
             }
         }
         return "redirect:/order/check?cancelOrderId="+cancelOrderId;
+    }
+
+    @GetMapping("order/end")
+    public String orderEnd(HttpServletRequest servletRequest) {
+        HttpSession session = servletRequest.getSession();
+        // 로그인 돼 있는 사용자의 정보를 받아온다.
+        String loginId = (String) session.getAttribute("loginMember");
+
+        // 해당 사용자의 정보를 검색
+        Member loginMember = memberService.findOne(loginId);
+        // 현재 시간으로 endTime update
+        MemberTime endMember = memberTimeService.updateEndTime(loginMember);
+
+        log.info("{}이 {}시에 마감을 하였습니다.", loginMember.getName(), endMember.getEndTime());
+
+        // 초기 화면으로 이동(세션 정리)
+        return "redirect:/";
     }
 }
