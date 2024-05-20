@@ -69,7 +69,7 @@ public class OrderRepository {
         // 날짜 기준으로 내림차순 정렬
         jpql += " order by o.orderDate desc";
 
-        // 완선된 쿼리문을 entity manager를 사용하여 쿼리 생성
+        // 완성된 쿼리문을 entity manager를 사용하여 쿼리 생성
         Query query = em.createQuery(jpql, Order.class);
 
         // setParameter

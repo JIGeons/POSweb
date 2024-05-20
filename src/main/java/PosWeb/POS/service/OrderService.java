@@ -188,7 +188,7 @@ public class OrderService {
         return accessToken;
     }
 
-    public void orderRefundWidthToken(String access_token, String merchant_uid)  throws IOException {
+    public void orderRefundWithToken(String access_token, String merchant_uid)  throws IOException {
         URL url = new URL("https://api.iamport.kr/payments/cancel");
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 

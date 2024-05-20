@@ -25,9 +25,9 @@ public class MemberTime {
     //== 생성 메소드 ==//
 
     /**
-     * 멤버 시간 생성, 시작 시간 기록
+     * MemberTime 객체 생성, 시작 시간 기록
      */
-    public MemberTime createMemberTime(Member member) {
+    public static MemberTime createMemberTime(Member member) {
         MemberTime memberTime = new MemberTime();
         memberTime.setMember(member);
         memberTime.setStartTime(LocalDateTime.now());

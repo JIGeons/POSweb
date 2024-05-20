@@ -41,6 +41,8 @@ public class OrderController {
 
     @Value("${imp.api.secretkey}")
     private String secretKey;
+    @Value("${imp.code}")
+    private String impCode;
 
     // 상품 결제 페이지 이동
     @GetMapping("order")
@@ -59,6 +61,7 @@ public class OrderController {
         // model에 저장
         model.addAttribute("orderId", orderId);
         session.setAttribute("cart", cartItems);
+        model.addAttribute("impCode", impCode);
 
         return "order/pay";
     }
@@ -202,7 +205,6 @@ public class OrderController {
     // 주문 결제 취소
     @PostMapping("order/cancel")
     public String orderCancel(@RequestParam("cancelOrderId") Long cancelOrderId) throws IOException {
-        System.out.println("취소 주문 번호 : " + cancelOrderId);
         
         Order cancelOrder = orderService.findOrder(cancelOrderId);
         
@@ -215,7 +217,7 @@ public class OrderController {
                 log.info("카드 결제 상품 주문 환불 진행 : 주문 번호 {}", cancelOrderId);
                 String token = orderService.getIamportToken(apiKey, secretKey);
                 try {
-                    orderService.orderRefundWidthToken(token, String.valueOf(cancelOrderId));
+                    orderService.orderRefundWithToken(token, String.valueOf(cancelOrderId));
                     orderService.cancelOrder(cancelOrderId);
                 } catch (Exception e) {
                     log.info("Exception e {}", e.getMessage());

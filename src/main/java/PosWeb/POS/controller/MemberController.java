@@ -1,9 +1,11 @@
 package PosWeb.POS.controller;
 
 import PosWeb.POS.domain.Member;
+import PosWeb.POS.domain.MemberTime;
 import PosWeb.POS.domain.dto.Member.JoinMemberForm;
 import PosWeb.POS.domain.dto.Member.LoginMemberDto;
 import PosWeb.POS.service.MemberService;
+import PosWeb.POS.service.MemberTimeService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -26,9 +28,10 @@ import java.util.stream.Collectors;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MemberTimeService memberTimeService;
 
     @GetMapping("members/login")
-    public String login(Model model, HttpSession session) {
+    public String login(Model model, HttpServletRequest servletRequest) {
         List<Member> members = memberService.findMembers();
 
         // member엔티티의 모든 속성 노출을 방지하기 위해 LoginMemberDto를 사용하여 필요한 정보만 전송
@@ -36,6 +39,7 @@ public class MemberController {
                                 .map(m -> new LoginMemberDto(m.getStringId(), m.getName()))
                                 .collect(Collectors.toList());
 
+        HttpSession session = servletRequest.getSession();
         session.setAttribute("members", LoginMembers);
         model.addAttribute("loginMember", new LoginMemberDto());
         return "members/login";
@@ -48,9 +52,9 @@ public class MemberController {
             HttpServletRequest httpServletRequest,
             Model model) {
 
+        HttpSession session = httpServletRequest.getSession();
+
         model.addAttribute("loginMember", loginMember);
-        System.out.println("loginMember.id = " + loginMember.getStringId());
-        System.out.println("loginMember.pw = " + loginMember.getPw());
         Member member = memberService.login(loginMember);
 
         // valid 검사에서 오류가 있는 경우
@@ -65,15 +69,32 @@ public class MemberController {
             return "members/login";
         }
 
+        // 로그인 성공에 대해 로그 출력
         log.info("login? {}", loginMember);
 
-        // 로그인 성공 -> 세션 생성
+
+        // 로그인 성공 -> memberTime 객체 & 세션 생성
+
+        // 로그인 성공 시 session에 로그인 정보가 있는지 확인
+        String loginId = (String) session.getAttribute("loginMember");
+        log.info("loginId : {}", loginId);
+
+        // 세션에 로그인 정보가 있을 경우 사용자 전환을 하는 것이므로 memberTime 객체의 endTime을 현재 시간으로 update
+        if (loginId != null) {
+            Member endMember = memberService.findOne(loginId);
+            MemberTime updateMemberTime = memberTimeService.updateEndTime(endMember);
+            log.info("로그아웃 & memberTime update {} ", updateMemberTime);
+        }
+
+        // 로그인 하는 member에 대해 memberTime 객체를 생성 & startTime 현재 시간으로 설정
+        MemberTime createMemberTime = memberTimeService.createMemberTime(member);
+        log.info("로그인 memberTime 객체 생성 : {}", createMemberTime.getStartTime());
 
         // 세션을 생성하기 전 기존의 세션 파기
         httpServletRequest.getSession().invalidate();
-        HttpSession session = httpServletRequest.getSession(true);  // Session 생성
+        session = httpServletRequest.getSession(true);  // Session 생성
         // 세션에 memberId를 삽입
-        session.setAttribute("stringId", member.getStringId());
+        session.setAttribute("loginMember", member.getStringId());
 
         return "redirect:/items";
     }
