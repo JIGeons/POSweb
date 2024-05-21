@@ -23,7 +23,7 @@ public class Member {
 
     private String name;
     private String pw;
-    private LocalDate Birth;
+    private LocalDate birth;
     private boolean admin;
 
     @Column(columnDefinition = "integer default 9860")

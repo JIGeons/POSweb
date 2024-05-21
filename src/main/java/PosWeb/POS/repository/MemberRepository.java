@@ -1,9 +1,13 @@
 package PosWeb.POS.repository;
 
 import PosWeb.POS.domain.Member;
+import PosWeb.POS.domain.dto.Member.MemberDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -45,5 +49,18 @@ public class MemberRepository {
         return em.createQuery("select m from Member m where m.name = :name", Member.class)
                 .setParameter("name", name)
                 .getResultList();
+    }
+
+    public Page<MemberDto> findMembersWithPaging(Pageable pageable) {
+        // member 조회 쿼리 작성
+        List<MemberDto> members = em.createQuery(
+                "select new " +
+                        " PosWeb.POS.domain.dto.Member.MemberDto(m.id, m.stringId, m.name, m.birth, m.admin, m.hourlyRate, m.weekOrMonth, m.address)"+
+                        " from Member m", MemberDto.class)
+                .setFirstResult((int) pageable.getOffset()) // 페이지 번호에 따라 결과를 시작하는 위치 설정
+                .setMaxResults(pageable.getPageSize())  // 페이지 크기 설정
+                .getResultList();
+
+        return new PageImpl<>(members, pageable, pageable.getPageNumber());
     }
 }

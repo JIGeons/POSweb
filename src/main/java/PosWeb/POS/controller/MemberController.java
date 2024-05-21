@@ -4,6 +4,7 @@ import PosWeb.POS.domain.Member;
 import PosWeb.POS.domain.MemberTime;
 import PosWeb.POS.domain.dto.Member.JoinMemberForm;
 import PosWeb.POS.domain.dto.Member.LoginMemberDto;
+import PosWeb.POS.domain.dto.Member.MemberDto;
 import PosWeb.POS.service.MemberService;
 import PosWeb.POS.service.MemberTimeService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,12 +12,14 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -154,6 +157,36 @@ public class MemberController {
         }
         response.put("available", isAvailable);
         return response;
+    }
+
+    @GetMapping("members/management")
+    public String memberManagement(@RequestParam(value = "page", defaultValue = "1") int page,
+                                   @RequestParam(value = "memberTage", defaultValue = "admin") String memberTag,
+                                   @RequestParam(value = "searchName", defaultValue = "") String searchName,
+                                   @RequestParam(value = "searchDate", defaultValue = "") LocalDate searchDate,
+                                   Model model) {
+
+        if (memberTag == "salary") {    // 월급 관리
+
+            if (searchDate == null) {
+                searchDate = LocalDate.now();
+            }
+
+            // searchDate를 기준으로 memberTime 객체 검색
+            memberTimeService.findMemberTime(searchDate);
+
+        } else {    // 관리자 & 회원정보 수정
+            int size = 10;  // 10개씩 페이징 한다.
+            // 페이징된 memberDto 객체를 불러 온다.
+            Page<MemberDto> memberPaging = memberService.findMembersWithPaging(page, size);
+
+            model.addAttribute("memberDtoList", memberPaging);
+
+            // 회원정보 수정 시 회원을 인증하기 위한 LoginMemberDto를 빈 객체로 생성해서 전달.
+            model.addAttribute("memberUpdate", new LoginMemberDto());
+        }
+
+        return "members/management";
     }
 
 }

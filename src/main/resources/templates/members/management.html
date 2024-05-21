@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> <meta charset="utf-8">
+  <title>Cart</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+
+  <style>
+    .center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .header {
+      height: 10vh;
+      width: 100%;
+      border-bottom: 5px solid #483D8B;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .menu{
+      height: 70vh;
+      background-color: azure;
+      border-radius: 0 0 50px 50px;
+      border: none;
+      overflow-y: scroll;
+    }
+    .menu::-webkit-scrollbar {
+      display: none;
+    }
+    .title{
+      height: 10vh;
+      display: flex;
+      flex-wrap: wrap;
+      background-color: #0081CC;
+      border-radius: 50px 50px 0px 0px;
+      border: none;
+    }
+    .button {
+      background-color: red;
+      border: none;
+      color: white;
+      height: 90%;
+      width: 90%;
+      text-align: center;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 10%;
+      margin: 4px 4px;
+    }
+    .tagButton {
+      width: 100px;
+      height: 50px;
+
+      background-color: #cccccc;
+      border: 0;
+      border-top-left-radius: 10%;
+      border-top-right-radius: 10%;
+
+      margin-right: 1px;
+    }
+    #menu button {
+      width: 100%;
+      height: 6vh;
+      font-size: 20px;
+      border: none;
+      border-bottom: 1px solid black;
+    }
+    #storeItem input{
+      border-bottom: 100px;
+    }
+    .order-detail {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      background-color: white;
+      height: 80vh;
+    }
+    th {
+      text-align: center;
+    }
+
+    .orderList td {
+      cursor: pointer;
+    }
+
+    .selected {
+      background-color: white;
+    }
+
+    #orderItemLists {
+      display: block;
+      height: 100%;
+      max-height: 100%;
+      overflow: scroll;
+      border-bottom: 2px solid dimgray;
+    }
+    #orderItemLists::-webkit-scrollbar {
+      display: none;
+    }
+
+    #orderItemLists td {
+      text-align: center;
+    }
+  </style>
+  <style>
+    .modal{
+      position: absolute;
+      display: none;
+
+      justify-content: center;
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      background-color: rgb(0, 0, 0, 0.4);    /* 0.4는 투명도 설정 */
+    }
+    .modal-body {
+      position: absolute;
+      top: 50%;   /* 모달을 화면 가운데 놓기 위해 */
+
+      width: 600px;    /* 모달의 가로 크기 */
+      height: 400px;   /* 모달의 세로 크기 */
+
+      padding: 40px;
+
+      text-align: center;
+
+      background-color: white;  /* 모달창 배경색 */
+      box-shadow: 2 2px 3px 0 #464646; /* 테두리 그림자 */
+      border-radius: 20px;
+
+      transform: translateY(-50%); /* 모듈창 열었을 때 위치 설정 가운데로*/
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body style="background-color:#1E90FF;">
+<div style="height: 100vh;">
+  <div class="container">
+    <div class="header center">
+      <div class="col-11" style="padding-left: 10px; font-size: 30px;">
+        <button style="position: absolute; left: 0;" onclick="location.href='/'">
+          <strong><h1>←</h1></strong>
+        </button>
+        <h1 style="width: 100%; text-align: center"><strong>사용자 관리</strong></h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-8" style="height: 60vh">
+        <div class="col-12" id="search" style="height: 7vh; display: flex;">
+          <div class="col-8" style="display: flex;">
+            <button class="tagButton selected">관리자<br/>수정</button>
+            <button class="tagButton">회원정보<br/>수정</button>
+            <button class="tagButton">월급 관리</button>
+          </div>
+          <div class="col-4" style="display: flex; justify-content: right;  padding-bottom: 10px;">
+            <input type="text" id="itemName" name="itemName" class="col-7" placeholder="회원 이름">
+            <input type="submit" value="검색" class="col-3" style="margin-left: 5px;">
+          </div>
+        </div>
+        <div class="col-12" id="memberList" style="height: 75vh; background-color: white">
+          <table class="members-1" style="width: 100%; height: 100%">
+            <thead style="background-color: #cccccc; width: 100%; height: 3.75vh">
+            <tr style="display: table; width: 100%">
+              <th style="width: 10%">번호</th>
+              <th style="width: 15%">아이디</th>
+              <th style="width: 15%">이름</th>
+              <th style="width: 20%">생년월일</th>
+              <th style="width: 30%">주소</th>
+              <th style="width: 10%">관리자<br/>여부</th>
+            </tr>
+            </thead>
+            <tbody id="memberListBody" style="display:block; width: 100%; height: 100%; max-height: 70vh;">
+            <!-- th:each를 사용하여 사용자의 정보를 표시 -->
+            <th:block th:each="member : ${memberDtoList}">
+              <tr th:id="${member.id}" style="border-bottom: 1px solid dimgray; display: table; width: 100%;">
+                <td th:text="${member.id}" style="width: 10%; text-align: center;"></td>
+                <td th:text="${member.stringId}" style="width: 15%; text-align: center;"></td>
+                <td th:text="${member.name}" style="width: 15%; text-align: center;"></td>
+                <td th:text="${member.birth}" style="width: 20%; text-align: center;"></td>
+                <td th:text="${member.address}" style="width: 30%; text-align: center;"></td>
+                <td style="width: 10%; text-align: center;">
+                  <input type="checkbox" th:checked="${member.admin}">
+                </td>
+              </tr>
+            </th:block>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <div class="col-4 order-detail">
+        <!-- 선택한 주문의 상세 정보를 표시 -->
+        <div class="col-12" id="orderDetailHeader" style="height: 25%; display: flex; flex-wrap: wrap; border-bottom: 2px solid dimgray; padding-bottom: 2px;">
+          <div class="col-12 center" style="margin-bottom: 0">
+            <h3><strong><주문 상세></strong></h3>
+          </div>
+          <div class="col-12">주문 번호 : <span id="orderId"></span></div>
+          <div class="col-12">주문명 : <span id="orderName"></span></div>
+          <div class="col-12">주문 날짜 : <span id="orderDate"></span></div>
+          <div class="col-12">주문 상태 : <span id="orderStatus"></span></div>
+        </div>
+        <div class="col-12" id="orderDetailBody" style="height: 55%; border-bottom: 2px solid dimgray;">
+          <table style="width: 100%; height: 100%; margin-top: 3px;">
+            <thead style="width: 100%; border-top: 1px solid dimgray; border-bottom: 1px solid dimgray;">
+            <tr style="display: table; width: 100% ">
+              <td style="text-align: center; width: 24%">상품 이름</td>
+              <td style="text-align: center; width: 20%">금액</td>
+              <td style="text-align: center; width: 12%">수량</td>
+              <td style="text-align: center; width: 24%">할인 금액</td>
+              <td style="text-align: center; width: 20%">총 금액</td>
+            </tr>
+            </thead>
+            <tbody id="orderItemLists">
+            <!-- 주문 선택 시 리스트가 생김-->
+            </tbody>
+            <tfoot style="width: 100%; height: 15%;">
+            <tr style="display: table; width: 100%; height: 100%">
+              <td colspan="4" style="width: 70%; text-align: center"><strong>총 주문 금액</strong></td>
+              <td id="orderAmount" style="width: 30%; text-align: right; padding-right: 5px">0 원</td>
+            </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div class="col-12" id="orderDetailFooter" style="height: 20%; display: flex; flex-wrap: wrap">
+          <div class="col-7">결제 방법
+            <div class="col-12 center">
+              <h1><strong id="payMethod"></strong></h1>
+            </div>
+          </div>
+          <div class="col-5" id="cancelButton">
+            <button class="button" onclick="OpenCancelModal()">결제 취소</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 결제 취소 버튼을 누르면 생기는 모달 -->
+<div class="modal">
+  <div class="modal-body">
+    <div style="display: flex">
+      <h1 class="col-4" style="text-align: left" onclick="Back()";><strong>←</strong></h1>
+      <h1 class="col-8" style="text-align: left"><strong>결제취소</strong></h1>
+    </div>
+    <div style="display:flex; justify-content: left; align-items: center; height: 60%;">
+      <div>
+        <h2>주문 명 : <strong id="cancelOrderName"></strong></h2>
+        <h2> 에 대해 결제를 취소하시겠습니까?</h2></br>
+        <h3>총 금액은 <input id="cancelOrderAmount" type="text" style="width:30%; text-align: right; background-color: transparent; border: none; color: red;">원입니다.</h3></br>
+      </div>
+    </div>
+    <form action="cancel" method="post">
+      <input type="hidden" name="cancelOrderId" id="cancelOrderId">
+
+      <div class="center" style="display: flex">
+        <input type="submit" class="button" style="height: 80px" value="네">
+        <input type="button" class="button" onclick="Back()" style="height: 80px; background-color: gray;" value="아니요">
+      </div>
+    </form>
+  </div>
+</div>
+<script th:inline="javascript">
+
+  document.addEventListener("DOMContentLoaded", function() {
+    // cancelOrderId 를 받아온다. -1이 아니라면 주문 화면 선택
+    var canceledOrderId = /*[[${cancelOrderId}]]*/ [];
+
+    if (canceledOrderId != -1) {
+      // 취소된 주문 id가 -1이 아닐 경우 전체 list를 불러온다.
+      var orderList = /*[[${orderList}]]*/ [];
+      var selectOrderId;
+      for (const orderListKey in orderList) {
+        // 주문 리스트에서 해당 id를 찾고 있을 경우 해당 selectOrder함수를 실행한다.
+        if (orderList[orderListKey]['id'] == canceledOrderId) {
+          selectOrderId = orderList[orderListKey];
+          selectOrder(null, selectOrderId);
+        }
+      }
+    }
+  });
+
+  function selectOrder(event, order) {
+    // 모든 tr 요소에서 selected 클래스 제거
+    var cells = document.querySelectorAll(".orderList tr");
+    cells.forEach(function(cell) {
+      cell.classList.remove("selected");
+    });
+
+    if (event)
+            // 클릭된 tr요소에 selected 클래스 추가
+      event.currentTarget.classList.add("selected");
+    else {
+      // 클릭된 요소가 없는 경우 해당 order id를 찾아서 selected 클래스 부여
+      document.getElementById(order['id']).classList.add("selected");
+    }
+
+    // order의 내용을 orderDetail에 삽입
+    document.getElementById("orderId").innerText = order['id'];
+    document.getElementById("orderName").innerText = order['orderName'];
+    document.getElementById("orderDate").innerText = order['orderDate'];
+    document.getElementById("orderStatus").innerText = order['status'];
+    if (order['status'] === "CANCEL") {
+      document.getElementById("orderStatus").style.color = "red";
+      document.getElementById("orderDate").innerText += '(취소)';
+    } else {
+      // cancel이 아닌 경우 style다시 black으로 변경
+      document.getElementById("orderStatus").style.color = "black";
+    }
+
+    // tbody 'orderItemLists' 에 상품 차례대로 삽입
+    var itemList = order['orderItems'];
+    var orderItemLists_html = '';
+    for (const item in itemList) {
+      orderItemLists_html += "<tr style='display: table; width: 100%'>"
+      orderItemLists_html += "<td style='width: 24%'>" + itemList[item]['item']['name'] + "</td>"
+      orderItemLists_html += "<td style='width: 20%'>" + itemList[item]['item']['price'] + "원" + "</td>"
+      orderItemLists_html += "<td style='width: 12%'>" + itemList[item]['count'] + "개" + "</td>"
+      orderItemLists_html += "<td style='width: 24%'>" + itemList[item]['discount'] + "원" + "</td>"
+      orderItemLists_html += "<td style='width: 20%'>" + itemList[item]['orderPrice'] + "원" + "</td>"
+      orderItemLists_html += "</tr>"
+    }
+
+    // 주문 상세 내역
+    document.getElementById("orderItemLists").innerHTML = orderItemLists_html;
+    document.getElementById("orderAmount").innerText = order['amount'] + " 원";
+    document.getElementById("payMethod").innerText = order['approve'];
+
+    // 주문 상태가 cancel인 경우 취소 완료 버튼을 보여주고 order인 경우 결제 취소 버튼을 출력한다.
+    if (order['status'] == 'ORDER') {
+      document.getElementById("cancelButton").innerHTML =
+              "<button class='button' onClick='OpenCancelModal()'>결제 취소</button>";
+    } else if (order['status'] == 'CANCEL') {
+      document.getElementById("cancelButton").innerHTML =
+              "<button class='button' style='background-color: #4caf50'>취소 완료</button>";
+    }
+    // modal에 필요한 정보 삽입
+    document.getElementById("cancelOrderId").value = order['id'];
+    document.getElementById("cancelOrderName").innerText = order['orderName'];
+    document.getElementById("cancelOrderAmount").value = order['amount'];
+  }
+
+
+</script>
+<script>
+
+  // 결제 취소 modal 화면에 표시하기
+  function OpenCancelModal() {
+    var selected = document.querySelectorAll('.selected');
+
+    // 상품이 선택 되었을 때만 화면에 표시
+    if ( selected.length != 0 ) {
+      const modal = document.querySelector('.modal')
+
+      modal.style.display = "flex";
+    }
+  }
+
+  // 결제 취소 modal 화면 감추기
+  function Back() {
+    const modal = document.querySelector('.modal')
+
+    modal.style.display="none";
+  }
+
+  function searchResult() {
+    var result = /*[[${searchResult}]]*/ [];
+
+    if (!result) {
+      alert("검색 실패!\n검색한 상품이 존재하지 않습니다.");
+    }
+  }
+
+  searchResult();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous">
+</script>
+</body>
+</html>

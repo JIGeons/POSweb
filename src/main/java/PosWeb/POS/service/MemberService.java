@@ -2,8 +2,12 @@ package PosWeb.POS.service;
 
 import PosWeb.POS.domain.Member;
 import PosWeb.POS.domain.dto.Member.LoginMemberDto;
+import PosWeb.POS.domain.dto.Member.MemberDto;
 import PosWeb.POS.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,5 +73,13 @@ public class MemberService {
         member.setAddress(updateMember.getAddress());
         member.setHourlyRate(updateMember.getHourlyRate());
         member.setWeekOrMonth(updateMember.getWeekOrMonth());
+    }
+
+    public Page<MemberDto> findMembersWithPaging(int page, int size) {
+        // page 객체 생성
+        Pageable pageable = PageRequest.of(page, size);
+
+        // paging된 객체를 반환
+        return memberRepository.findMembersWithPaging(pageable);
     }
 }
