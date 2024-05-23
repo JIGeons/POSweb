@@ -179,7 +179,7 @@ public class MemberController {
             }
 
             // searchDate를 기준으로 memberTime 객체 검색
-            Page<MemberTimeMonthForm> memberTimes = memberTimeService.findMemberTimeForm(searchDate, page-1, size);
+            Page<MemberTimeMonthForm> memberTimes = memberTimeService.findMemberTimeForm(searchDate, searchName, page-1, size);
 
             // memberTime의 객체를 불러오기 위한 id 리스트 생성
             List<Long> memberIds = new ArrayList<>();
@@ -191,14 +191,14 @@ public class MemberController {
             }
 
             // memberIds에 있는 id의 정보만 불러와서 Map형식으로 grouping
-            Map<Long, List<MemberTimeDto>> memberTimesGroup = memberTimeService.findMemberTimeDto(searchDate, memberIds);
+            Map<Long, List<MemberTimeDto>> memberTimesGroup = memberTimeService.findMemberTimeDto(searchDate, memberIds, searchName);
 
             // 모델에 객체 추가
             model.addAttribute("memberTimesPaging", memberTimes);
             model.addAttribute("memberTimesGroup", memberTimesGroup);
         } else {    // 관리자 & 회원정보 수정
             // 페이징된 memberDto 객체를 불러 온다.
-            Page<MemberDto> memberPaging = memberService.findMembersWithPaging(page-1, size);
+            Page<MemberDto> memberPaging = memberService.findMembersWithPaging(searchName, page-1, size);
 
             model.addAttribute("memberDtoList", memberPaging);
 

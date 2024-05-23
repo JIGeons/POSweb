@@ -74,7 +74,7 @@ public class MemberTimeService {
     }
 
     // memberTime 정보에 대해 페이징 처리를 해서 반환
-    public Page<MemberTimeMonthForm> findMemberTimeForm(LocalDate searchDate, int page, int size) {
+    public Page<MemberTimeMonthForm> findMemberTimeForm(LocalDate searchDate, String searchName, int page, int size) {
         // 검색 달의 첫째날
         LocalDateTime startDate = searchDate.withDayOfMonth(1).atTime(0,0,0);
         // 검색 달의 마지막 날
@@ -83,17 +83,17 @@ public class MemberTimeService {
         // page 객체 생성
         Pageable pageable = PageRequest.of(page, size);
 
-        return memberTimeRepository.findMemberTimeWithDate(startDate, endDate, pageable);
+        return memberTimeRepository.findMemberTimeWithDate(startDate, endDate, searchName, pageable);
     }
 
     // memberIds 리스트에 있는 id만 memberTime 정보 조회
-    public Map<Long, List<MemberTimeDto>> findMemberTimeDto(LocalDate searchDate, List<Long> memberIds) {
+    public Map<Long, List<MemberTimeDto>> findMemberTimeDto(LocalDate searchDate, List<Long> memberIds, String searchName) {
         // 검색 달의 첫째날
         LocalDateTime startDate = searchDate.withDayOfMonth(1).atTime(0,0,0);
         // 검색 달의 마지막 날
         LocalDateTime endDate = searchDate.plusMonths(1).withDayOfMonth(1).atTime(0,0,0);
 
-        List<MemberTimeDto> memberTimeDtoList = memberTimeRepository.findMemberTimeWithDateMap(startDate, endDate, memberIds);
+        List<MemberTimeDto> memberTimeDtoList = memberTimeRepository.findMemberTimeWithDateMap(startDate, endDate, memberIds, searchName);
 
         Map<Long, List<MemberTimeDto>> memberTimeDtoMap = memberTimeDtoList.stream()
                 .collect(Collectors.groupingBy(MemberTimeDto::getMemberId));

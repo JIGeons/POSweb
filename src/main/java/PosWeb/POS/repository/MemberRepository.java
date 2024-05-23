@@ -4,6 +4,7 @@ import PosWeb.POS.domain.Member;
 import PosWeb.POS.domain.dto.Member.MemberDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -51,15 +52,26 @@ public class MemberRepository {
                 .getResultList();
     }
 
-    public Page<MemberDto> findMembersWithPaging(Pageable pageable) {
-        // member 조회 쿼리 작성
-        List<MemberDto> members = em.createQuery(
-                "select new " +
-                        " PosWeb.POS.domain.dto.Member.MemberDto(m.id, m.stringId, m.name, m.birth, m.admin, m.hourlyRate, m.weekOrMonth, m.address)"+
-                        " from Member m", MemberDto.class)
-                .setFirstResult((int) pageable.getOffset()) // 페이지 번호에 따라 결과를 시작하는 위치 설정
-                .setMaxResults(pageable.getPageSize())  // 페이지 크기 설정
-                .getResultList();
+    public Page<MemberDto> findMembersWithPaging(String searchName, Pageable pageable) {
+        String jpql = "select new " +
+                " PosWeb.POS.domain.dto.Member.MemberDto(m.id, m.stringId, m.name, m.birth, m.admin, m.hourlyRate, m.weekOrMonth, m.address)"+
+                " from Member m";
+
+        // 검색어가 있을 경우 조건문 추가
+        if (searchName != null)
+            jpql += " where m.name = :searchName";
+
+        // 쿼리 생성
+        Query query = em.createQuery(jpql, MemberDto.class);
+
+        // 검색어가 있을 경우 파라미터 추가
+        if (searchName != null)
+            query.setParameter("searchName", searchName);
+
+        // member 조회
+        List<MemberDto> members = query.setFirstResult((int) pageable.getOffset()) // 페이지 번호에 따라 결과를 시작하는 위치 설정
+                                        .setMaxResults(pageable.getPageSize())  // 페이지 크기 설정
+                                        .getResultList();
 
         return new PageImpl<>(members, pageable, pageable.getPageNumber());
     }

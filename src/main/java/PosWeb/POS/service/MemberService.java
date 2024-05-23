@@ -75,11 +75,11 @@ public class MemberService {
         member.setWeekOrMonth(updateMember.getWeekOrMonth());
     }
 
-    public Page<MemberDto> findMembersWithPaging(int page, int size) {
+    public Page<MemberDto> findMembersWithPaging(String searchName, int page, int size) {
         // page 객체 생성
         Pageable pageable = PageRequest.of(page, size);
 
         // paging된 객체를 반환
-        return memberRepository.findMembersWithPaging(pageable);
+        return memberRepository.findMembersWithPaging(searchName, pageable);
     }
 }
