@@ -222,4 +222,18 @@ public class MemberController {
         return "members/management";
     }
 
+    @PostMapping("members/management/admin")
+    public String updateAdmin(@RequestParam Map<String, String> updateAdminList,
+                              @ModelAttribute("memberTag") String memberTag) {
+
+        List<Long> ids = updateAdminList.values().stream()
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+
+        // Map 형식으로 전달받은 id를 list형식으로 변경한 후 admin을 true로 변경한다.
+        memberService.updateAdmin(ids);
+
+        return "redirect:/members/management?memberTag=" + memberTag;
+    }
+
 }

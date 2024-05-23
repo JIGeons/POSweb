@@ -195,12 +195,16 @@
                 <td th:text="${member.birth}" style="width: 20%; text-align: center;"></td>
                 <td th:text="${member.stringAds}" style="width: 30%; text-align: center;"></td>
                 <td style="width: 10%; text-align: center;">
-                  <input type="checkbox" th:checked="${member.admin}">
+                  <input type="checkbox" th:checked="${member.admin}" th:onclick="keepChecked(this, [[${member.admin}]])" th:onchange="updateAdmin([[${member.id}]], [[${member.stringId}]], [[${member.admin}]])">
                 </td>
               </tr>
             </th:block>
             </tbody>
           </table>
+          <!-- updateAminForm -->
+          <form id="updateAdmin" action="/members/management/admin" method="post" hidden="hidden">
+            <!-- 관리자 수정이 변할 때 input이 추가 -->
+          </form>
 
           <!-- memberSet table -->
           <table class="members" id="members-2" style="width: 100%; height: 100%">
@@ -292,10 +296,11 @@
               </li>
             </ul>
             <div class="col-2" id="saveButton" style="height: 100%; text-align: right;">
-              <button style="width:100px; height: 100%; font-size: 20px; border: 0px; border-radius: 10%; background-color: #4caf50; color: white">저장</button>
+              <button style="width:100px; height: 100%; font-size: 20px; border: 0px; border-radius: 10%; background-color: #4caf50; color: white" onclick="submit()">저장</button>
             </div>
           </div>
         </th:block>
+
         <th:block th:if="${memberTag} == 'salary'">
           <div class="col-12 navigator" style="height: 6vh; display: flex; background-color: white;">
             <ul class="col-12 pagination" style="display: flex; height:100%; justify-content: center;">
@@ -454,10 +459,47 @@
     document.getElementById("member-salary").innerText = member['salary'].toLocaleString('ko-KR') + "원";
   }
 
+  function updateAdmin(id, stringId, admin) {
+    var updateAdmin = document.getElementById("updateAdmin");
+
+    var updateList = document.getElementsByName(stringId);
+
+    // admin이 false 일 경우에서 form에 input 추가
+    if (!admin) {
+      // form에 선택한 member의 input이 없다면 추가
+      if (updateList.length == 0) {
+        var input = document.createElement("input");
+        input.type = "text";
+        input.value = id;
+        input.name = stringId;
+        input.id = stringId;
+
+        updateAdmin.appendChild(input);
+      } else {  // form에 선택한 member가 있다면 삭제
+        updateList[0].remove();
+      }
+    }
+  }
+
+  // 체크박스 상태 고정시키는 함수
+  function keepChecked(checkbox, admin) {
+    if (admin) {
+      checkbox.checked = true;
+    }
+  }
 
 </script>
 <script>
-
+  function submit() {
+    // updateAdmin form을 가지고온다
+    var updateAdmin = document.getElementById("updateAdmin");
+    // form에서 input tag를 가지고 온다.
+    var update = updateAdmin.querySelectorAll("input");
+    // input tag가 1개 이상일 경우 submit
+    if (update.length > 0) {
+      updateAdmin.submit();
+    }
+  }
   // 결제 취소 modal 화면에 표시하기
   function OpenCancelModal() {
     var selected = document.querySelectorAll('.selected');

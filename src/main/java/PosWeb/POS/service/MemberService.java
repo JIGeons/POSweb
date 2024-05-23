@@ -82,4 +82,14 @@ public class MemberService {
         // paging된 객체를 반환
         return memberRepository.findMembersWithPaging(searchName, pageable);
     }
+
+    @Transactional
+    public void updateAdmin(List<Long> updateAdmin) {
+
+        // list로 member를 조회 한 후 admin true로 set
+        List<Member> members = memberRepository.findByMemberIdInList(updateAdmin);
+        for (Member member : members) {
+            member.setAdmin(true);
+        }
+    }
 }

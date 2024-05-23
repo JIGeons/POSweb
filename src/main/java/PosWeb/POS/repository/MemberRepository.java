@@ -75,4 +75,13 @@ public class MemberRepository {
 
         return new PageImpl<>(members, pageable, pageable.getPageNumber());
     }
+
+    // List로 조회
+    public List<Member> findByMemberIdInList(List<Long> updateAdmin) {
+        // in 연산자로 List 안에 있는 member 조회
+        return em.createQuery(
+                        "select m from Member m where m.id in :updateAdmin", Member.class)
+                .setParameter("updateAdmin", updateAdmin)
+                .getResultList();
+    }
 }
