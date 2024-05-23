@@ -83,27 +83,26 @@
       text-align: center;
     }
 
-    .orderList td {
+    .memberListBody-3 td {
       cursor: pointer;
     }
 
     .selected {
       background-color: white;
     }
+    .selectMember {
+      background-color: #99f;
+    }
 
-    #orderItemLists {
+    #timeList {
       display: block;
       height: 100%;
       max-height: 100%;
       overflow: scroll;
       border-bottom: 2px solid dimgray;
     }
-    #orderItemLists::-webkit-scrollbar {
+    #timeList::-webkit-scrollbar {
       display: none;
-    }
-
-    #orderItemLists td {
-      text-align: center;
     }
   </style>
   <style>
@@ -253,10 +252,10 @@
               <th style="width: 20%">월급</th>
             </tr>
             </thead>
-            <tbody id="memberListBody-3" style="display:block; width: 100%; height: 100%; max-height: 70vh;">
+            <tbody class="memberListBody-3" id="memberListBody-3" style="display:block; width: 100%; height: 100%; max-height: 70vh;">
             <!-- th:each를 사용하여 사용자의 정보를 표시 -->
             <th:block th:each="member : ${memberTimesPaging}">
-              <tr th:id="${member.memberId}" style="border-bottom: 1px solid dimgray; display: table; width: 100%; height: 10%">
+              <tr th:id="${member.memberId}" style="border-bottom: 1px solid dimgray; display: table; width: 100%; height: 10%" th:onclick="selectMember(event, [[${memberTimesGroup.get(member.memberId)}]], [[${member}]])">
                 <td th:text="${member.memberId}" style="width: 10%; text-align: center;"></td>
                 <td th:text="${member.memberStringId}" style="width: 15%; text-align: center;"></td>
                 <td th:text="${member.memberName}" style="width: 15%; text-align: center;"></td>
@@ -323,34 +322,32 @@
 
       <div class="col-5 member-detail" id="member-detail" hidden="hidden">
         <!-- 선택한 주문의 상세 정보를 표시 -->
-        <div class="col-12" id="memberDetailHeader" style="height: 25%; display: flex; flex-wrap: wrap; border-bottom: 2px solid dimgray; padding-bottom: 2px;">
+        <div class="col-12" id="memberDetailHeader" style="height: 10%; display: flex; flex-wrap: wrap; border-bottom: 2px solid dimgray; padding-bottom: 2px;">
           <div class="col-12 center" style="margin-bottom: 0">
-            <h3><strong><주문 상세></strong></h3>
+            <h3><strong><span id="member-name"></span></strong>의 상세 시간</h3>
           </div>
-          <div class="col-12">주문 번호 : <span id="orderId"></span></div>
-          <div class="col-12">주문명 : <span id="orderName"></span></div>
-          <div class="col-12">주문 날짜 : <span id="orderDate"></span></div>
-          <div class="col-12">주문 상태 : <span id="orderStatus"></span></div>
         </div>
-        <div class="col-12" id="memberDetailBody" style="height: 55%; border-bottom: 2px solid dimgray;">
+        <div class="col-12" id="memberDetailBody" style="height: 90%;">
           <table style="width: 100%; height: 100%; margin-top: 3px;">
             <thead style="width: 100%; border-top: 1px solid dimgray; border-bottom: 1px solid dimgray;">
-            <tr style="display: table; width: 100% ">
-              <td style="text-align: center; width: 24%">상품 이름</td>
-              <td style="text-align: center; width: 20%">금액</td>
-              <td style="text-align: center; width: 12%">수량</td>
-              <td style="text-align: center; width: 24%">할인 금액</td>
-              <td style="text-align: center; width: 20%">총 금액</td>
-            </tr>
+              <tr style="display: table; width: 100% ">
+                <td style="text-align: center; width: 10%">번호</td>
+                <td style="text-align: center; width: 30%">시작 시간</td>
+                <td style="text-align: center; width: 30%">종료 시간</td>
+                <td style="text-align: center; width: 10%">일한 시간</td>
+                <td style="text-align: center; width: 20%">일급</td>
+              </tr>
             </thead>
-            <tbody id="membersList">
+            <tbody id="timeList">
             <!-- 주문 선택 시 리스트가 생김-->
             </tbody>
-            <tfoot style="width: 100%; height: 15%;">
-            <tr style="display: table; width: 100%; height: 100%">
-              <td colspan="4" style="width: 70%; text-align: center"><strong>총 주문 금액</strong></td>
-              <td id="orderAmount" style="width: 30%; text-align: right; padding-right: 5px">0 원</td>
-            </tr>
+            <tfoot style="width: 100%; height: 15%; border-top: 2px solid dimgray">
+              <tr style="display: table; width: 100%; height: 100%; border-top: 1px solid dimgray; margin-top: 3px;">
+                <td colspan="2" style="width: 30%; text-align: center"><strong>총 일한 시간</strong></td>
+                <td id="totalTime" style="width: 30%; text-align: right">0 시간</td>
+                <td style="width: 20%; text-align: center"><strong>월급</strong></td>
+                <td id="member-salary" style="width: 20%; text-align: right; padding-right: 5px">0 원</td>
+              </tr>
             </tfoot>
           </table>
         </div>
@@ -426,64 +423,35 @@
 
   memberTagSelect();
 
-  function selectOrder(event, order) {
+  function selectMember(event, memberTime, member) {
     // 모든 tr 요소에서 selected 클래스 제거
-    var cells = document.querySelectorAll(".orderList tr");
+    var cells = document.querySelectorAll(".memberListBody-3 tr");
     cells.forEach(function(cell) {
-      cell.classList.remove("selected");
+      cell.classList.remove("selectMember");
     });
 
+    // 클릭된 tr요소에 selected 클래스 추가
     if (event)
-            // 클릭된 tr요소에 selected 클래스 추가
-      event.currentTarget.classList.add("selected");
-    else {
-      // 클릭된 요소가 없는 경우 해당 order id를 찾아서 selected 클래스 부여
-      document.getElementById(order['id']).classList.add("selected");
-    }
+      event.currentTarget.classList.add("selectMember");
 
-    // order의 내용을 orderDetail에 삽입
-    document.getElementById("orderId").innerText = order['id'];
-    document.getElementById("orderName").innerText = order['orderName'];
-    document.getElementById("orderDate").innerText = order['orderDate'];
-    document.getElementById("orderStatus").innerText = order['status'];
-    if (order['status'] === "CANCEL") {
-      document.getElementById("orderStatus").style.color = "red";
-      document.getElementById("orderDate").innerText += '(취소)';
-    } else {
-      // cancel이 아닌 경우 style다시 black으로 변경
-      document.getElementById("orderStatus").style.color = "black";
-    }
+    // tbody 'memberList'에 상세정보 입력
+    document.getElementById("member-name").innerText = memberTime[0]['name'];
 
-    // tbody 'orderItemLists' 에 상품 차례대로 삽입
-    var itemList = order['orderItems'];
-    var orderItemLists_html = '';
-    for (const item in itemList) {
-      orderItemLists_html += "<tr style='display: table; width: 100%'>"
-      orderItemLists_html += "<td style='width: 24%'>" + itemList[item]['item']['name'] + "</td>"
-      orderItemLists_html += "<td style='width: 20%'>" + itemList[item]['item']['price'] + "원" + "</td>"
-      orderItemLists_html += "<td style='width: 12%'>" + itemList[item]['count'] + "개" + "</td>"
-      orderItemLists_html += "<td style='width: 24%'>" + itemList[item]['discount'] + "원" + "</td>"
-      orderItemLists_html += "<td style='width: 20%'>" + itemList[item]['orderPrice'] + "원" + "</td>"
-      orderItemLists_html += "</tr>"
+    var memberTimeList_html = '';
+    for (const mt in memberTime) {
+      memberTimeList_html += "<tr style='display: table; width: 100%'>"
+      memberTimeList_html += "<td style='width: 10%; text-align: center;'>" + memberTime[mt]['id'] + "</td>"
+      memberTimeList_html += "<td style='width: 30%; text-align: center;'>" + memberTime[mt]['startTime'] + "</td>"
+      memberTimeList_html += "<td style='width: 30%; text-align: center;'>" + memberTime[mt]['endTime'] + "</td>"
+      memberTimeList_html += "<td style='width: 10%; text-align: center;'>" + memberTime[mt]['time'] + "</td>"
+      memberTimeList_html += "<td style='width: 20%; text-align: center;'>" + memberTime[mt]['rate'] +'원' + "</td>"
+      memberTimeList_html += "</tr>"
     }
 
     // 주문 상세 내역
-    document.getElementById("orderItemLists").innerHTML = orderItemLists_html;
-    document.getElementById("orderAmount").innerText = order['amount'] + " 원";
-    document.getElementById("payMethod").innerText = order['approve'];
-
-    // 주문 상태가 cancel인 경우 취소 완료 버튼을 보여주고 order인 경우 결제 취소 버튼을 출력한다.
-    if (order['status'] == 'ORDER') {
-      document.getElementById("cancelButton").innerHTML =
-              "<button class='button' onClick='OpenCancelModal()'>결제 취소</button>";
-    } else if (order['status'] == 'CANCEL') {
-      document.getElementById("cancelButton").innerHTML =
-              "<button class='button' style='background-color: #4caf50'>취소 완료</button>";
-    }
-    // modal에 필요한 정보 삽입
-    document.getElementById("cancelOrderId").value = order['id'];
-    document.getElementById("cancelOrderName").innerText = order['orderName'];
-    document.getElementById("cancelOrderAmount").value = order['amount'];
+    document.getElementById("timeList").innerHTML = memberTimeList_html;
+    document.getElementById("totalTime").innerText = member['totalTime'] + " 시간";
+    document.getElementById("member-salary").innerText = member['salary'].toLocaleString('ko-KR') + "원";
   }
 
 
