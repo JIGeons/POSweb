@@ -76,9 +76,10 @@
       justify-content: center;
       align-items: center;
       background-color: white;
-      height: 80vh;
+      height: 83vh;
     }
-    th {
+
+    thead th {
       text-align: center;
     }
 
@@ -153,7 +154,7 @@
     <div class="row">
       <div class="col-12" id="management" style="height: 60vh">
         <div class="col-12" style="height: 7vh; display: flex;">
-          <div class="col-8" style="display: flex;">
+          <div class="col-6" style="display: flex;">
             <button class="tagButton" id="admin"
                     onclick="location.href='/members/management?memberTag=admin'">관리자<br/>수정</button>
             <button class="tagButton" id="memberSet"
@@ -161,16 +162,22 @@
             <button class="tagButton" id="salary"
                     onclick="location.href='/members/management?memberTag=salary'">월급 관리</button>
           </div>
-          <div class="col-4" style="display: flex; justify-content: right;  padding-bottom: 10px;">
-            <input type="text" id="memberName" name="memberName" class="col-7" placeholder="회원 이름">
-            <input type="submit" value="검색" class="col-3" style="margin-left: 5px;">
+          <div class="col-6" style="display: flex; justify-content: right;  padding-bottom: 10px;">
+            <form class="col-12" action="/members/management" method="get" style="text-align: right">
+              <th:block th:if="${memberTag} == 'salary'">
+                <input type="month" name="searchDate" class="col-4" th:value="${searchDate}">
+              </th:block>
+              <input type="text" id="memberName" name="searchName" class="col-4" placeholder="회원 이름">
+              <input type="hidden" name="memberTag" th:value="${memberTag}">
+              <input type="submit" value="검색" class="col-2" style="margin-left: 5px;" >
+            </form>
           </div>
         </div>
-        <div class="col-12" id="memberList" style="height: 75vh; background-color: white">
+        <div class="col-12" id="memberList" style="height: 70vh; background-color: white">
           <!-- admin table -->
           <table class="members" id="members-1" style="width: 100%; height: 100%">
             <thead style="background-color: #cccccc; width: 100%; height: 3.75vh">
-            <tr style="display: table; width: 100%">
+            <tr style="display: table; width: 100%;">
               <th style="width: 10%">번호</th>
               <th style="width: 15%">아이디</th>
               <th style="width: 15%">이름</th>
@@ -182,7 +189,7 @@
             <tbody id="memberListBody-1" style="display:block; width: 100%; height: 100%; max-height: 70vh;">
             <!-- th:each를 사용하여 사용자의 정보를 표시 -->
             <th:block th:each="member : ${memberDtoList}">
-              <tr th:id="${member.id}" style="border-bottom: 1px solid dimgray; display: table; width: 100%;">
+              <tr th:id="${member.id}" style="border-bottom: 1px solid dimgray; display: table; width: 100%;; height: 10%">
                 <td th:text="${member.id}" style="width: 10%; text-align: center;"></td>
                 <td th:text="${member.stringId}" style="width: 15%; text-align: center;"></td>
                 <td th:text="${member.name}" style="width: 15%; text-align: center;"></td>
@@ -194,15 +201,12 @@
               </tr>
             </th:block>
             </tbody>
-            <tfoot>
-
-            </tfoot>
           </table>
 
           <!-- memberSet table -->
           <table class="members" id="members-2" style="width: 100%; height: 100%">
             <thead style="background-color: #cccccc; width: 100%; height: 3.75vh">
-            <tr style="display: table; width: 100%">
+            <tr style="display: table; width: 100%; height: 10%">
               <th style="width: 10%">번호</th>
               <th style="width: 15%">아이디</th>
               <th style="width: 15%">이름</th>
@@ -214,7 +218,7 @@
             <tbody id="memberListBody-2" style="display:block; width: 100%; height: 100%; max-height: 70vh;">
             <!-- th:each를 사용하여 사용자의 정보를 표시 -->
             <th:block th:each="member : ${memberDtoList}">
-              <tr th:id="${member.id}" style="border-bottom: 1px solid dimgray; display: table; width: 100%;">
+              <tr th:id="${member.id}" style="border-bottom: 1px solid dimgray; display: table; width: 100%; height: 10%">
                 <td th:text="${member.id}" style="width: 10%; text-align: center;"></td>
                 <td th:text="${member.stringId}" style="width: 15%; text-align: center;"></td>
                 <td style="width: 15%; text-align: center;">
@@ -225,7 +229,7 @@
                 </td>
                 <td style="width: 30%; position: relative;">
                   <input type="text" th:value="${member.stringAds}" style="width: 100%;">
-                  <button style="position: absolute; right: 0;">검색</button>
+                  <button style="position: absolute; right: 0;" onclick="location.href='/'">검색</button>
                 </td>
                 <td style="width: 10%; text-align: center;">
                   <button style="background-color: #1E90FF; border: 0; border-radius: 10%; color: white;" th:onclick="save([[${member.id}]])">저장</button>
@@ -241,25 +245,24 @@
           <table class="members" id="members-3" style="width: 100%; height: 100%">
             <thead style="background-color: #cccccc; width: 100%; height: 3.75vh">
             <tr style="display: table; width: 100%">
+              <th style="width: 10%">번호</th>
               <th style="width: 15%">아이디</th>
               <th style="width: 15%">이름</th>
               <th style="width: 20%">총 시간</th>
-              <th style="width: 30%">총 일수</th>
-              <th style="width: 10%">월급</th>
+              <th style="width: 20%">총 일수</th>
+              <th style="width: 20%">월급</th>
             </tr>
             </thead>
             <tbody id="memberListBody-3" style="display:block; width: 100%; height: 100%; max-height: 70vh;">
             <!-- th:each를 사용하여 사용자의 정보를 표시 -->
-            <th:block th:each="member : ${memberDtoList}">
-              <tr th:id="${member.id}" style="border-bottom: 1px solid dimgray; display: table; width: 100%;">
-                <td th:text="${member.id}" style="width: 10%; text-align: center;"></td>
-                <td th:text="${member.stringId}" style="width: 15%; text-align: center;"></td>
-                <td th:text="${member.name}" style="width: 15%; text-align: center;"></td>
-                <td th:text="${member.birth}" style="width: 20%; text-align: center;"></td>
-                <td th:text="${member.address}" style="width: 30%; text-align: center;"></td>
-                <td style="width: 10%; text-align: center;">
-                  <input type="checkbox" th:checked="${member.admin}">
-                </td>
+            <th:block th:each="member : ${memberTimesPaging}">
+              <tr th:id="${member.memberId}" style="border-bottom: 1px solid dimgray; display: table; width: 100%; height: 10%">
+                <td th:text="${member.memberId}" style="width: 10%; text-align: center;"></td>
+                <td th:text="${member.memberStringId}" style="width: 15%; text-align: center;"></td>
+                <td th:text="${member.memberName}" style="width: 15%; text-align: center;"></td>
+                <td th:text="${member.totalTime} + '시간'" style="width: 20%; text-align: center;"></td>
+                <td th:text="${member.totalDay} + '일'" style="width: 20%; text-align: center;"></td>
+                <td th:text="${#numbers.formatInteger(member.salary, 0, 'COMMA')} + '원'" style="width: 20%; text-align: center;"></td>
               </tr>
             </th:block>
             </tbody>
@@ -268,8 +271,55 @@
             </tfoot>
           </table>
         </div>
-      </div>
-
+        <!-- 페이징 처리 -->
+        <th:block th:if="${memberTag} != 'salary'">
+          <div class="col-12 navigator" style="height: 6vh; display: flex; background-color: white;">
+            <ul class="col-10 pagination" id="pagination" style="display: flex; height:100%; justify-content: center;">
+              <li class="page-item" th:classappend="${!memberDtoList.hasPrevious()} ? 'disabled'">
+                <a class="page-link" th:href="@{|?page=${memberDtoList.number - 1}&memberTag=${memberTag}|}">
+                  <span><</span>
+                </a>
+              </li>
+              <li th:each="page : ${#numbers.sequence(0, memberDtoList.totalPages - 1)}"
+                  th:if="${page >= memberDtoList.totalPages - 5 and page <= memberDtoList.number+5}"
+                  th:classappend="${page == memberDtoList.number} ? 'active'"
+                  class="page-item">
+                <a th:text="${page+1}" class="page-link" th:href="@{|?page=${page}&memberTag=${memberTag}|}"></a>
+              </li>
+              <li class="page-item" th:classappend="${!memberDtoList.hasNext()} ? 'disabled'">
+                <a class="page-link" th:href="@{|?page=${memberDtoList.number+1}&memberTag=${memberTag}|}">
+                  <span>></span>
+                </a>
+              </li>
+            </ul>
+            <div class="col-2" id="saveButton" style="height: 100%; text-align: right;">
+              <button style="width:100px; height: 100%; font-size: 20px; border: 0px; border-radius: 10%; background-color: #4caf50; color: white">저장</button>
+            </div>
+          </div>
+        </th:block>
+        <th:block th:if="${memberTag} == 'salary'">
+          <div class="col-12 navigator" style="height: 6vh; display: flex; background-color: white;">
+            <ul class="col-12 pagination" style="display: flex; height:100%; justify-content: center;">
+              <li class="page-item" th:classappend="${!memberTimesPaging.hasPrevious()} ? 'disabled'">
+                <a class="page-link" th:href="@{|?page=${memberTimesPaging.number - 1}&memberTag=${memberTag}|}">
+                  <span><</span>
+                </a>
+              </li>
+              <li th:each="page : ${#numbers.sequence(0, memberTimesPaging.totalPages - 1)}"
+                  th:if="${page >= memberTimesPaging.totalPages - 5 and page <= memberTimesPaging.number+5}"
+                  th:classappend="${page == memberTimesPaging.number} ? 'active'"
+                  class="page-item">
+                <a th:text="${page+1}" class="page-link" th:href="@{|?page=${page}&memberTag=${memberTag}|}"></a>
+              </li>
+              <li class="page-item" th:classappend="${!memberTimesPaging.hasNext()} ? 'disabled'">
+                <a class="page-link" th:href="@{|?page=${memberTimesPaging.number + 1}&memberTag=${memberTag}|}">
+                  <span>></span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </th:block>
+        </div>
 
       <div class="col-5 member-detail" id="member-detail" hidden="hidden">
         <!-- 선택한 주문의 상세 정보를 표시 -->
@@ -348,13 +398,18 @@
       // id가 admin인 객체에 selected 클래스 부여
       document.getElementById("admin").classList.add("selected");
 
-      // 회원정보 수정 & 월급 관리 tbody display를 none으로 한다.
+      // 회원정보 수정 & 월급 관리 table display를 none으로 한다.
       members[1].style.display = "none";
       members[2].style.display = "none";
     } else if (memberTag === "memberSet") {
       document.getElementById("memberSet").classList.add("selected");
       members[0].style.display = "none";
       members[2].style.display = "none";
+      // pagination div class를 col-12로 변경
+      document.getElementById("pagination").classList.remove("col-10");
+      document.getElementById("pagination").classList.add("col-12");
+      // saveButton hidden 설정
+      document.getElementById("saveButton").hidden = "hidden";
     } else {
       // salary tag 선택
       document.getElementById("salary").classList.add("selected");
@@ -464,9 +519,7 @@
 
   searchResult();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-        crossorigin="anonymous">
-</script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

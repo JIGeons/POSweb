@@ -79,6 +79,7 @@ public class MemberTimeService {
         LocalDateTime startDate = searchDate.withDayOfMonth(1).atTime(0,0,0);
         // 검색 달의 마지막 날
         LocalDateTime endDate = searchDate.plusMonths(1).withDayOfMonth(1).atTime(0,0,0);
+        System.out.println("시작 : " + startDate + ", 끝 : " + endDate);
 
         // page 객체 생성
         Pageable pageable = PageRequest.of(page, size);

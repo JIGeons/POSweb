@@ -58,14 +58,14 @@ public class MemberRepository {
                 " from Member m";
 
         // 검색어가 있을 경우 조건문 추가
-        if (searchName != null)
+        if (!searchName.equals(""))
             jpql += " where m.name = :searchName";
 
         // 쿼리 생성
         Query query = em.createQuery(jpql, MemberDto.class);
 
         // 검색어가 있을 경우 파라미터 추가
-        if (searchName != null)
+        if (!searchName.equals(""))
             query.setParameter("searchName", searchName);
 
         // member 조회

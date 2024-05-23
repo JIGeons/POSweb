@@ -164,22 +164,33 @@ public class MemberController {
     }
 
     @GetMapping("members/management")
-    public String memberManagement(@RequestParam(value = "page", defaultValue = "1") int page,
+    public String memberManagement(@RequestParam(value = "page", defaultValue = "0") int page,
                                    @RequestParam(value = "memberTag", defaultValue = "admin") String memberTag,
                                    @RequestParam(value = "searchName", defaultValue = "") String searchName,
-                                   @RequestParam(value = "searchDate", defaultValue = "") LocalDate searchDate,
+                                   @RequestParam(value = "searchDate", defaultValue = "") String searchDate,
                                    Model model) {
 
         int size = 10;  // 10개씩 페이징 한다.
+        LocalDate date;
 
         if (memberTag.equals("salary")) {    // 월급 관리
 
-            if (searchDate == null) {
-                searchDate = LocalDate.now();
+            if (searchDate.equals("")) {
+                date = LocalDate.now();
+
+                searchDate = date.getYear() + "-";
+                if (date.getMonthValue() < 10)
+                    searchDate += "0" + date.getMonthValue();
+                else
+                    searchDate += date.getMonthValue();
+
+                System.out.println("날짜 : " + searchDate);
+            } else {
+                date = LocalDate.parse(searchDate + "-01");
             }
 
             // searchDate를 기준으로 memberTime 객체 검색
-            Page<MemberTimeMonthForm> memberTimes = memberTimeService.findMemberTimeForm(searchDate, searchName, page-1, size);
+            Page<MemberTimeMonthForm> memberTimes = memberTimeService.findMemberTimeForm(date, searchName, page, size);
 
             // memberTime의 객체를 불러오기 위한 id 리스트 생성
             List<Long> memberIds = new ArrayList<>();
@@ -191,14 +202,15 @@ public class MemberController {
             }
 
             // memberIds에 있는 id의 정보만 불러와서 Map형식으로 grouping
-            Map<Long, List<MemberTimeDto>> memberTimesGroup = memberTimeService.findMemberTimeDto(searchDate, memberIds, searchName);
+            Map<Long, List<MemberTimeDto>> memberTimesGroup = memberTimeService.findMemberTimeDto(date, memberIds, searchName);
 
             // 모델에 객체 추가
             model.addAttribute("memberTimesPaging", memberTimes);
             model.addAttribute("memberTimesGroup", memberTimesGroup);
+            model.addAttribute("searchDate", searchDate);
         } else {    // 관리자 & 회원정보 수정
             // 페이징된 memberDto 객체를 불러 온다.
-            Page<MemberDto> memberPaging = memberService.findMembersWithPaging(searchName, page-1, size);
+            Page<MemberDto> memberPaging = memberService.findMembersWithPaging(searchName, page, size);
 
             model.addAttribute("memberDtoList", memberPaging);
 

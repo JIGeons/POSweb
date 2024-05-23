@@ -52,7 +52,7 @@ public class MemberTimeRepository {
                 " where mt.startTime >= :startDate and mt.startTime < :endDate";
 
         // searchName이 null이 아닌경우 조건문 추가
-        if (searchName != null) {
+        if (!searchName.equals("")) {
             jpql += " and m.name = :searchName";
         }
 
@@ -62,7 +62,7 @@ public class MemberTimeRepository {
         // 쿼리 생성
         Query query = em.createQuery(jpql, MemberTimeMonthForm.class);
 
-        if (searchName != null)
+        if (!searchName.equals(""))
             query.setParameter("searchName", searchName);
 
         List<MemberTimeMonthForm> memberTimeMonthForms = query.setParameter("startDate", startDate)
@@ -82,13 +82,13 @@ public class MemberTimeRepository {
                 " where mt.startTime >= :startDate and mt.startTime < :endDate and m.id in :memberIds";
 
         // 검색어가 있을 경우 조건문 추가
-        if( searchName != null)
+        if(!searchName.equals(""))
             jpql += " m.name = :searchName";
 
         Query query = em.createQuery(jpql, MemberTimeDto.class);
 
         // 검색어가 있을 경우 파라미터 추가
-        if (searchName != null)
+        if (!searchName.equals(""))
             query.setParameter("searchName", searchName);
 
         return query.setParameter("startDate", startDate)
