@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 public class MemberDto {
     private Long id;
@@ -20,6 +19,7 @@ public class MemberDto {
     private int hourlyRate;
     private Boolean weekOrMonth;
     private Address address;
+    private String stringAds;
 
     public MemberDto(Member member) {
         id = member.getId();
@@ -30,5 +30,16 @@ public class MemberDto {
         hourlyRate = member.getHourlyRate();
         weekOrMonth = member.getWeekOrMonth();
         address = member.getAddress();
+    }
+
+    public MemberDto(Long id, String stringId, String name, LocalDate birth, boolean admin, int hourlyRate, boolean weekOrMonth, Address address) {
+        this.id = id;
+        this.stringId = stringId;
+        this.name = name;
+        this.birth = birth;
+        this.admin = admin;
+        this.hourlyRate = hourlyRate;
+        this.weekOrMonth = weekOrMonth;
+        this.stringAds = address != null ? address.getStreetAdr() + " " + address.getDetailAdr() : null;
     }
 }

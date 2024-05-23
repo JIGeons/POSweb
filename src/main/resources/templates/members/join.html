@@ -95,15 +95,15 @@
         </div>
         <div id="info__zipcode">
             <label th:for="zipcode">우편번호</label>
-            <input type="text" th:field="*{address.zipcode}" id="zipcode" placeholder="우편번호를 입력해주세요." readonly onclick="findAddr()">
+            <input type="text" th:field="*{zipcode}" id="zipcode" placeholder="우편번호를 입력해주세요." readonly onclick="findAddr()">
         </div>
         <div id="info__streetAdr">
             <label th:for="streetAdr">도로명 주소</label>
-            <input type="text" th:field="*{address.streetAdr}" id="streetAdr" placeholder="도로명 주소를 입력해주세요." readonly>
+            <input type="text" th:field="*{streetAdr}" id="streetAdr" placeholder="도로명 주소를 입력해주세요." readonly>
         </div>
         <div id="info__detailAdr">
             <label th:for="detailAdr">상세주소</label>
-            <input type="text" th:field="*{address.detailAdr}" id="detailAdr" placeholder="상세주소를 입력해주세요.">
+            <input type="text" th:field="*{detailAdr}" id="detailAdr" placeholder="상세주소를 입력해주세요.">
         </div>
         <div id="info__birth">
             <label th:for="birth">생년월일</label>

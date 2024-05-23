@@ -1,10 +1,13 @@
 package PosWeb.POS.controller;
 
+import PosWeb.POS.domain.Address;
 import PosWeb.POS.domain.Member;
 import PosWeb.POS.domain.MemberTime;
 import PosWeb.POS.domain.dto.Member.JoinMemberForm;
 import PosWeb.POS.domain.dto.Member.LoginMemberDto;
 import PosWeb.POS.domain.dto.Member.MemberDto;
+import PosWeb.POS.domain.dto.MemberTime.MemberTimeDto;
+import PosWeb.POS.domain.dto.MemberTime.MemberTimeMonthForm;
 import PosWeb.POS.service.MemberService;
 import PosWeb.POS.service.MemberTimeService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +23,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -137,8 +141,8 @@ public class MemberController {
         member.setStringId(joinMemberForm.getStringId());
         member.setName(joinMemberForm.getName());
         member.setPw(joinMemberForm.getPw());
-        member.setAddress(joinMemberForm.getAddress());
         member.setBirth(joinMemberForm.getBirth());
+        member.setAddress(new Address(joinMemberForm.getZipcode(), joinMemberForm.getStreetAdr(), joinMemberForm.getDetailAdr()));
 
         return member;
     }
@@ -161,31 +165,48 @@ public class MemberController {
 
     @GetMapping("members/management")
     public String memberManagement(@RequestParam(value = "page", defaultValue = "1") int page,
-                                   @RequestParam(value = "memberTage", defaultValue = "admin") String memberTag,
+                                   @RequestParam(value = "memberTag", defaultValue = "admin") String memberTag,
                                    @RequestParam(value = "searchName", defaultValue = "") String searchName,
                                    @RequestParam(value = "searchDate", defaultValue = "") LocalDate searchDate,
                                    Model model) {
 
-        if (memberTag == "salary") {    // 월급 관리
+        int size = 10;  // 10개씩 페이징 한다.
+
+        if (memberTag.equals("salary")) {    // 월급 관리
 
             if (searchDate == null) {
                 searchDate = LocalDate.now();
             }
 
             // searchDate를 기준으로 memberTime 객체 검색
-            memberTimeService.findMemberTime(searchDate);
+            Page<MemberTimeMonthForm> memberTimes = memberTimeService.findMemberTimeForm(searchDate, page-1, size);
 
+            // memberTime의 객체를 불러오기 위한 id 리스트 생성
+            List<Long> memberIds = new ArrayList<>();
+
+            // 리스트에 member_id 추가
+            for (MemberTimeMonthForm mtmf : memberTimes.toList()) {
+                memberIds.add(mtmf.getMemberId());
+                System.out.println("추가 : " + mtmf.getMemberId());
+            }
+
+            // memberIds에 있는 id의 정보만 불러와서 Map형식으로 grouping
+            Map<Long, List<MemberTimeDto>> memberTimesGroup = memberTimeService.findMemberTimeDto(searchDate, memberIds);
+
+            // 모델에 객체 추가
+            model.addAttribute("memberTimesPaging", memberTimes);
+            model.addAttribute("memberTimesGroup", memberTimesGroup);
         } else {    // 관리자 & 회원정보 수정
-            int size = 10;  // 10개씩 페이징 한다.
             // 페이징된 memberDto 객체를 불러 온다.
-            Page<MemberDto> memberPaging = memberService.findMembersWithPaging(page, size);
+            Page<MemberDto> memberPaging = memberService.findMembersWithPaging(page-1, size);
 
             model.addAttribute("memberDtoList", memberPaging);
 
-            // 회원정보 수정 시 회원을 인증하기 위한 LoginMemberDto를 빈 객체로 생성해서 전달.
-            model.addAttribute("memberUpdate", new LoginMemberDto());
+            // 회원정보 수정 시 회원을 인증하기 위한 JoinMemberForm을 빈 객체로 생성해서 전달.
+            model.addAttribute("memberUpdate", new JoinMemberForm());
         }
 
+        model.addAttribute("memberTag", memberTag);
         return "members/management";
     }
 

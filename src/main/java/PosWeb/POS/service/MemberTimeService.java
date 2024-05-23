@@ -2,14 +2,24 @@ package PosWeb.POS.service;
 
 import PosWeb.POS.domain.Member;
 import PosWeb.POS.domain.MemberTime;
+import PosWeb.POS.domain.dto.MemberTime.MemberTimeDto;
+import PosWeb.POS.domain.dto.MemberTime.MemberTimeMonthForm;
 import PosWeb.POS.repository.MemberTimeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -32,13 +42,19 @@ public class MemberTimeService {
         // 두 개의 시간 객체 사이의 차이를 계산할 때 사용하는 클래스
         Duration duration = Duration.between(startTime, endTime);
         int hours = (int) duration.toHours();
-        int minutes = (int) duration.toMinutes();
+        // 소수점 세번째 자리에서 반올림
+        double minutes = Math.round((int) duration.toMinutes() / 60.0 * 100) / 100.0;
 
+        System.out.println(minutes);
+
+        // 하루 일한 시간 계산
+        double time = hours + minutes;
         int hourlyRate = member.getHourlyRate();
         // 일한 시간과 시급을 곱해서 일급을 계산
-        int rate = hours * hourlyRate +  (int) Math.round(((double) minutes / 60) * hourlyRate);
+        int rate = (int) Math.round(time * hourlyRate);
 
-        // 일급을 update
+        // 일한 시간과 일급을 update
+        updateMember.setTime(time);
         updateMember.setRate(rate);
 
         return updateMember;
@@ -57,4 +73,31 @@ public class MemberTimeService {
         return createMemberTime;
     }
 
+    // memberTime 정보에 대해 페이징 처리를 해서 반환
+    public Page<MemberTimeMonthForm> findMemberTimeForm(LocalDate searchDate, int page, int size) {
+        // 검색 달의 첫째날
+        LocalDateTime startDate = searchDate.withDayOfMonth(1).atTime(0,0,0);
+        // 검색 달의 마지막 날
+        LocalDateTime endDate = searchDate.plusMonths(1).withDayOfMonth(1).atTime(0,0,0);
+
+        // page 객체 생성
+        Pageable pageable = PageRequest.of(page, size);
+
+        return memberTimeRepository.findMemberTimeWithDate(startDate, endDate, pageable);
+    }
+
+    // memberIds 리스트에 있는 id만 memberTime 정보 조회
+    public Map<Long, List<MemberTimeDto>> findMemberTimeDto(LocalDate searchDate, List<Long> memberIds) {
+        // 검색 달의 첫째날
+        LocalDateTime startDate = searchDate.withDayOfMonth(1).atTime(0,0,0);
+        // 검색 달의 마지막 날
+        LocalDateTime endDate = searchDate.plusMonths(1).withDayOfMonth(1).atTime(0,0,0);
+
+        List<MemberTimeDto> memberTimeDtoList = memberTimeRepository.findMemberTimeWithDateMap(startDate, endDate, memberIds);
+
+        Map<Long, List<MemberTimeDto>> memberTimeDtoMap = memberTimeDtoList.stream()
+                .collect(Collectors.groupingBy(MemberTimeDto::getMemberId));
+
+        return memberTimeDtoMap;
+    }
 }

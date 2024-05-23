@@ -70,7 +70,7 @@
     #storeItem input{
       border-bottom: 100px;
     }
-    .order-detail {
+    .member-detail {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -151,20 +151,24 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-8" style="height: 60vh">
-        <div class="col-12" id="search" style="height: 7vh; display: flex;">
+      <div class="col-12" id="management" style="height: 60vh">
+        <div class="col-12" style="height: 7vh; display: flex;">
           <div class="col-8" style="display: flex;">
-            <button class="tagButton selected">관리자<br/>수정</button>
-            <button class="tagButton">회원정보<br/>수정</button>
-            <button class="tagButton">월급 관리</button>
+            <button class="tagButton" id="admin"
+                    onclick="location.href='/members/management?memberTag=admin'">관리자<br/>수정</button>
+            <button class="tagButton" id="memberSet"
+                    onclick="location.href='/members/management?memberTag=memberSet'">회원정보<br/>수정</button>
+            <button class="tagButton" id="salary"
+                    onclick="location.href='/members/management?memberTag=salary'">월급 관리</button>
           </div>
           <div class="col-4" style="display: flex; justify-content: right;  padding-bottom: 10px;">
-            <input type="text" id="itemName" name="itemName" class="col-7" placeholder="회원 이름">
+            <input type="text" id="memberName" name="memberName" class="col-7" placeholder="회원 이름">
             <input type="submit" value="검색" class="col-3" style="margin-left: 5px;">
           </div>
         </div>
         <div class="col-12" id="memberList" style="height: 75vh; background-color: white">
-          <table class="members-1" style="width: 100%; height: 100%">
+          <!-- admin table -->
+          <table class="members" id="members-1" style="width: 100%; height: 100%">
             <thead style="background-color: #cccccc; width: 100%; height: 3.75vh">
             <tr style="display: table; width: 100%">
               <th style="width: 10%">번호</th>
@@ -175,7 +179,76 @@
               <th style="width: 10%">관리자<br/>여부</th>
             </tr>
             </thead>
-            <tbody id="memberListBody" style="display:block; width: 100%; height: 100%; max-height: 70vh;">
+            <tbody id="memberListBody-1" style="display:block; width: 100%; height: 100%; max-height: 70vh;">
+            <!-- th:each를 사용하여 사용자의 정보를 표시 -->
+            <th:block th:each="member : ${memberDtoList}">
+              <tr th:id="${member.id}" style="border-bottom: 1px solid dimgray; display: table; width: 100%;">
+                <td th:text="${member.id}" style="width: 10%; text-align: center;"></td>
+                <td th:text="${member.stringId}" style="width: 15%; text-align: center;"></td>
+                <td th:text="${member.name}" style="width: 15%; text-align: center;"></td>
+                <td th:text="${member.birth}" style="width: 20%; text-align: center;"></td>
+                <td th:text="${member.stringAds}" style="width: 30%; text-align: center;"></td>
+                <td style="width: 10%; text-align: center;">
+                  <input type="checkbox" th:checked="${member.admin}">
+                </td>
+              </tr>
+            </th:block>
+            </tbody>
+            <tfoot>
+
+            </tfoot>
+          </table>
+
+          <!-- memberSet table -->
+          <table class="members" id="members-2" style="width: 100%; height: 100%">
+            <thead style="background-color: #cccccc; width: 100%; height: 3.75vh">
+            <tr style="display: table; width: 100%">
+              <th style="width: 10%">번호</th>
+              <th style="width: 15%">아이디</th>
+              <th style="width: 15%">이름</th>
+              <th style="width: 20%">생년월일</th>
+              <th style="width: 30%">주소</th>
+              <th style="width: 10%">저장</th>
+            </tr>
+            </thead>
+            <tbody id="memberListBody-2" style="display:block; width: 100%; height: 100%; max-height: 70vh;">
+            <!-- th:each를 사용하여 사용자의 정보를 표시 -->
+            <th:block th:each="member : ${memberDtoList}">
+              <tr th:id="${member.id}" style="border-bottom: 1px solid dimgray; display: table; width: 100%;">
+                <td th:text="${member.id}" style="width: 10%; text-align: center;"></td>
+                <td th:text="${member.stringId}" style="width: 15%; text-align: center;"></td>
+                <td style="width: 15%; text-align: center;">
+                  <input type="text" th:value="${member.name}" style="width: 100%">
+                </td>
+                <td style="width: 20%; text-align: center;">
+                  <input type="date" th:value="${member.birth}" style="width: 100%">
+                </td>
+                <td style="width: 30%; position: relative;">
+                  <input type="text" th:value="${member.stringAds}" style="width: 100%;">
+                  <button style="position: absolute; right: 0;">검색</button>
+                </td>
+                <td style="width: 10%; text-align: center;">
+                  <button style="background-color: #1E90FF; border: 0; border-radius: 10%; color: white;" th:onclick="save([[${member.id}]])">저장</button>
+                </td>
+              </tr>
+            </th:block>
+            </tbody>
+            <tfoot>
+
+            </tfoot>
+          </table>
+
+          <table class="members" id="members-3" style="width: 100%; height: 100%">
+            <thead style="background-color: #cccccc; width: 100%; height: 3.75vh">
+            <tr style="display: table; width: 100%">
+              <th style="width: 15%">아이디</th>
+              <th style="width: 15%">이름</th>
+              <th style="width: 20%">총 시간</th>
+              <th style="width: 30%">총 일수</th>
+              <th style="width: 10%">월급</th>
+            </tr>
+            </thead>
+            <tbody id="memberListBody-3" style="display:block; width: 100%; height: 100%; max-height: 70vh;">
             <!-- th:each를 사용하여 사용자의 정보를 표시 -->
             <th:block th:each="member : ${memberDtoList}">
               <tr th:id="${member.id}" style="border-bottom: 1px solid dimgray; display: table; width: 100%;">
@@ -190,14 +263,17 @@
               </tr>
             </th:block>
             </tbody>
+            <tfoot>
+
+            </tfoot>
           </table>
         </div>
       </div>
 
 
-      <div class="col-4 order-detail">
+      <div class="col-5 member-detail" id="member-detail" hidden="hidden">
         <!-- 선택한 주문의 상세 정보를 표시 -->
-        <div class="col-12" id="orderDetailHeader" style="height: 25%; display: flex; flex-wrap: wrap; border-bottom: 2px solid dimgray; padding-bottom: 2px;">
+        <div class="col-12" id="memberDetailHeader" style="height: 25%; display: flex; flex-wrap: wrap; border-bottom: 2px solid dimgray; padding-bottom: 2px;">
           <div class="col-12 center" style="margin-bottom: 0">
             <h3><strong><주문 상세></strong></h3>
           </div>
@@ -206,7 +282,7 @@
           <div class="col-12">주문 날짜 : <span id="orderDate"></span></div>
           <div class="col-12">주문 상태 : <span id="orderStatus"></span></div>
         </div>
-        <div class="col-12" id="orderDetailBody" style="height: 55%; border-bottom: 2px solid dimgray;">
+        <div class="col-12" id="memberDetailBody" style="height: 55%; border-bottom: 2px solid dimgray;">
           <table style="width: 100%; height: 100%; margin-top: 3px;">
             <thead style="width: 100%; border-top: 1px solid dimgray; border-bottom: 1px solid dimgray;">
             <tr style="display: table; width: 100% ">
@@ -217,7 +293,7 @@
               <td style="text-align: center; width: 20%">총 금액</td>
             </tr>
             </thead>
-            <tbody id="orderItemLists">
+            <tbody id="membersList">
             <!-- 주문 선택 시 리스트가 생김-->
             </tbody>
             <tfoot style="width: 100%; height: 15%;">
@@ -227,16 +303,6 @@
             </tr>
             </tfoot>
           </table>
-        </div>
-        <div class="col-12" id="orderDetailFooter" style="height: 20%; display: flex; flex-wrap: wrap">
-          <div class="col-7">결제 방법
-            <div class="col-12 center">
-              <h1><strong id="payMethod"></strong></h1>
-            </div>
-          </div>
-          <div class="col-5" id="cancelButton">
-            <button class="button" onclick="OpenCancelModal()">결제 취소</button>
-          </div>
         </div>
       </div>
 
@@ -270,23 +336,40 @@
 </div>
 <script th:inline="javascript">
 
-  document.addEventListener("DOMContentLoaded", function() {
-    // cancelOrderId 를 받아온다. -1이 아니라면 주문 화면 선택
-    var canceledOrderId = /*[[${cancelOrderId}]]*/ [];
+  // 화면이 load될때 실행
+  function memberTagSelect() {
+    // memberTag를 받아온다
+    var memberTag = /*[[${memberTag}]]*/ [];
 
-    if (canceledOrderId != -1) {
-      // 취소된 주문 id가 -1이 아닐 경우 전체 list를 불러온다.
-      var orderList = /*[[${orderList}]]*/ [];
-      var selectOrderId;
-      for (const orderListKey in orderList) {
-        // 주문 리스트에서 해당 id를 찾고 있을 경우 해당 selectOrder함수를 실행한다.
-        if (orderList[orderListKey]['id'] == canceledOrderId) {
-          selectOrderId = orderList[orderListKey];
-          selectOrder(null, selectOrderId);
-        }
-      }
+    // members table을 검색
+    var members = document.getElementsByClassName("members");
+
+    if (memberTag === "admin") { // memberTag가 admin일 경운 admin tag에 selected 클래스를 추가한다.
+      // id가 admin인 객체에 selected 클래스 부여
+      document.getElementById("admin").classList.add("selected");
+
+      // 회원정보 수정 & 월급 관리 tbody display를 none으로 한다.
+      members[1].style.display = "none";
+      members[2].style.display = "none";
+    } else if (memberTag === "memberSet") {
+      document.getElementById("memberSet").classList.add("selected");
+      members[0].style.display = "none";
+      members[2].style.display = "none";
+    } else {
+      // salary tag 선택
+      document.getElementById("salary").classList.add("selected");
+      // management div의 크기를 col-12에서 col-7로 변경한다.
+      document.getElementById("management").classList.remove("col-12");
+      document.getElementById("management").classList.add("col-7");
+      document.getElementById("member-detail").hidden = undefined;
+
+      // 회원정보 수정 & 월급 관리 tbody display를 none으로 한다.
+      members[0].style.display = "none";
+      members[1].style.display = "none";
     }
-  });
+  }
+
+  memberTagSelect();
 
   function selectOrder(event, order) {
     // 모든 tr 요소에서 selected 클래스 제거

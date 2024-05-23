@@ -25,5 +25,7 @@ public class JoinMemberForm {
     private String pw;
     private String confirmPw;
     private LocalDate Birth;
-    private Address address;
+    private String zipcode;
+    private String streetAdr;
+    private String detailAdr;
 }
