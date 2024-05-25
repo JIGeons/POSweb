@@ -40,6 +40,7 @@ public class MemberDto {
         this.admin = admin;
         this.hourlyRate = hourlyRate;
         this.weekOrMonth = weekOrMonth;
+        this.address = address;
         this.stringAds = address != null ? address.getStreetAdr() + " " + address.getDetailAdr() : null;
     }
 }

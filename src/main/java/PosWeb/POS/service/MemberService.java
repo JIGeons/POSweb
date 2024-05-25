@@ -1,6 +1,8 @@
 package PosWeb.POS.service;
 
+import PosWeb.POS.domain.Address;
 import PosWeb.POS.domain.Member;
+import PosWeb.POS.domain.dto.Member.JoinMemberForm;
 import PosWeb.POS.domain.dto.Member.LoginMemberDto;
 import PosWeb.POS.domain.dto.Member.MemberDto;
 import PosWeb.POS.repository.MemberRepository;
@@ -65,14 +67,12 @@ public class MemberService {
 
     // 회원 정보 수정
     @Transactional
-    public void update(Member updateMember) {
+    public void update(JoinMemberForm updateMember) {
+        Address address = new Address(updateMember.getZipcode(), updateMember.getStreetAdr(), updateMember.getDetailAdr());
         Member member = findOne(updateMember.getStringId());
         member.setName(updateMember.getName());
-        member.setAdmin(updateMember.isAdmin());
         member.setBirth(updateMember.getBirth());
-        member.setAddress(updateMember.getAddress());
-        member.setHourlyRate(updateMember.getHourlyRate());
-        member.setWeekOrMonth(updateMember.getWeekOrMonth());
+        member.setAddress(address);
     }
 
     public Page<MemberDto> findMembersWithPaging(String searchName, int page, int size) {

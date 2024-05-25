@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -213,11 +214,12 @@ public class MemberController {
             Page<MemberDto> memberPaging = memberService.findMembersWithPaging(searchName, page, size);
 
             model.addAttribute("memberDtoList", memberPaging);
-
-            // 회원정보 수정 시 회원을 인증하기 위한 JoinMemberForm을 빈 객체로 생성해서 전달.
-            model.addAttribute("memberUpdate", new JoinMemberForm());
         }
 
+        // 회원정보 수정 시 회원을 인증하기 위한 JoinMemberForm을 빈 객체로 생성해서 전달.
+        JoinMemberForm join = new JoinMemberForm();
+        join.setCheckId(true);
+        model.addAttribute("memberUpdate", join);
         model.addAttribute("memberTag", memberTag);
         return "members/management";
     }
@@ -236,4 +238,42 @@ public class MemberController {
         return "redirect:/members/management?memberTag=" + memberTag;
     }
 
+    @PostMapping("members/management/memberSet")
+    public String updateMember(@RequestParam("page") int page,
+                               @Valid @ModelAttribute("memberUpdate") JoinMemberForm memberUpdate,
+                               BindingResult bindingResult,
+                               Model model) {
+
+        // member객체 페이징 처리
+        String searchName = "";
+        int size = 10;
+        Page<MemberDto> memberDtoList = memberService.findMembersWithPaging(searchName, page, size);
+        model.addAttribute("memberDtoList", memberDtoList);
+        model.addAttribute("memberUpdate", memberUpdate);
+        model.addAttribute("memberTag", "memberSet");
+
+        System.out.println("memberUPdate : " + memberUpdate.getName());
+
+        // JoinMemberForm에 오류가 있을 경우
+        if (bindingResult.hasErrors()) {
+            log.info("members Form Error");
+            System.out.println(bindingResult.toString());
+            return "members/management";
+        }
+
+        Member member = memberService.findOne(memberUpdate.getStringId());
+        // 비밀번호가 일치 하지 않을 경우
+        if (!memberUpdate.getPw().equals(member.getPw())) {
+            log.info("members password not equal");
+            bindingResult.addError(new FieldError("joinMemberForm", "confirmPw", " ※ 비밀번호가 일치하지 않습니다."));
+            return "members/management";
+        }
+
+        // 비밀번호가 일치하는 경우
+        memberService.update(memberUpdate);
+
+        model.addAttribute("memberTag", "memberSet");
+
+        return "redirect:/members/management?memberTag=memberSet";
+    }
 }

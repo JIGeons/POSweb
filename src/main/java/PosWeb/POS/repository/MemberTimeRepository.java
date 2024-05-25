@@ -83,7 +83,7 @@ public class MemberTimeRepository {
 
         // 검색어가 있을 경우 조건문 추가
         if(!searchName.equals(""))
-            jpql += " m.name = :searchName";
+            jpql += " and m.name = :searchName";
 
         Query query = em.createQuery(jpql, MemberTimeDto.class);
 

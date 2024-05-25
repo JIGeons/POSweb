@@ -24,7 +24,7 @@ public class JoinMemberForm {
     @NotEmpty(message = " ※ 비밀번호는 필수로 입력해야합니다.")
     private String pw;
     private String confirmPw;
-    private LocalDate Birth;
+    private LocalDate birth;
     private String zipcode;
     private String streetAdr;
     private String detailAdr;
