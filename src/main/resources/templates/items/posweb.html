@@ -124,7 +124,7 @@
             <button class="col-12"
                     th:if="${not #lists.isEmpty(categories.content)}"
                     th:onclick="|location.href='@{/items(ctgPage=${categories.number-1}, page=${categoryItems.number}, category=${categoryItems.content.getFirst().category.category})}' |"
-                    th:attr="disabled=${!categories.hasNext()} ? 'disabled' : null"> < </button>
+                    th:attr="disabled=${!categories.hasPrevious()} ? 'disabled' : null"> < </button>
             <!-- categories가 빈 리스트 일 때 출력 -->
             <button class="col-12" th:if="${#lists.isEmpty(categories.content)}"> < </button>
           </div>
@@ -152,9 +152,9 @@
             <button class="col-12"
                     th:if="${not #lists.isEmpty(categories.content)}"
                     th:onclick="|location.href='@{/items(ctgPage=${categories.number+1}, page=${categoryItems.number}, category=${categoryItems.content.getFirst().category.category})}' |"
-                    th:attr="disabled=${!categories.isLast()} ? 'disabled' : null"> > </button>
+                    th:attr="disabled=${!categories.hasNext()} ? 'disabled' : null"> > </button>
             <!-- categories가 빈 리스트 일 때 출력 -->
-            <button class="col-12" th:if="${#lists.isEmpty(categories.content)}" th:text="${categories.hasNext()}"> > </button>
+            <button class="col-12" th:if="${#lists.isEmpty(categories.content)}"> > </button>
           </div>
         </div>
 

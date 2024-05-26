@@ -67,6 +67,9 @@ public class ItemController {
             log.info("cart 세션 생성");
         }
 
+        System.out.println("totalPage : " + categoryList.getTotalPages());
+        System.out.println("categories previous : " + categoryList.hasPrevious() + ", Next : " + categoryList.hasNext());
+
         return "items/posweb";
     }
 
