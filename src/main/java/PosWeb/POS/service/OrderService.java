@@ -2,6 +2,7 @@ package PosWeb.POS.service;
 
 import PosWeb.POS.domain.*;
 import PosWeb.POS.domain.dto.Item.CartItemForm;
+import PosWeb.POS.domain.dto.Order.OrderAmountForm;
 import PosWeb.POS.domain.dto.Order.OrderDto;
 import PosWeb.POS.repository.ItemRepository;
 import PosWeb.POS.repository.OrderItemRepository;
@@ -221,5 +222,9 @@ public class OrderService {
         conn.disconnect();
 
         log.info("결제 취소 완료 : 주문 번호 {}", merchant_uid);
+    }
+
+    public OrderAmountForm findOrdersForDay(LocalDate now) {
+        return orderRepository.findOrdersForDay(now.getYear(), now.getMonthValue(), now.getDayOfMonth());
     }
 }

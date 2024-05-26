@@ -41,14 +41,9 @@ public class MemberTimeService {
 
         // 두 개의 시간 객체 사이의 차이를 계산할 때 사용하는 클래스
         Duration duration = Duration.between(startTime, endTime);
-        int hours = (int) duration.toHours();
-        // 소수점 세번째 자리에서 반올림
-        double minutes = Math.round((int) duration.toMinutes() / 60.0 * 100) / 100.0;
+        // 시간 차이를 분으로 계산 소수점 세번째 자리에서 반올림
+        double time = Math.round((int) duration.toMinutes() / 60.0 * 100) / 100.0;
 
-        System.out.println(minutes);
-
-        // 하루 일한 시간 계산
-        double time = hours + minutes;
         int hourlyRate = member.getHourlyRate();
         // 일한 시간과 시급을 곱해서 일급을 계산
         int rate = (int) Math.round(time * hourlyRate);

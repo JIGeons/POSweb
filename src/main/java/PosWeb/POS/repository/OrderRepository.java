@@ -1,6 +1,7 @@
 package PosWeb.POS.repository;
 
 import PosWeb.POS.domain.Order;
+import PosWeb.POS.domain.dto.Order.OrderAmountForm;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -109,5 +111,20 @@ public class OrderRepository {
                 .setParameter("year", year)
                 .setParameter("month", month)
                 .getResultList();
+    }
+
+    public OrderAmountForm findOrdersForDay(int year, int month, int day) {
+        System.out.println("year : " + year + ", month : " + month + ", day : " + day);
+        return em.createQuery(
+                "select new" +
+                        " PosWeb.POS.domain.dto.Order.OrderAmountForm(sum(o.amount), sum(case when o.status = 'CANCEL' then o.amount else 0 end), sum(case when o.status = 'ORDER' then o.amount else 0 end))" +
+                        " from Order o" +
+                        " where year(o.orderDate) = :year and month(o.orderDate) = :month and day(o.orderDate) = :day", OrderAmountForm.class)
+                .setParameter("year", year)
+                .setParameter("month", month)
+                .setParameter("day", day)
+                .setMaxResults(1)
+                .getSingleResult();
+
     }
 }

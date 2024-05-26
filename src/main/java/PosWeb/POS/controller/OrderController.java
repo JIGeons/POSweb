@@ -234,19 +234,14 @@ public class OrderController {
     }
 
     @GetMapping("order/end")
-    public String orderEnd(HttpServletRequest servletRequest) {
-        HttpSession session = servletRequest.getSession();
-        // 로그인 돼 있는 사용자의 정보를 받아온다.
-        String loginId = (String) session.getAttribute("loginMember");
+    public String orderEnd(Model model) {
+        LocalDate now = LocalDate.now();
+        model.addAttribute("now", now);
 
-        // 해당 사용자의 정보를 검색
-        Member loginMember = memberService.findOne(loginId);
-        // 현재 시간으로 endTime update
-        MemberTime endMember = memberTimeService.updateEndTime(loginMember);
+        OrderAmountForm dayAmountData = orderService.findOrdersForDay(now);
 
-        log.info("{}이 {}시에 마감을 하였습니다.", loginMember.getName(), endMember.getEndTime());
+        model.addAttribute("dayAmountData", dayAmountData);
 
-        // 초기 화면으로 이동(세션 정리)
-        return "redirect:/";
+        return "order/end";
     }
 }

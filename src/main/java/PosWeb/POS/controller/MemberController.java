@@ -276,4 +276,25 @@ public class MemberController {
 
         return "redirect:/members/management?memberTag=memberSet";
     }
+
+    @GetMapping("members/logout")
+    public String end(HttpServletRequest servletRequest) {
+
+        HttpSession session = servletRequest.getSession();
+        // 로그인 돼 있는 사용자의 정보를 받아온다.
+        String loginId = (String) session.getAttribute("loginMember");
+
+        loginId = "sangjun02";
+
+        // 해당 사용자의 정보를 검색
+        Member loginMember = memberService.findOne(loginId);
+        // 현재 시간으로 endTime update
+        MemberTime endMember = memberTimeService.updateEndTime(loginMember);
+
+        log.info("{}이 {}시에 마감을 하였습니다.", loginMember.getName(), endMember.getEndTime());
+
+        // 세션 파기
+        session.invalidate();
+        return "redirect:/";
+    }
 }

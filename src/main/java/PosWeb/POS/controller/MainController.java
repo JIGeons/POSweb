@@ -14,8 +14,6 @@ public class MainController {
 
     @RequestMapping("/")
     public String main(HttpServletRequest httpServletRequest) {
-        // 새로운 세션을 생성하기 전 기존의 세션 파기
-        httpServletRequest.getSession().invalidate();
         log.info("main controller");
         return "main";
     }
