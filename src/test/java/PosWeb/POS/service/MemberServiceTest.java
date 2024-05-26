@@ -1,6 +1,7 @@
 package PosWeb.POS.service;
 
 import PosWeb.POS.domain.Member;
+import PosWeb.POS.domain.dto.Member.JoinMemberForm;
 import PosWeb.POS.repository.MemberRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
@@ -25,7 +26,7 @@ public class MemberServiceTest {
     @Test
     public void 회원가입() throws Exception {
         // given
-        Member member = new Member();
+        JoinMemberForm member = new JoinMemberForm();
         member.setName("Choi");
         member.setStringId("test01");
         member.setPw("1234");
@@ -41,10 +42,10 @@ public class MemberServiceTest {
     @Test
     public void 중복_회원_예외() throws Exception {
         // given
-        Member member1 = new Member();
+        JoinMemberForm member1 = new JoinMemberForm();
         member1.setStringId("Choi");
         
-        Member member2 = new Member();
+        JoinMemberForm member2 = new JoinMemberForm();
         member2.setStringId("Choi");
 
 

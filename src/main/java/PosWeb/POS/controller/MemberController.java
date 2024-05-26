@@ -53,58 +53,11 @@ public class MemberController {
         return "members/login";
     }
 
-    @PostMapping("members/login")
-    public String login(
-            @Valid @ModelAttribute("loginMember") LoginMemberDto loginMember,
-            BindingResult bindingResult,
-            HttpServletRequest httpServletRequest,
-            Model model) {
-
-        HttpSession session = httpServletRequest.getSession();
-
-        model.addAttribute("loginMember", loginMember);
-        Member member = memberService.login(loginMember);
-
-        // valid 검사에서 오류가 있는 경우
-        if (bindingResult.hasErrors()) {
-            return "members/login";
-        }
-
-        // 로그인 실패 (아이디나 비밀번호가 틀린 경우)
-        if (member == null) {
-            bindingResult.reject("loginFail", "로그인 아이디 또는 비밀번호가 틀렸습니다.");
-
-            return "members/login";
-        }
-
-        // 로그인 성공에 대해 로그 출력
-        log.info("login? {}", loginMember);
-
-
-        // 로그인 성공 -> memberTime 객체 & 세션 생성
-
-        // 로그인 성공 시 session에 로그인 정보가 있는지 확인
-        String loginId = (String) session.getAttribute("loginMember");
-        log.info("loginId : {}", loginId);
-
-        // 세션에 로그인 정보가 있을 경우 사용자 전환을 하는 것이므로 memberTime 객체의 endTime을 현재 시간으로 update
-        if (loginId != null) {
-            Member endMember = memberService.findOne(loginId);
-            MemberTime updateMemberTime = memberTimeService.updateEndTime(endMember);
-            log.info("로그아웃 & memberTime update {} ", updateMemberTime);
-        }
-
-        // 로그인 하는 member에 대해 memberTime 객체를 생성 & startTime 현재 시간으로 설정
-        MemberTime createMemberTime = memberTimeService.createMemberTime(member);
-        log.info("로그인 memberTime 객체 생성 : {}", createMemberTime.getStartTime());
-
-        // 세션을 생성하기 전 기존의 세션 파기
-        httpServletRequest.getSession().invalidate();
-        session = httpServletRequest.getSession(true);  // Session 생성
-        // 세션에 memberId를 삽입
-        session.setAttribute("loginMember", member.getStringId());
-
-        return "redirect:/items";
+    // 로그인 실패시 에러 메시지를 표시하는 login-error 엔드포인트를 추가
+    @GetMapping("members/login-error")
+    public String loginError(Model model) {
+        model.addAttribute("loginError", true);
+        return "members/login";
     }
 
     @GetMapping("members/join")
@@ -131,21 +84,8 @@ public class MemberController {
         }
 
         // 회원 생성
-        Member member = createMember(joinMemberForm);
-        memberService.join(member);
+        memberService.join(joinMemberForm);
         return "redirect:/";
-    }
-
-    public Member createMember(JoinMemberForm joinMemberForm) {
-
-        Member member = new Member();
-        member.setStringId(joinMemberForm.getStringId());
-        member.setName(joinMemberForm.getName());
-        member.setPw(joinMemberForm.getPw());
-        member.setBirth(joinMemberForm.getBirth());
-        member.setAddress(new Address(joinMemberForm.getZipcode(), joinMemberForm.getStreetAdr(), joinMemberForm.getDetailAdr()));
-
-        return member;
     }
 
     // 회원 아이디 중복 확인
@@ -283,8 +223,6 @@ public class MemberController {
         HttpSession session = servletRequest.getSession();
         // 로그인 돼 있는 사용자의 정보를 받아온다.
         String loginId = (String) session.getAttribute("loginMember");
-
-        loginId = "sangjun02";
 
         // 해당 사용자의 정보를 검색
         Member loginMember = memberService.findOne(loginId);

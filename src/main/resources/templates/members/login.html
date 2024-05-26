@@ -81,7 +81,7 @@
 		</div>
 		<div class="container">
 			<div class="loginDiv">
-				<form action="login" th:object="${loginMember}" method="post" style="margin-top: 50px;">
+				<form id="loginForm" action="login" th:object="${loginMember}" method="post" style="margin-top: 50px;">
 					<h3>아이디 :</h3>
 					<input type="text" name="stringId" id="stringId" th:field="*{stringId}">
 					<h3>이름 :</h3>
@@ -94,7 +94,7 @@
 						</div>
 					</div>
 					<div style="display:flex; justify-content: center; align-items: center;">
-						<button class="loginBtn" type="submit"> 로그인 </button>
+						<button class="loginBtn" type="button" onclick="submitLoginForm()"> 로그인 </button>
 					</div>
 				</form>
 			
@@ -109,6 +109,31 @@
 			function userChoose(id, name) {
 				document.getElementById("stringId").value = id;
 				document.getElementById("name").value = name;
+			}
+
+			function submitLoginForm() {
+				const form = document.getElementById("loginForm");
+				const data = new FormData(form);
+				const json = JSON.stringify(Object.fromEntries(data.entries()));
+
+				fetch("/members/login" , {
+					method: 'POST',
+					headers: {
+						'Const-type' : 'application/json'
+					},
+					body: json
+				}).then(response => {
+					if (response.ok) {
+						window.location.href = response.headers.get("targetUrl");	// 로그인 성공 시 리다이렉트
+					} else {
+						response.json().then(data => {
+							alert(data.message || '로그인 실패');
+						});
+					}
+				}).catch(err => {
+					console.error('Error : ', err);
+					alert('로그인 중 오류가 발생했습니다.');
+				})
 			}
 		</script>
 	</body>

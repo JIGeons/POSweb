@@ -24,7 +24,7 @@ public class Member {
     private String name;
     private String pw;
     private LocalDate birth;
-    private boolean admin;
+    private boolean admin;  // true 일 경우 admin
 
     @Column(columnDefinition = "integer default 9860")
     private int hourlyRate = 9860;         // 최저임금을 default값으로

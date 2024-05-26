@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +22,19 @@ import java.util.List;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // 회원가입 service
     @Transactional
-    public Long join(Member member) {
+    public Long join(JoinMemberForm joinMemberForm) {
+
+            Member member = new Member();
+            member.setStringId(joinMemberForm.getStringId());
+            member.setName(joinMemberForm.getName());
+            member.setPw(passwordEncoder.encode(joinMemberForm.getPw()));
+            member.setBirth(joinMemberForm.getBirth());
+            member.setAddress(new Address(joinMemberForm.getZipcode(), joinMemberForm.getStreetAdr(), joinMemberForm.getDetailAdr()));
+
         memberRepository.save(member);
         return member.getId();
     }
