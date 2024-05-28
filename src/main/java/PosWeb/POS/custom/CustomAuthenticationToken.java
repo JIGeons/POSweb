@@ -5,12 +5,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
+import java.io.Serial;
 import java.util.Collection;
 
 // 스프링 시큐리티에서 인증 토큰으로 사용하는 AbstractAuthenticationToken을 상속받아 만든 클래스이다.
 // AbstractAuthenticationToken과 코드가 같다.
 public class CustomAuthenticationToken extends AbstractAuthenticationToken {
 
+    @Serial
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     private final Object principal;

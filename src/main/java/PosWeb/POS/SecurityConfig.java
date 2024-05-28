@@ -4,6 +4,7 @@ import PosWeb.POS.custom.CustomLoginAuthenticationEntrypoint;
 import PosWeb.POS.custom.filter.CustomAuthenticationFilter;
 import PosWeb.POS.custom.handler.CustomAuthenticationFailureHandler;
 import PosWeb.POS.custom.handler.CustomAuthenticationSuccessHandler;
+import PosWeb.POS.custom.handler.CustomLogoutSuccessHandler;
 import PosWeb.POS.custom.service.CustomUserDetailsService;
 import PosWeb.POS.service.MemberService;
 import PosWeb.POS.service.MemberTimeService;
@@ -23,9 +24,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.validation.Validator;
 
 @Configuration
 @EnableWebSecurity
@@ -34,8 +37,10 @@ public class SecurityConfig {
 
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
     private final CustomLoginAuthenticationEntrypoint customLoginAuthenticationEntrypoint;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final Validator validator;
 
     // password 암호화를 위한 BCryptPasswordEncoder 클래스 생성 & 빈 등록
     @Bean
@@ -60,10 +65,6 @@ public class SecurityConfig {
     // SecurityFilterChain 빈 등록 (springBoot 6.1버전 이후 WebSecurityConfigurerAdapter 를 사용하지 않아 SecurityFilterChain을 빈으로 등록해서 사용한다.)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager am) throws Exception {
-        // custom filter에 url 연결 & 로그인 성공 후 추가적으로 작업을 진행할 핸들러 연결
-        //CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(am);
-        //customAuthenticationFilter.setFilterProcessesUrl("/members/login");
-        //customAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
 
         // csrf 비활성화 ( 사이트 위변조 방지 )
         http.csrf(AbstractHttpConfigurer::disable);
@@ -77,12 +78,10 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
         );
 
-        http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
         // 로그인 설정
         http.formLogin((form) -> form
                 .loginPage("/members/login")    // 사용자 정의 로그인 페이지
-                .failureUrl("/members/login-error")    // 로그인 실패 후 이동 페이지
+                .failureUrl("/members/login")
                 .permitAll()
         );
 
@@ -92,6 +91,7 @@ public class SecurityConfig {
         // 로그아웃 설정
         http.logout(logout -> logout
                 .logoutUrl("/members/logout")   // 로그아웃 url
+                .logoutSuccessHandler(customLogoutSuccessHandler)
                 .logoutSuccessUrl("/")          // 로그아웃 성공 후 이동 페이지
                 .invalidateHttpSession(true)    // 세션 무효화
                 .permitAll());
@@ -104,7 +104,10 @@ public class SecurityConfig {
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter();
         customAuthenticationFilter.setAuthenticationManager(authenticationManager());
 
+        // 로그인 성공 시 로직 추가
         customAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
+        // 로그인 실패 시 로직 추가
+        customAuthenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
 
         customAuthenticationFilter.setSecurityContextRepository(
                 new DelegatingSecurityContextRepository(

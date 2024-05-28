@@ -1,6 +1,6 @@
 package PosWeb.POS.controller;
 
-import PosWeb.POS.domain.Address;
+import PosWeb.POS.custom.CustomAuthenticationToken;
 import PosWeb.POS.domain.Member;
 import PosWeb.POS.domain.MemberTime;
 import PosWeb.POS.domain.dto.Member.JoinMemberForm;
@@ -11,12 +11,20 @@ import PosWeb.POS.domain.dto.MemberTime.MemberTimeMonthForm;
 import PosWeb.POS.service.MemberService;
 import PosWeb.POS.service.MemberTimeService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -37,9 +45,11 @@ public class MemberController {
 
     private final MemberService memberService;
     private final MemberTimeService memberTimeService;
+    // 사용자 인가, 인증을 위한 manager 생성
+    private final AuthenticationManager authenticationManager;
 
     @GetMapping("members/login")
-    public String login(Model model, HttpServletRequest servletRequest) {
+    public String login(Model model, HttpSession session) {
         List<Member> members = memberService.findMembers();
 
         // member엔티티의 모든 속성 노출을 방지하기 위해 LoginMemberDto를 사용하여 필요한 정보만 전송
@@ -47,16 +57,17 @@ public class MemberController {
                                 .map(m -> new LoginMemberDto(m.getStringId(), m.getName()))
                                 .collect(Collectors.toList());
 
-        HttpSession session = servletRequest.getSession();
-        session.setAttribute("members", LoginMembers);
-        model.addAttribute("loginMember", new LoginMemberDto());
-        return "members/login";
-    }
+        model.addAttribute("errMsg", "");
+        // 세션 체크
+        if (session.getAttribute("errMsg") != null) {
+            // 모델에 error massage 추가
+            model.addAttribute("errMsg", session.getAttribute("errorMessage"));
+            // 세션 해제
+            session.removeAttribute("errMsg");
+        }
 
-    // 로그인 실패시 에러 메시지를 표시하는 login-error 엔드포인트를 추가
-    @GetMapping("members/login-error")
-    public String loginError(Model model) {
-        model.addAttribute("loginError", true);
+        model.addAttribute("members", LoginMembers);
+        model.addAttribute("loginMemberDto", new LoginMemberDto());
         return "members/login";
     }
 
