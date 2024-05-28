@@ -41,9 +41,32 @@
         </div>
         <div>
             <button type="button" class="button" onclick="location.href='order/check'" style="background-color: dimgray;">주문 조회</button>
-            <button type="button" class="button" onclick="location.href='members/management'" style="background-color: dimgray;">사용자<br>관리</button>
+            <button type="button" class="button" onclick="fetchAndAlert('members/management')" style="background-color: dimgray;">사용자<br>관리</button>
         </div>
     </div>
 </div>
 </body>
+<script>
+    // Fetch 요청을 보내고 접근 거부 시 alert를 띄우는 함수
+    async function fetchAndAlert(url) {
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert(errorData.message);
+            } else {
+                window.location.href = url;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('서버 에러.');
+        }
+    }
+</script>
 </html>

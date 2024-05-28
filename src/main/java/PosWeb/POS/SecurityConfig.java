@@ -1,34 +1,26 @@
 package PosWeb.POS;
 
-import PosWeb.POS.custom.CustomLoginAuthenticationEntrypoint;
 import PosWeb.POS.custom.filter.CustomAuthenticationFilter;
+import PosWeb.POS.custom.handler.CustomAccessDeniedHandler;
 import PosWeb.POS.custom.handler.CustomAuthenticationFailureHandler;
 import PosWeb.POS.custom.handler.CustomAuthenticationSuccessHandler;
 import PosWeb.POS.custom.handler.CustomLogoutSuccessHandler;
-import PosWeb.POS.custom.service.CustomUserDetailsService;
-import PosWeb.POS.service.MemberService;
-import PosWeb.POS.service.MemberTimeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
-import org.springframework.validation.Validator;
 
 @Configuration
 @EnableWebSecurity
@@ -38,9 +30,8 @@ public class SecurityConfig {
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
-    private final CustomLoginAuthenticationEntrypoint customLoginAuthenticationEntrypoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final Validator validator;
 
     // password 암호화를 위한 BCryptPasswordEncoder 클래스 생성 & 빈 등록
     @Bean
@@ -74,6 +65,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(requests -> requests
                 // 로그인 없이 접근 가능
                 .requestMatchers("/", "/members/login", "/members/login-error", "/members/join").permitAll()
+                .requestMatchers("/members/management", "items/store", "items/delete").hasRole("ADMIN") // ADMIN일 경우에만 접근 가능
                 // 나머지 요청은 인증 필요
                 .anyRequest().authenticated()
         );
@@ -95,6 +87,10 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/")          // 로그아웃 성공 후 이동 페이지
                 .invalidateHttpSession(true)    // 세션 무효화
                 .permitAll());
+
+        // 엑섹스 거부 핸들러 설정
+        http.exceptionHandling(exception -> exception
+                .accessDeniedHandler(customAccessDeniedHandler));
 
         return http.build();
     }
