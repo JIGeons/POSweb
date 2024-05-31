@@ -1,6 +1,5 @@
 package PosWeb.POS.controller;
 
-import PosWeb.POS.custom.CustomAuthenticationToken;
 import PosWeb.POS.domain.Member;
 import PosWeb.POS.domain.MemberTime;
 import PosWeb.POS.domain.dto.Member.JoinMemberForm;
@@ -11,20 +10,11 @@ import PosWeb.POS.domain.dto.MemberTime.MemberTimeMonthForm;
 import PosWeb.POS.service.MemberService;
 import PosWeb.POS.service.MemberTimeService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -45,8 +35,6 @@ public class MemberController {
 
     private final MemberService memberService;
     private final MemberTimeService memberTimeService;
-    // 사용자 인가, 인증을 위한 manager 생성
-    private final AuthenticationManager authenticationManager;
 
     @GetMapping("members/login")
     public String login(Model model, HttpSession session) {
@@ -106,6 +94,7 @@ public class MemberController {
         // 여러 쓰레드의 동시 처리를 가능하기 위해 concurrentHashMap 사용
         Map<String, Boolean> response = new ConcurrentHashMap<>();
         boolean isAvailable;
+
         try {
             isAvailable = memberService.checkId(stringId);
         } catch (IllegalStateException e) {
@@ -203,12 +192,9 @@ public class MemberController {
         model.addAttribute("memberUpdate", memberUpdate);
         model.addAttribute("memberTag", "memberSet");
 
-        System.out.println("memberUPdate : " + memberUpdate.getName());
-
         // JoinMemberForm에 오류가 있을 경우
         if (bindingResult.hasErrors()) {
             log.info("members Form Error");
-            System.out.println(bindingResult.toString());
             return "members/management";
         }
 
@@ -226,24 +212,5 @@ public class MemberController {
         model.addAttribute("memberTag", "memberSet");
 
         return "redirect:/members/management?memberTag=memberSet";
-    }
-
-    @GetMapping("members/logout")
-    public String end(HttpServletRequest servletRequest) {
-
-        HttpSession session = servletRequest.getSession();
-        // 로그인 돼 있는 사용자의 정보를 받아온다.
-        String loginId = (String) session.getAttribute("loginMember");
-
-        // 해당 사용자의 정보를 검색
-        Member loginMember = memberService.findOne(loginId);
-        // 현재 시간으로 endTime update
-        MemberTime endMember = memberTimeService.updateEndTime(loginMember);
-
-        log.info("{}이 {}시에 마감을 하였습니다.", loginMember.getName(), endMember.getEndTime());
-
-        // 세션 파기
-        session.invalidate();
-        return "redirect:/";
     }
 }

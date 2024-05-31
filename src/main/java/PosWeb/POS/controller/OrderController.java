@@ -1,6 +1,5 @@
 package PosWeb.POS.controller;
 
-import PosWeb.POS.component.ImpProperties;
 import PosWeb.POS.domain.*;
 import PosWeb.POS.domain.dto.Item.CartItemForm;
 import PosWeb.POS.domain.dto.Order.OrderAmountForm;
@@ -9,14 +8,11 @@ import PosWeb.POS.service.ItemService;
 import PosWeb.POS.service.MemberService;
 import PosWeb.POS.service.MemberTimeService;
 import PosWeb.POS.service.OrderService;
-import com.siot.IamportRestClient.IamportClient;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

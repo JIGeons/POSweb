@@ -25,7 +25,7 @@ public class OrderItem {
 
     private int orderPrice;     // 주문 가격 (할인 금액을 제외한 실제 결제 금액)
     private int count;          // 주문 수량
-    private int discount;       // 할인금액
+    private int discount;       // 할인 금액
 
     //== 생성 메서드 ==//
     public static OrderItem createOrderItem(Item item, int orderPrice, int count, int discount) {

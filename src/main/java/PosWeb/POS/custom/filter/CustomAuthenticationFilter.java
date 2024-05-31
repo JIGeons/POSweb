@@ -1,7 +1,6 @@
 package PosWeb.POS.custom.filter;
 
 import PosWeb.POS.custom.CustomAuthenticationToken;
-import PosWeb.POS.domain.Member;
 import PosWeb.POS.domain.dto.Member.LoginMemberDto;
 import PosWeb.POS.service.MemberService;
 import PosWeb.POS.service.MemberTimeService;
@@ -9,25 +8,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.*;
 
-import javax.sql.rowset.serial.SerialException;
 import java.io.IOException;
-import java.net.BindException;
 
 @Slf4j
 public class CustomAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -66,7 +55,8 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
         Authentication authentication = getAuthenticationManager().authenticate(token);
 
         // 로그인된 사용자가 있을 때 memberTime객체 update
-        if (preAuthentication.isAuthenticated()) {
+        if (preAuthentication != null) {
+            log.info("이전 사용자가 있당");
             memberTimeService.updateEndTime(memberService.findOne(preAuthentication.getName()));
         }
 

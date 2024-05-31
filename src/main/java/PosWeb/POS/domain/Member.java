@@ -30,7 +30,7 @@ public class Member {
     private int hourlyRate = 9860;         // 최저임금을 default값으로
 
     @Column(columnDefinition = "boolean default true")
-    private Boolean weekOrMonth = true;    // flase: 주급 or true: 월급 / default = true
+    private Boolean weekOrMonth = true;    // false: 주급 or true: 월급 / default = true
 
     @Embedded
     private Address address;

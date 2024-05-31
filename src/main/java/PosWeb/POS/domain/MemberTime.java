@@ -20,7 +20,7 @@ public class MemberTime {
 
     private LocalDateTime startTime;    // 시작 시간
     private LocalDateTime endTime;      // 끝난 시간
-    private Double time = 0.0;                // 일 한 시간
+    private Double time = 0.0;          // 일 한 시간
     private int rate;                   // 일급
 
     //== 생성 메소드 ==//

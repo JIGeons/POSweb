@@ -1,6 +1,5 @@
 package PosWeb.POS.controller;
 
-import PosWeb.POS.SecurityConfig;
 import PosWeb.POS.domain.Category;
 import PosWeb.POS.domain.Item;
 import PosWeb.POS.domain.dto.Item.CartItemForm;
@@ -9,15 +8,12 @@ import PosWeb.POS.domain.dto.Item.AddItemForm;
 import PosWeb.POS.service.CategoryService;
 import PosWeb.POS.service.ItemService;
 import PosWeb.POS.service.MemberService;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.experimental.categories.Categories;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -29,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
@@ -41,9 +36,9 @@ public class ItemController {
     private final MemberService memberService;
 
     @GetMapping("items")
-    public String items(@RequestParam(value = "ctgPage", defaultValue = "0")int ctgPage,
-                        @RequestParam(value = "page", defaultValue = "0")int page,
-                        @RequestParam(value = "category", defaultValue = "biskuit")String category,
+    public String items(@RequestParam(value = "ctgPage", defaultValue = "0") int ctgPage,
+                        @RequestParam(value = "page", defaultValue = "0") int page,
+                        @RequestParam(value = "category", defaultValue = "biskuit") String category,
                         HttpSession session,
                         Model model) {
 
