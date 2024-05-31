@@ -55,7 +55,7 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
         Authentication authentication = getAuthenticationManager().authenticate(token);
 
         // 로그인된 사용자가 있을 때 memberTime객체 update
-        if (preAuthentication != null) {
+        if (authentication.isAuthenticated() && preAuthentication != null) {
             log.info("이전 사용자가 있당");
             memberTimeService.updateEndTime(memberService.findOne(preAuthentication.getName()));
         }
