@@ -1,10 +1,8 @@
 package PosWeb.POS.domain.dto.Member;
 
 import PosWeb.POS.domain.Address;
-import jakarta.persistence.Embedded;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 

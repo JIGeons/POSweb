@@ -1,7 +1,6 @@
 package PosWeb.POS.controller;
 
 import PosWeb.POS.domain.Member;
-import PosWeb.POS.domain.MemberTime;
 import PosWeb.POS.domain.dto.Member.JoinMemberForm;
 import PosWeb.POS.domain.dto.Member.LoginMemberDto;
 import PosWeb.POS.domain.dto.Member.MemberDto;
@@ -9,7 +8,6 @@ import PosWeb.POS.domain.dto.MemberTime.MemberTimeDto;
 import PosWeb.POS.domain.dto.MemberTime.MemberTimeMonthForm;
 import PosWeb.POS.service.MemberService;
 import PosWeb.POS.service.MemberTimeService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

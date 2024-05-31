@@ -1,9 +1,7 @@
 package PosWeb.POS.repository;
 
 import PosWeb.POS.domain.Category;
-import PosWeb.POS.domain.Item;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

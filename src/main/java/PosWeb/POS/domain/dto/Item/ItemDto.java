@@ -1,6 +1,5 @@
 package PosWeb.POS.domain.dto.Item;
 
-import PosWeb.POS.domain.Category;
 import PosWeb.POS.domain.Item;
 import lombok.Getter;
 

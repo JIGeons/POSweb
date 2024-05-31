@@ -1,6 +1,5 @@
 package PosWeb.POS.domain.dto.Order;
 
-import PosWeb.POS.domain.Item;
 import PosWeb.POS.domain.OrderItem;
 import PosWeb.POS.domain.dto.Item.ItemDto;
 import lombok.Getter;

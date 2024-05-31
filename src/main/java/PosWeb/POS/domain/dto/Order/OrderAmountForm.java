@@ -1,12 +1,9 @@
 package PosWeb.POS.domain.dto.Order;
 
-import PosWeb.POS.domain.Order;
 import PosWeb.POS.domain.OrderStatus;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.domain.Sort;
 
 @Getter @Setter
 @NoArgsConstructor

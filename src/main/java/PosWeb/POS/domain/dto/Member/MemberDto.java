@@ -2,7 +2,6 @@ package PosWeb.POS.domain.dto.Member;
 
 import PosWeb.POS.domain.Address;
 import PosWeb.POS.domain.Member;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

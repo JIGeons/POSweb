@@ -1,14 +1,10 @@
 package PosWeb.POS.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Getter @Setter

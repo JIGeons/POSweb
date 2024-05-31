@@ -2,12 +2,10 @@ package PosWeb.POS.domain;
 
 import PosWeb.POS.exception.NotEnoughStockException;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DialectOverride;
-import org.hibernate.validator.constraints.Range;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter @Setter
