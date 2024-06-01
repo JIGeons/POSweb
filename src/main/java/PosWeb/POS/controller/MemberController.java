@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,6 +34,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final MemberTimeService memberTimeService;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping("members/login")
     public String login(Model model, HttpSession session) {
@@ -198,7 +200,7 @@ public class MemberController {
 
         Member member = memberService.findOne(memberUpdate.getStringId());
         // 비밀번호가 일치 하지 않을 경우
-        if (!memberUpdate.getPw().equals(member.getPw())) {
+        if (!passwordEncoder.matches(memberUpdate.getPw(), member.getPw())) {
             log.info("members password not equal");
             bindingResult.addError(new FieldError("joinMemberForm", "confirmPw", " ※ 비밀번호가 일치하지 않습니다."));
             return "members/management";
