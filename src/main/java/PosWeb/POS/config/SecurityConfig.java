@@ -1,4 +1,4 @@
-package PosWeb.POS;
+package PosWeb.POS.config;
 
 import PosWeb.POS.custom.filter.CustomAuthenticationFilter;
 import PosWeb.POS.custom.handler.CustomAccessDeniedHandler;
@@ -63,8 +63,11 @@ public class SecurityConfig {
 
         // 권한에 따른 URL 접근 제어 설정
         http.authorizeHttpRequests(requests -> requests
+                // Swagger에 대한 접근 허용
+                .requestMatchers("/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**")
+                        .permitAll()
                 // 로그인 없이 접근 가능
-                .requestMatchers("/", "/members/login", "/members/login-error", "/members/join").permitAll()
+                .requestMatchers("/", "/members/login", "/members/join").permitAll()
                 .requestMatchers("/members/management", "items/store", "items/delete").hasRole("ADMIN") // ADMIN일 경우에만 접근 가능
                 // 나머지 요청은 인증 필요
                 .anyRequest().authenticated()
@@ -88,13 +91,14 @@ public class SecurityConfig {
                 .invalidateHttpSession(true)    // 세션 무효화
                 .permitAll());
 
-        // 엑섹스 거부 핸들러 설정
+        // 엑세스 거부 핸들러 설정
         http.exceptionHandling(exception -> exception
                 .accessDeniedHandler(customAccessDeniedHandler));
 
         return http.build();
     }
 
+    // 로그인 시 인증 CustomFliter 설정
     @Bean
     public CustomAuthenticationFilter authenticationFilter() throws Exception {
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter();
@@ -105,6 +109,8 @@ public class SecurityConfig {
         // 로그인 실패 시 로직 추가
         customAuthenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
 
+        // SecurityContextRepository 설정:
+        // RequestAttributeSecurityContextRepository와 HttpSessionSecurityContextRepository를 사용
         customAuthenticationFilter.setSecurityContextRepository(
                 new DelegatingSecurityContextRepository(
                         new RequestAttributeSecurityContextRepository(),

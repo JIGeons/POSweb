@@ -8,6 +8,8 @@ import PosWeb.POS.domain.dto.Item.AddItemForm;
 import PosWeb.POS.service.CategoryService;
 import PosWeb.POS.service.ItemService;
 import PosWeb.POS.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -29,12 +31,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Controller
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "상품 컨트롤러", description = "상품 관련 API")
 public class ItemController {
 
     private final ItemService itemService;
     private final CategoryService categoryService;
     private final MemberService memberService;
 
+    @Operation(summary = "상품 페이지", description = "선택된 카테고리에 대해 상품을 페이징 하고 출력한다. + 상품을 담을 Map객체를 생성하고 session에 저장")
     @GetMapping("items")
     public String items(@RequestParam(value = "ctgPage", defaultValue = "0") int ctgPage,
                         @RequestParam(value = "page", defaultValue = "0") int page,
@@ -72,6 +76,7 @@ public class ItemController {
         return "items/posweb";
     }
 
+    @Operation(summary = "상품 선택", description = "선택된 상품의 정보를 session에 추가한다.")
     @PostMapping("items")
     @ResponseBody
     public String items(@RequestBody Map<String, Object> data, HttpServletRequest servletRequest) {
@@ -107,6 +112,7 @@ public class ItemController {
     }
 
     // cart 세션 상품 삭제
+    @Operation(summary = "장바구니 상품 삭제", description = "선택된 상품에 대해 장바구니에서 삭제한다.")
     @PostMapping("items/cartDelete")
     @ResponseBody
     public String cartDelete(@RequestBody Map<String, Object> data, HttpServletRequest servletRequest) {
@@ -135,6 +141,7 @@ public class ItemController {
     }
 
     // 세션 cart item정보 수정
+    @Operation(summary = "cart 상품 정보 수정", description = "전달된 상품에 대해 session에 담긴 상품들의 정보를 수정한다.")
     @PostMapping("items/cartApply")
     @ResponseBody
     public String cartApply(@RequestBody Map<String, Object> data, HttpServletRequest servletRequest) {
@@ -168,6 +175,7 @@ public class ItemController {
     }
 
     // 상품 추가("items/store")
+    @Operation(summary = "상품 추가 Get", description = "상품 정보를 입력 받을 수 있도록 StoreItemForm 객체를 생성하여 클라이언트로 전송한다.")
     @GetMapping("items/store")
     public String storeItem(Model model){
         model.addAttribute("categories", categoryService.getAllCategories());   // category의 select 태그에 사용
@@ -175,6 +183,7 @@ public class ItemController {
         return "items/storeItem";
     }
 
+    @Operation(summary = "상품 추가 Post", description = "입력받은 정보로 상품 객체를 생성하고 저장한다.")
     @PostMapping("items/store")
     public String storeItem(@ModelAttribute("categories") Category category,
                           @Valid @ModelAttribute("storeItemForm") StoreItemForm storeItemForm,
@@ -200,6 +209,7 @@ public class ItemController {
     }
 
     // 상품 입고("items/add")
+    @Operation(summary = "상품 갯수 추가 Get", description = "선택된 카테고리의 상품들을 페이징하고 입고할 상품의 정보를 담을 빈 AddItemForm 객체를 생성하여 클라이언트로 전송한다.")
     @GetMapping("items/add")
     public String addItem(@RequestParam(value = "page", defaultValue = "0") int page,
                           @RequestParam(value = "category", defaultValue = "biskuit")String category,
@@ -222,6 +232,7 @@ public class ItemController {
     }
 
     // 상품 입고
+    @Operation(summary = "상품 입고 Post", description = "입력받은 상품의 정보에 대해 validation을 진행하고 오류가 있으면 해당 카테고리를 페이징처리하여 addItem페이지를 출력하고 오류가 없으면 해당 상품을 update하고 item페이지를 리다이렉션 한다.")
     @PostMapping("items/add")
     public String addItem(@ModelAttribute("categories") Category category,
                           @Valid @ModelAttribute("selectItem") AddItemForm addItemForm,
@@ -241,6 +252,7 @@ public class ItemController {
         return "redirect:/items";
     }
 
+    @Operation(summary = "상품 삭제 Get", description = "선택된 category의 상품을 조회하여 클라이언트로 전송")
     @GetMapping("items/delete")
     public String itemDelete(@RequestParam(value = "category", defaultValue = "null")String category, Model model) {
         List<Category> categories = categoryService.getAllCategories();
@@ -268,6 +280,7 @@ public class ItemController {
     }
 
     // 상품 비활성화
+    @Operation(summary = "상품 삭제 Post", description = "선택된 상품들의 비활성화 변수를 true로 update한다.")
     @PostMapping("items/delete")
     public String itemDelete(@RequestParam("deleteList") List<String> deleteList) {
 

@@ -92,7 +92,6 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
-    // 주문 후 Order 저장
     /**
      * 주문 취소
      */

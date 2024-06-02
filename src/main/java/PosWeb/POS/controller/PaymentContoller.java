@@ -4,6 +4,8 @@ import PosWeb.POS.component.ImpProperties;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "결제 컨트롤러", description = "결제 API")
 public class PaymentContoller {
 
     private final ImpProperties impProperties;
@@ -34,6 +37,7 @@ public class PaymentContoller {
         this.iamportClient = new IamportClient(apiKey, secretKey);
     }
 
+    @Operation(summary = "결제 요청", description = "iamport로 요청한 주문에 대해 결과를 출력하는 API")
     @PostMapping("/payment/validation/{imp_uid}")
     @ResponseBody
     public IamportResponse<Payment> validateIamport(@PathVariable String imp_uid) {

@@ -8,6 +8,8 @@ import PosWeb.POS.service.ItemService;
 import PosWeb.POS.service.MemberService;
 import PosWeb.POS.service.MemberTimeService;
 import PosWeb.POS.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Controller
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "주문 컨트롤러", description = "주문 API")
 public class OrderController {
 
     private final OrderService orderService;
@@ -42,6 +45,7 @@ public class OrderController {
     private String impCode;
 
     // 상품 결제 페이지 이동
+    @Operation(summary = "주문 생성", description = "세션에 저장된 상품 정보들을 가지고와 order 객체를 생성하고 order 객체의 id와 impcode를 클라이언트로 전송한다.")
     @GetMapping("order")
     public String pay(HttpServletRequest servletRequest, Model model) {
 
@@ -63,6 +67,7 @@ public class OrderController {
         return "order/pay";
     }
 
+    @Operation(summary = "주문 저장", description = "결제 결과에 따라 주문을 삭제하고, 주문 정보를 update하고, items 페이지를 리디렉션 한다.")
     @PostMapping("order")
     public String orderPay(@RequestParam("orderId") Long orderId,
                            @RequestParam("orderResult") String orderResult,
@@ -92,6 +97,7 @@ public class OrderController {
     }
 
     // 매출 확인
+    @Operation(summary = "매출 조회", description = "연, 월을 입력 받아 해당 기간동안의 주문을 조회를 하고 결과를 요약해 클라이언트로 전송한다.")
     @GetMapping("order/amount")
     public String orderAmount(@RequestParam(value = "year", defaultValue = "-1") int year,
                               @RequestParam(value = "month", defaultValue = "-1") int month,
@@ -137,6 +143,7 @@ public class OrderController {
     }
 
     // 주문 조회
+    @Operation(summary = "주문 조회", description = "주문 내역을 전부 조회하여 클라이언트로 전송한다.")
     @GetMapping("order/check")
     public String orderCheck(@RequestParam(value = "startDate", defaultValue = "") LocalDate startDate,
                              @RequestParam(value = "endDate", defaultValue="") LocalDate endDate,
@@ -172,6 +179,7 @@ public class OrderController {
         return "order/check";
     }
 
+    @Operation(summary = "주문 조회 정보를 확인", description = "조회한 주문의 정보를 확인하기 위한 Rest API")
     @GetMapping("order/checks")
     @ResponseBody
     public List<OrderDto> orderCheck(@RequestParam(value = "startDate", defaultValue = "") LocalDate startDate,
@@ -200,6 +208,7 @@ public class OrderController {
     }
 
     // 주문 결제 취소
+    @Operation(summary = "결제 취소", description = "입력받은 주문 번호에 대해 주문을 조회하고 결제 상태를 update 한다. 결제 방식이 카드일 경우 iamport 서버에서 인가 토큰을 받고 결제 취소를 진행한다.")
     @PostMapping("order/cancel")
     public String orderCancel(@RequestParam("cancelOrderId") Long cancelOrderId) throws IOException {
         
@@ -228,6 +237,7 @@ public class OrderController {
         return "redirect:/order/check?cancelOrderId="+cancelOrderId;
     }
 
+    @Operation(summary = "마감", description = "오늘 하루의 매출 정보를 요약하여 클라이언트로 전송한다.")
     @GetMapping("order/end")
     public String orderEnd(Model model) {
         LocalDate now = LocalDate.now();
