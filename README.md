@@ -34,7 +34,7 @@ Spring Boot + JPA + thymeleaf를 활용한 서버 사이드 개발 포스 프로
 - Spring Test
 - Junit '4.12'
 - iamport API
-- swagger
+- swagger '3.0'
 
 #### `Front-end`
 - HTML
