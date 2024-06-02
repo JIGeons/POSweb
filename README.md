@@ -46,14 +46,17 @@ Spring Boot + JPA + thymeleaf를 활용한 서버 사이드 개발 포스 프로
 ## 💙 핵심 기능
 ### 이 프로젝트의 핵심 기능은 상품을 구매하고 주문 조회 & 취소입니다.<br>부가 서비스로 사용자가 로그인 & 로그아웃을 할 시 해당 시간을 기록 하여 사용자의 급여를 보다 쉽게 알 수 있도록 했습니다.</br>
 
-### Iamport API
-
-
-### 주문 조회 & 취소
-
+### Iamport API 구매 & 조회 & 취소
+#### 상품 구매
+![Iamport_CreateOrder_Sequence Diagram](https://github.com/JIGeons/POSweb/assets/118729956/4ccfb9dc-39fe-49f1-a891-ba5a2bc90c91)
+#### 주문 조회 & 취소
+![IamportCancelOrder_SequenceDiagram](https://github.com/JIGeons/POSweb/assets/118729956/f906d393-2893-474a-8182-dcffc4fa5af0)
 
 ### 로그인 & 로그아웃 Handler
-
+#### 로그인
+![Login_Sequence diagram](https://github.com/JIGeons/POSweb/assets/118729956/f6b95c66-cb2f-46d3-90f0-423d2156f399)
+#### 로그아웃
+![Logout_SequenceDiagram](https://github.com/JIGeons/POSweb/assets/118729956/8007508e-30a8-4b43-9f0b-caa0f02bd381)
 
 ## 🤎 시스템구성도
 ![시스템 구성도](https://github.com/JIGeons/POSweb/assets/118729956/1103b8f4-0aba-442a-98b7-d6af79c0cb9e)
