@@ -40,6 +40,7 @@ public class SecurityConfig {
     }
 
     // resource에 접근할 수 있도록 빈 추가
+    // Spring Security가 정적 자원에 대해 인증을 하지 않도록 설정
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
@@ -59,7 +60,6 @@ public class SecurityConfig {
 
         // csrf 비활성화 ( 사이트 위변조 방지 )
         http.csrf(AbstractHttpConfigurer::disable);
-        http.cors(AbstractHttpConfigurer::disable);
 
         // 권한에 따른 URL 접근 제어 설정
         http.authorizeHttpRequests(requests -> requests
