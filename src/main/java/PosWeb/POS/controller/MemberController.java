@@ -39,7 +39,8 @@ public class MemberController {
     private final MemberTimeService memberTimeService;
     private final PasswordEncoder passwordEncoder;
 
-    @Operation(summary = "회원 로그인 Get", description = "로그인 정보를 받기위한 빈 LoginMemberDto객체를 생성하고 회원 정보를 조회하여 클라이언트로 전송, 로그인시 문제가 생겨 리디렉션이 되면 error 메시지를 출력")
+    @Operation(summary = "회원 로그인 Get", description = "로그인 정보를 받기위한 빈 LoginMemberDto객체를 생성하고 회원 정보를 조회하여 " +
+                                                          "클라이언트로 전송, 로그인시 문제가 생겨 리디렉션이 되면 error 메시지를 출력")
     @GetMapping("members/login")
     public String login(Model model, HttpSession session) {
         List<Member> members = memberService.findMembers();
@@ -63,7 +64,8 @@ public class MemberController {
         return "members/login";
     }
 
-    @Operation(summary = "회원가입 Get", description = "새로운 회원 정보를 입력받기 위한 빈 JoinMemberForm 객체를 생성하여 클라이언트로 전송한다.")
+    @Operation(summary = "회원가입 Get",
+            description = "새로운 회원 정보를 입력받기 위한 빈 JoinMemberForm 객체를 생성하여 클라이언트로 전송한다.")
     @GetMapping("members/join")
     public String join(Model model){
         JoinMemberForm joinMemberForm = new JoinMemberForm();
@@ -71,7 +73,9 @@ public class MemberController {
         return "members/join";
     }
 
-    @Operation(summary = "회원가입 Post", description = "입력받은 정보에 대해 validation을 진행하고 문제가 있을 시 bindigResult에 오류 내용을 담아 클라이언트로 전송, 문제가 없을 시 새로운 member 객체를 생성하고 저장")
+    @Operation(summary = "회원가입 Post",
+            description = "입력받은 정보에 대해 validation을 진행하고 문제가 있을 시 bindigResult에 " +
+                    "오류 내용을 담아 클라이언트로 전송, 문제가 없을 시 새로운 member 객체를 생성하고 저장")
     @PostMapping("members/join")
     public String join(@Valid JoinMemberForm joinMemberForm, BindingResult bindingResult) {
 
@@ -84,7 +88,10 @@ public class MemberController {
         // 비밀번호 검증
         if (!joinMemberForm.getPw().equals(joinMemberForm.getConfirmPw())) {
             log.info("members password not equal");
-            bindingResult.addError(new FieldError("joinMemberForm", "confirmPw", " ※ 비밀번호가 일치하지 않습니다."));
+            bindingResult.addError(new FieldError(
+                    "joinMemberForm",
+                    "confirmPw",
+                    " ※ 비밀번호가 일치하지 않습니다."));
             return "members/join";
         }
 
@@ -94,7 +101,8 @@ public class MemberController {
     }
 
     // 회원 아이디 중복 확인
-    @Operation(summary = "회원 아이디 중복 확인", description = "회원 아이디를 조회하고 중복이 있을 경우 false를 반환하고, 중복이 없을 경우 true를 반환")
+    @Operation(summary = "회원 아이디 중복 확인",
+            description = "회원 아이디를 조회하고 중복이 있을 경우 false를 반환하고, 중복이 없을 경우 true를 반환")
     @GetMapping("members/join/checkId/{stringId}")
     @ResponseBody  // html파일명을 반환하는게 아닌 data 값을 반환하기 때문에 ResponseBody 사용
     public Map<String, Boolean> checkId(@PathVariable String stringId){
@@ -111,7 +119,10 @@ public class MemberController {
         return response;
     }
 
-    @Operation(summary = "사용자 관리", description = "memberTag가 salary가 아닐 시 사용자 정보를 페이징, 회원 정보의 수정 정보를 받기 위해 JoinMemberForm 객체를 생성, memberTag가 salary일 경우에는 member별 memberTime 정보를 grouping해서 클라이언트로 전송")
+    @Operation(summary = "사용자 관리",
+            description = "memberTag가 salary가 아닐 시 사용자 정보를 페이징, " +
+                    "회원 정보의 수정 정보를 받기 위해 JoinMemberForm 객체를 생성," +
+                    " memberTag가 salary일 경우에는 member별 memberTime 정보를 grouping해서 클라이언트로 전송")
     @GetMapping("members/management")
     public String memberManagement(@RequestParam(value = "page", defaultValue = "0") int page,
                                    @RequestParam(value = "memberTag", defaultValue = "admin") String memberTag,
@@ -123,24 +134,19 @@ public class MemberController {
         LocalDate date;
 
         if (memberTag.equals("salary")) {    // 월급 관리
-
             if (searchDate.equals("")) {
                 date = LocalDate.now();
-
                 searchDate = date.getYear() + "-";
                 if (date.getMonthValue() < 10)
                     searchDate += "0" + date.getMonthValue();
                 else
                     searchDate += date.getMonthValue();
-
-                System.out.println("날짜 : " + searchDate);
             } else {
                 date = LocalDate.parse(searchDate + "-01");
             }
 
             // searchDate를 기준으로 memberTime 객체 검색
             Page<MemberTimeMonthForm> memberTimes = memberTimeService.findMemberTimeForm(date, searchName, page, size);
-
             // memberTime의 객체를 불러오기 위한 id 리스트 생성
             List<Long> memberIds = new ArrayList<>();
 
@@ -152,7 +158,6 @@ public class MemberController {
 
             // memberIds에 있는 id의 정보만 불러와서 Map형식으로 grouping
             Map<Long, List<MemberTimeDto>> memberTimesGroup = memberTimeService.findMemberTimeDto(date, memberIds, searchName);
-
             // 모델에 객체 추가
             model.addAttribute("memberTimesPaging", memberTimes);
             model.addAttribute("memberTimesGroup", memberTimesGroup);
@@ -172,7 +177,8 @@ public class MemberController {
         return "members/management";
     }
 
-    @Operation(summary = "사용자의 관리자 정보 수정", description = "전달 받은 사용자의 id로 사용자를 조회한 후 사용자의 관리자 정보를 수정하고 management 페이지를 리디렉션 한다.")
+    @Operation(summary = "사용자의 관리자 정보 수정",
+            description = "전달 받은 사용자의 id로 사용자를 조회한 후 사용자의 관리자 정보를 수정하고 management 페이지를 리디렉션 한다.")
     @PostMapping("members/management/admin")
     public String updateAdmin(@RequestParam Map<String, String> updateAdminList,
                               @ModelAttribute("memberTag") String memberTag) {
@@ -187,13 +193,13 @@ public class MemberController {
         return "redirect:/members/management?memberTag=" + memberTag;
     }
 
-    @Operation(summary = "사용자 정보 수정", description = "전달 받은 JoinMemberForm 객체를 통해 비밀번호를 검사하고 일치하지 않을 시 오류를 클라이언트로 전송하고, 비밀번호 일치시 해당 사용자의 정보를 수정 후 management페이지를 리디렉션 한다.")
+    @Operation(summary = "사용자 정보 수정",
+            description = "전달 받은 JoinMemberForm 객체를 통해 비밀번호를 검사하고 일치하지 않을 시 오류를 클라이언트로 전송하고, " +
+                          "비밀번호 일치시 해당 사용자의 정보를 수정 후 management페이지를 리디렉션 한다.")
     @PostMapping("members/management/memberSet")
     public String updateMember(@RequestParam("page") int page,
                                @Valid @ModelAttribute("memberUpdate") JoinMemberForm memberUpdate,
-                               BindingResult bindingResult,
-                               Model model) {
-
+                               BindingResult bindingResult, Model model) {
         // member객체 페이징 처리
         String searchName = "";
         int size = 10;
@@ -207,7 +213,6 @@ public class MemberController {
             log.info("members Form Error");
             return "members/management";
         }
-
         Member member = memberService.findOne(memberUpdate.getStringId());
         // 비밀번호가 일치 하지 않을 경우
         if (!passwordEncoder.matches(memberUpdate.getPw(), member.getPw())) {
@@ -215,12 +220,9 @@ public class MemberController {
             bindingResult.addError(new FieldError("joinMemberForm", "confirmPw", " ※ 비밀번호가 일치하지 않습니다."));
             return "members/management";
         }
-
         // 비밀번호가 일치하는 경우
         memberService.update(memberUpdate);
-
         model.addAttribute("memberTag", "memberSet");
-
         return "redirect:/members/management?memberTag=memberSet";
     }
 }

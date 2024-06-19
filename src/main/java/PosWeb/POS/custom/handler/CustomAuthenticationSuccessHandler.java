@@ -51,7 +51,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         if (savedRequest != null) {
             String targetUrl = savedRequest.getRedirectUrl();
             log.info(targetUrl);
-            response.addHeader("targetUrl", targetUrl);
+            // 프로젝트를 시작하면 오류가 생기는 경우를 대비하기 위함.
+            if (targetUrl.equals("http://localhost:8080/error?continue"))
+                response.addHeader("targetUrl", "http://localhost:8080/items");
+            else
+                response.addHeader("targetUrl", targetUrl);
         } else {
             // 로그인 성공 후 items 페이지 리디렉션
             String targetUrl = "/items";

@@ -45,22 +45,18 @@ public class ItemController {
                         @RequestParam(value = "category", defaultValue = "biskuit") String category,
                         HttpSession session,
                         Model model) {
-
+        // 현재 인가된 회원 객체를 불러온다.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute("admin", memberService.findOne(authentication.getName()).isAdmin());
         // 카테고리 가지고 오기
         Page<Category> categoryList = categoryService.findByCtgPaged(ctgPage, 3);
         model.addAttribute("categories", categoryList);
-
         // 카테고리 별 상품들을 Map에 담기(12개씩 페이징)
         Page<Item> paging = itemService.findByCtgItemsPaged(category, page, 12);
-
         // model에 저장
         model.addAttribute("categoryItems", paging);
-
         // 선택한 상품을 담을 CateItemForm을 List로 생성 후 session에 추가
         Map<Integer, CartItemForm> cart = new ConcurrentHashMap<>();
-
         // session에 "cart"가 존재 하지 않을 시 cart리스트 저장
         if (session.getAttribute("cart") == null) {
             int totalCount = 0;
@@ -72,7 +68,6 @@ public class ItemController {
             session.setAttribute("totalDiscount", totalDiscount);
             log.info("cart 세션 생성");
         }
-
         return "items/posweb";
     }
 
@@ -92,16 +87,13 @@ public class ItemController {
         int totalDiscount = (int) session.getAttribute("totalDiscount");
 
         CartItemForm cartItem = new CartItemForm(itemService.findById(id), orderPrice, quantity, discount);
-
         // 해당 상품에 cart 세션에 저장이 되어 있는지 확인
         Map<Integer, CartItemForm> cart = (ConcurrentHashMap) session.getAttribute("cart");
-
         if (cart.get(id) == null) {
             cart.put(id, cartItem);
         } else {
             cart.replace(id, cartItem);
         }
-
         // 받아온 카트 정보를 세션에 저장한다.
         session.setAttribute("cart", cart);
         session.setAttribute("totalCount", totalCount);
@@ -157,9 +149,7 @@ public class ItemController {
 
         // 수정 리스트의 담긴 상품을 session에서 수정
         for (Map<String, Object> item : cartItems) {
-            System.out.println((int) item.get("id"));
             CartItemForm cartListItem = cart.get((int) item.get("id"));
-            System.out.println(cartListItem);
             cartListItem.setOrderPrice((int) item.get("orderPrice"));
             cartListItem.setQuantity((int) item.get("quantity"));
             cartListItem.setDiscount((int) item.get("discount"));
@@ -170,16 +160,18 @@ public class ItemController {
         session.setAttribute("totalCount", totalCount);
         session.setAttribute("totalAmount", totalAmount);
         session.setAttribute("totalDiscount", totalDiscount);
-
         return "success";
     }
 
     // 상품 추가("items/store")
-    @Operation(summary = "상품 추가 Get", description = "상품 정보를 입력 받을 수 있도록 StoreItemForm 객체를 생성하여 클라이언트로 전송한다.")
+    @Operation(summary = "상품 추가 Get",
+            description = "상품 정보를 입력 받을 수 있도록 StoreItemForm 객체를 생성하여 클라이언트로 전송한다.")
     @GetMapping("items/store")
     public String storeItem(Model model){
-        model.addAttribute("categories", categoryService.getAllCategories());   // category의 select 태그에 사용
-        model.addAttribute("storeItemForm", new StoreItemForm());                   // store를 위한 빈 AddItemForm객체 사용
+        // category의 select 태그에 사용
+        model.addAttribute("categories", categoryService.getAllCategories());
+        // store를 위한 빈 AddItemForm객체 사용
+        model.addAttribute("storeItemForm", new StoreItemForm());
         return "items/storeItem";
     }
 
@@ -209,7 +201,9 @@ public class ItemController {
     }
 
     // 상품 입고("items/add")
-    @Operation(summary = "상품 갯수 추가 Get", description = "선택된 카테고리의 상품들을 페이징하고 입고할 상품의 정보를 담을 빈 AddItemForm 객체를 생성하여 클라이언트로 전송한다.")
+    @Operation(summary = "상품 갯수 추가 Get",
+            description = "선택된 카테고리의 상품들을 페이징하고 입고할 상품의 정보를 담을 " +
+                          "빈 AddItemForm 객체를 생성하여 클라이언트로 전송한다.")
     @GetMapping("items/add")
     public String addItem(@RequestParam(value = "page", defaultValue = "0") int page,
                           @RequestParam(value = "category", defaultValue = "biskuit")String category,
@@ -221,7 +215,7 @@ public class ItemController {
         Page<Item> paging = itemService.findByCtgItemsPaged(category, page, 10);
         model.addAttribute("items", paging);
 
-        // select의 value를 설정하기 위해 StoreItemForm의 category를 request로 set
+        // select의 value를 설정하기 위해 AddItemForm의 category를 request로 set
         AddItemForm AddItemForm = new AddItemForm();
         AddItemForm.setCategory(category);
 
@@ -232,7 +226,10 @@ public class ItemController {
     }
 
     // 상품 입고
-    @Operation(summary = "상품 입고 Post", description = "입력받은 상품의 정보에 대해 validation을 진행하고 오류가 있으면 해당 카테고리를 페이징처리하여 addItem페이지를 출력하고 오류가 없으면 해당 상품을 update하고 item페이지를 리다이렉션 한다.")
+    @Operation(summary = "상품 입고 Post",
+            description = "입력받은 상품의 정보에 대해 validation을 진행하고 오류가 있으면," +
+                          "해당 카테고리를 페이징처리하여 addItem페이지를 출력하고 오류가 없으면, " +
+                          "해당 상품을 update하고 item페이지를 리디렉션 한다.")
     @PostMapping("items/add")
     public String addItem(@ModelAttribute("categories") Category category,
                           @Valid @ModelAttribute("selectItem") AddItemForm addItemForm,

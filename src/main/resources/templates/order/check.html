@@ -358,11 +358,13 @@
     }
 
     function searchResult() {
-        var result = /*[[${searchResult}]]*/ [];
+        /*<![CDATA[*/
+        var result = [[${searchResult}]];
 
         if (!result) {
             alert("검색 실패!\n검색한 상품이 존재하지 않습니다.");
         }
+        /*]]>*/
     }
 
     searchResult();

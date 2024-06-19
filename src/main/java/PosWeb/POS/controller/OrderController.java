@@ -45,7 +45,9 @@ public class OrderController {
     private String impCode;
 
     // 상품 결제 페이지 이동
-    @Operation(summary = "주문 생성", description = "세션에 저장된 상품 정보들을 가지고와 order 객체를 생성하고 order 객체의 id와 impcode를 클라이언트로 전송한다.")
+    @Operation(summary = "주문 생성",
+            description = "세션에 저장된 상품 정보들을 가지고와 order 객체를 생성하고 " +
+                          "order 객체의 id와 impcode를 클라이언트로 전송한다.")
     @GetMapping("order")
     public String pay(HttpServletRequest servletRequest, Model model) {
 
@@ -67,7 +69,8 @@ public class OrderController {
         return "order/pay";
     }
 
-    @Operation(summary = "주문 저장", description = "결제 결과에 따라 주문을 삭제하고, 주문 정보를 update하고, items 페이지를 리디렉션 한다.")
+    @Operation(summary = "주문 저장",
+            description = "결제 결과에 따라 주문을 삭제하고, 주문 정보를 update하고, items 페이지를 리디렉션 한다.")
     @PostMapping("order")
     public String orderPay(@RequestParam("orderId") Long orderId,
                            @RequestParam("orderResult") String orderResult,
@@ -97,7 +100,8 @@ public class OrderController {
     }
 
     // 매출 확인
-    @Operation(summary = "매출 조회", description = "연, 월을 입력 받아 해당 기간동안의 주문을 조회를 하고 결과를 요약해 클라이언트로 전송한다.")
+    @Operation(summary = "매출 조회",
+            description = "연, 월을 입력 받아 해당 기간동안의 주문을 조회를 하고 결과를 요약해 클라이언트로 전송한다.")
     @GetMapping("order/amount")
     public String orderAmount(@RequestParam(value = "year", defaultValue = "-1") int year,
                               @RequestParam(value = "month", defaultValue = "-1") int month,
@@ -150,15 +154,15 @@ public class OrderController {
                              @RequestParam(value = "itemName", defaultValue = "") String itemName,
                              @RequestParam(value = "cancelOrderId", defaultValue = "") Long cancelOrderId,
                              Model model) {
-
         // 주문 리스트 생성
         List<OrderDto> orderList = new ArrayList<>();
-
         // 검색 실패 시 클라이언트에게 검색 실패를 알릴 변수
         boolean searchResult = true;
 
-        // 상품 이름에 대해 존재 유무 검사
-        if (itemName != null) {
+        // 빈 칸일 경우 itemName null로 설정
+        if (itemName.isEmpty()) {
+            itemName = null;
+        } else {    // 상품 이름에 대해 존재 유무 검사
             if (itemService.findOne(itemName) == null) {
                 // 상품이 존재 하지 않는다면 itemName을 null로 설정
                 itemName = null;
@@ -169,46 +173,17 @@ public class OrderController {
 
         // 지연 로딩을 해결하기 위해 fetch 조인으로 모든 주문 내역 조회
         orderList = orderService.findOrdersWithFetch(startDate, endDate, itemName);
-
         model.addAttribute("orderList", orderList);
         model.addAttribute("searchResult", searchResult);
-
         // 결제 취소를 완료 한 경우 해당 주문 상태가 바뀐 것을 보여주기 위해서
         model.addAttribute("cancelOrderId", cancelOrderId);
-
         return "order/check";
     }
 
-    @Operation(summary = "주문 조회 정보를 확인", description = "조회한 주문의 정보를 확인하기 위한 Rest API")
-    @GetMapping("order/checks")
-    @ResponseBody
-    public List<OrderDto> orderCheck(@RequestParam(value = "startDate", defaultValue = "") LocalDate startDate,
-                                     @RequestParam(value = "endDate", defaultValue="") LocalDate endDate,
-                                     @RequestParam(value = "itemName", defaultValue = "") String itemName) {
-        // 주문 리스트 생성
-        List<OrderDto> orderList = new ArrayList<>();
-
-        // 검색 실패 시 클라이언트에게 검색 실패를 알릴 변수
-        boolean searchResult = true;
-
-        // 상품 이름에 대해 존재 유무 검사
-        if (itemName != null) {
-            if (itemService.findOne(itemName) == null) {
-                // 상품이 존재 하지 않는다면 itemName을 null로 설정
-                itemName = null;
-                // 검색 결과를 false로 설정
-                searchResult = false;
-            }
-        }
-
-        // 지연 로딩을 해결하기 위해 fetch 조인으로 모든 주문 내역 조회
-        orderList = orderService.findOrdersWithFetch(startDate, endDate, itemName);
-
-        return orderList;
-    }
-
     // 주문 결제 취소
-    @Operation(summary = "결제 취소", description = "입력받은 주문 번호에 대해 주문을 조회하고 결제 상태를 update 한다. 결제 방식이 카드일 경우 iamport 서버에서 인가 토큰을 받고 결제 취소를 진행한다.")
+    @Operation(summary = "결제 취소",
+            description = "입력받은 주문 번호에 대해 주문을 조회하고 결제 상태를 update 한다. " +
+                          "결제 방식이 카드일 경우 iamport 서버에서 인가 토큰을 받고 결제 취소를 진행한다.")
     @PostMapping("order/cancel")
     public String orderCancel(@RequestParam("cancelOrderId") Long cancelOrderId) throws IOException {
         
