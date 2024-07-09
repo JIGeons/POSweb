@@ -115,6 +115,7 @@ public class MemberController {
         } catch (IllegalStateException e) {
             isAvailable = false;
         }
+
         response.put("available", isAvailable);
         return response;
     }

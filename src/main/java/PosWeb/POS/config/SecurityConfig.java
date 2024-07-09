@@ -67,7 +67,7 @@ public class SecurityConfig {
                 .requestMatchers("/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**")
                         .permitAll()
                 // 로그인 없이 접근 가능
-                .requestMatchers("/", "/members/login", "/members/join").permitAll()
+                .requestMatchers("/", "/members/login", "/members/join/**").permitAll()
                 .requestMatchers("/members/management", "items/store", "items/delete").hasRole("ADMIN") // ADMIN일 경우에만 접근 가능
                 // 나머지 요청은 인증 필요
                 .anyRequest().authenticated()

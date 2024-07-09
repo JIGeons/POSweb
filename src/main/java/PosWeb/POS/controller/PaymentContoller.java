@@ -25,7 +25,6 @@ public class PaymentContoller {
     private final ImpProperties impProperties;
 
     private IamportClient iamportClient;
-
     private String apiKey;
     private String secretKey;
 
