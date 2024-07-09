@@ -80,7 +80,7 @@ public class ItemService {
     @Transactional
     public void addItem(AddItemForm AddItemForm) {
         Item findItem = itemRepository.findOne(AddItemForm.getId());
-        findItem.setStockQuantity(AddItemForm.getStockQuantity());
+        findItem.setStockQuantity(findItem.getStockQuantity() + AddItemForm.getStockQuantity());
     }
 
     // 카테고리 검사 만약 카테고리가 없으면 생성
